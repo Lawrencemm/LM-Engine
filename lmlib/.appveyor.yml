@@ -1,0 +1,32 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform: x64
+clone_folder: c:\lmlib
+environment:
+  PYTHON: "C:\\Python37"
+  PATH: "%PYTHON%;%PYTHON%/scripts;%PATH%"
+
+install:
+  - where pip
+  - pip install conan
+  - where conan
+
+before_build:
+  - mkdir build
+  - conan config install ./conan/common
+  - conan install . -if build --build=missing
+  - cd build
+  - cmake .. -G "Visual Studio 15 2017 Win64"
+
+build:
+  project: c:\lmlib\build\lmlib.sln
+  parallel: true
+  verbosity: minimal
+
+after_build:
+  - .\Release\test_lmlib.exe
+
+branches:
+  only:
+  - master

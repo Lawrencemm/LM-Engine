@@ -1,0 +1,3 @@
+bintray-catchorg-catch2 https://api.bintray.com/conan/catchorg/Catch2 True
+conan-center https://api.bintray.com/conan/conan/conan-center True
+lm https://api.bintray.com/conan/lawrencem99/lm True

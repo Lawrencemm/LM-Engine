@@ -1,0 +1,23 @@
+editables:
+  lmlib/0.0.1:
+    path: lmlib
+  lmengine/0.0.1:
+    path: lmengine
+  lmeditor/0.0.1:
+    path: lmeditor
+  lmgl/0.0.1:
+    path: lmgl
+  lmtk/0.0.1:
+    path: lmtk
+  lmpl/0.0.1:
+    path: lmpl
+  sample/0.0.1:
+    path: sample
+  lmhuv/0.0.1:
+    path: lmhuv
+
+root:
+  - lmeditor/0.0.1
+  - sample/0.0.1
+workspace_generator: cmake
+layout: layout_cmake

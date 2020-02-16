@@ -1,0 +1,10 @@
+macro(exe_properties name)
+  if (WIN32)
+    if (MSVC)
+      set(CMAKE_EXE_LINKER_FLAGS
+          "${CMAKE_EXE_LINKER_FLAGS} /subsystem:windows /entry:mainCRTStartup")
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+    endif ()
+  endif ()
+endmacro()

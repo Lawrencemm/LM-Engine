@@ -1,0 +1,12 @@
+#version 440
+
+layout(binding = 0) uniform uniform_buffer {
+    float xscale, yscale;
+    vec4 colour;
+};
+
+layout(location = 0) out vec4 out_colour;
+
+void main() {
+    out_colour = colour;
+}

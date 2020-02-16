@@ -1,0 +1,291 @@
+cmake_minimum_required(VERSION 3.8)
+
+project(lmpl)
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_MODULE_PATH})
+
+find_package(Catch2 REQUIRED)
+find_package(fmt REQUIRED)
+find_package(lmlib REQUIRED)
+find_package(scope_guard REQUIRED)
+
+if (UNIX)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
+endif ()
+
+set(CMAKE_CXX_STANDARD 17)
+
+if (MSVC)
+  set(
+    COMPILER_DEFINITIONS
+
+    _USE_MATH_DEFINES NOMINMAX
+  )
+  set(
+    COMPILER_INTERFACE_OPTIONS
+
+    /wd4250 /wd4008 /wd4996
+  )
+elseif(MINGW)
+  set(
+    COMPILER_DEFINITIONS
+
+    _WIN32_WINNT=0x0602
+  )
+endif ()
+
+if (WIN32)
+  set(
+    PLATFORM_SOURCES
+
+    src/windows/windows_error.cpp
+    src/windows/windows_message_to_string.cpp
+    src/windows/misc.cpp
+    src/windows/xinput.cpp
+    src/windows/windows_display.cpp
+    src/windows/create_display.cpp
+    src/windows/windows_window.cpp
+  )
+
+  set(
+    PLATFORM_LIBS
+
+    kernel32.lib user32.lib gdi32.lib
+    winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib
+    oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+  )
+
+  set(
+    PLATFORM_DEFINITIONS
+
+    UNICODE _UNICODE
+    VK_USE_PLATFORM_WIN32_KHR
+    _AMD64_=100 _M_X64=100 _WIN64=1 _WIN32=1
+  )
+elseif (UNIX)
+  set(
+    PLATFORM_SOURCES
+
+    src/linux/create_display.cpp
+    src/linux/xcb/xcb_display.cpp
+    src/linux/wayland/wayland.cpp
+    src/linux/xcb/xcb_window.cpp
+  )
+
+  set(
+    XCB_LIBS
+
+    xcb
+    xcb-util
+    xcb-randr
+  )
+
+  set(
+    LINUX_DISPLAY_LIBS
+
+    ${XCB_LIBS}
+    wayland-client
+  )
+
+  set(
+    PLATFORM_LIBS
+
+    ${LINUX_DISPLAY_LIBS}
+    ${GTKMM_LIBRARIES}
+  )
+
+  set(
+    PLATFORM_LINK_DIRS
+
+    ${GTKMM_LIBRARY_DIRS}
+  )
+
+  set(
+    PLATFORM_DEFINITIONS
+
+    VK_USE_PLATFORM_XCB_KHR
+    VK_USE_PLATFORM_WAYLAND_KHR
+  )
+  set(
+    PLATFORM_INCLUDES
+
+    ${GTKMM_INCLUDE_DIRS}
+  )
+endif()
+
+set(
+  SOURCES
+
+  ${PLATFORM_SOURCES}
+)
+
+set(
+  INCLUDE_DIRS
+
+  include
+  ${fmt_INCLUDE_DIRS}
+  ${PLATFORM_INCLUDES}
+  ${scope_guard_INCLUDES}
+  ${lmlib_INCLUDES}
+)
+
+set(
+  LIBS
+
+  ${PLATFORM_LIBS}
+
+  ${fmt_LIBRARIES}
+  ${TBB_LIBRARIES}
+  lmlib::lmlib
+)
+
+set(
+  DEFINITIONS
+
+  ${PLATFORM_DEFINITIONS}
+  ${COMPILER_DEFINITIONS}
+  VK_PROTOTYPES
+  "-DFMT_NO_FMT_STRING_ALIAS=0"
+)
+
+set(
+  INTERFACE_DEFINITIONS
+
+  ${COMPILER_INTERFACE_DEFINITIONS}
+)
+
+set(
+  OPTIONS
+
+  ${COMPILER_OPTIONS}
+)
+
+set(
+  INTERFACE_OPTIONS
+
+  ${COMPILER_INTERFACE_OPTIONS}
+)
+
+add_library(
+  lmpl
+  SHARED
+
+  ${SOURCES}
+  src/keyboard.cpp
+)
+
+target_include_directories(
+  lmpl
+
+  PUBLIC
+  ${INCLUDE_DIRS}
+
+  PRIVATE
+  ${lmlib_INCLUDES}
+  ${scope_guard_INCLUDES}
+)
+
+target_compile_definitions(
+  lmpl
+
+  PUBLIC
+  ${DEFINITIONS}
+
+  INTERFACE
+  ${INTERFACE_DEFINITIONS}
+)
+
+target_compile_options(
+  lmpl
+
+  PUBLIC
+  ${OPTIONS}
+
+  INTERFACE
+  ${INTERFACE_OPTIONS}
+)
+
+target_link_libraries(
+  lmpl
+  PRIVATE
+  ${LIBS}
+  PUBLIC
+)
+
+target_link_directories(
+  lmpl
+  PRIVATE
+
+  ${PLATFORM_LINK_DIRS}
+)
+target_include_directories(
+  lmpl
+
+  PUBLIC
+  ${INCLUDE_DIRS}
+  include
+)
+
+install(
+  TARGETS lmpl
+  LIBRARY DESTINATION bin
+  RUNTIME DESTINATION bin
+)
+
+# Testing
+add_library(
+  mock_lmpl
+
+  src/mock_lmpl.cpp
+)
+
+target_link_libraries(
+  mock_lmpl
+
+  ${TBB_LIBRARIES}
+)
+
+target_include_directories(
+  mock_lmpl
+
+  PUBLIC
+  include
+  ${INCLUDE_DIRS}
+)
+
+add_executable(
+  test_lmpl
+
+  ${SOURCES}
+  src/test_lmpl.cpp
+)
+
+target_include_directories(
+  test_lmpl
+
+  PRIVATE
+  ${Catch2_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+  test_lmpl
+
+  mock_lmpl
+  ${fmt_LIBRARIES}
+)
+
+# Following not to be added to CTest list, just utilities to test with system libraries.
+if(UNIX)
+  add_executable(
+    test_lmpl_xcb_real
+
+    ${SOURCES}
+    src/linux/xcb/test_xcb.cpp
+  )
+  target_link_libraries(
+    test_lmpl_xcb_real
+
+    ${XCB_LIBS}
+  )
+endif()

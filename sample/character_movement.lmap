@@ -1,0 +1,108 @@
+Character:
+  Transform:
+    Rotation: 0 0.707107 0 0.707107
+    Position: -8.5 1.1 0
+  Box Collider:
+    Extents: 0.48 1 0.37
+  Character Controller: ~
+  Character Input:
+    Radians per dot: 0.0023
+  Character Skeleton:
+    Arm swing height: 0.65
+    Arm swing speed: 0.5
+    Right Shoulder: Right Shoulder
+    Left Shoulder: Left Shoulder
+Ground:
+  Transform:
+    Rotation: 0 0 0 1
+    Position: 0 0 0
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 10 0.1 10
+  Box Collider:
+    Extents: 10 0.1 10
+  Rigid Body:
+    Friction: 1
+    Restitution: 1
+    Mass: 0
+Head:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 0.74 0
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.250001 0.250001 0.250001
+  Transform Parent:
+    Entity: Character
+Neck:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 0.37 0
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.170001 0.120001 0.140001
+  Transform Parent:
+    Entity: Character
+Body:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 -0.02 0
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.363078 0.258327 0.354377
+  Transform Parent:
+    Entity: Character
+Right Leg:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0.214377 -0.611723 2.98023e-08
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.341721 0.124377
+  Transform Parent:
+    Entity: Character
+Left Leg:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: -0.218753 -0.611723 -2.98023e-08
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.341721 0.124377
+  Transform Parent:
+    Entity: Character
+Right Shoulder:
+  Transform:
+    Rotation: 0.707107 0 0 0.707107
+    Position: 0.474377 0.179998 5.40167e-08
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.131721 0.124377
+  Transform Parent:
+    Entity: Character
+Left Shoulder:
+  Transform:
+    Rotation: 0.707107 0 0 0.707107
+    Position: -0.486261 0.179998 0.0287547
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.131721 0.124377
+  Transform Parent:
+    Entity: Character
+Right Arm:
+  Transform:
+    Rotation: 0 0 0 1
+    Position: 0 0 0.288279
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.124377 0.341721
+  Transform Parent:
+    Entity: Right Shoulder
+Left Arm:
+  Transform:
+    Rotation: 0 0 0 1
+    Position: 0 0 0.288279
+  Box Render:
+    Colour: 0.5 0.5 0.5
+    Extents: 0.153078 0.124377 0.341721
+  Transform Parent:
+    Entity: Left Shoulder

@@ -1,0 +1,6 @@
+cmake-build*
+.idea
+/.vs/
+.python-env
+.conan
+conanws.yml

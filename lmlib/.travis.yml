@@ -1,0 +1,7 @@
+services: docker
+
+script: ./local_ci.py
+
+branches:
+  only:
+    - master

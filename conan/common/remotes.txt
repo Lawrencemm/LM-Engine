@@ -1,0 +1,7 @@
+bintray-catchorg-catch2 https://api.bintray.com/conan/catchorg/Catch2 True
+conan-center https://api.bintray.com/conan/conan/conan-center True
+lm https://api.bintray.com/conan/lawrencem99/lm True
+skypjack https://api.bintray.com/conan/skypjack/conan True
+bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+rhololkeolke https://api.bintray.com/conan/rhololkeolke/public-conan
+neargye https://api.bintray.com/conan/neargye/conan-packages

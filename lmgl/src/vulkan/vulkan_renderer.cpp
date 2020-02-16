@@ -59,7 +59,6 @@ std::vector<const char *> vulkan_renderer::getInstanceLayers() const
     std::vector<const char *> enabledLayers;
 #if !defined(NDEBUG)
     enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-    enabledLayers.push_back("VK_LAYER_LUNARG_core_validation");
     // enabledLayers.push_back("VK_LAYER_LUNARG_api_dump");
 #endif
     return enabledLayers;

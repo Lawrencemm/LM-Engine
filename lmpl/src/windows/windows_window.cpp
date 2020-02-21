@@ -170,7 +170,7 @@ LONG_PTR CALLBACK windows_window::WndProc(
 
     case WM_KEYUP:
         me.send_message(
-          key_down_message{&me, (key_code)WIN_NATIVE_TO_HID[wparam]});
+          key_up_message{&me, (key_code)WIN_NATIVE_TO_HID[wparam]});
         break;
 
     case WM_LBUTTONDOWN:

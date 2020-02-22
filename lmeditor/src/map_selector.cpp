@@ -53,8 +53,10 @@ map_selector::map_selector(map_selector_init const &init)
       selection_background{
         *init.renderer,
         init.rect_material,
-        entries[selected_map].position,
-        entries[selected_map].get_size(),
+        file_paths.size() > 0 ? entries[selected_map].position
+                              : lm::point2i{0, 0},
+        file_paths.size() > 0 ? entries[selected_map].get_size()
+                              : lm::size2i{0, 0},
         {0.f, 0.f, 0.f, 1.f},
       }
 {
@@ -97,9 +99,12 @@ bool map_selector::handle(
 
 lmtk::iwidget &map_selector::add_to_frame(lmgl::iframe *frame)
 {
-    selection_background.set_rect(
-      entries[selected_map].position, entries[selected_map].get_size());
-    selection_background.add_to_frame(frame);
+    if (file_paths.size() > 0)
+    {
+        selection_background.set_rect(
+          entries[selected_map].position, entries[selected_map].get_size());
+        selection_background.add_to_frame(frame);
+    }
     for (auto &layout : entries)
     {
         layout.render(frame);

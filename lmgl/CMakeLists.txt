@@ -112,6 +112,7 @@ target_include_directories(
 
   PRIVATE
   ${Catch2_INCLUDE_DIRS}
+  ${Vulkan_INCLUDE_DIRS}
 )
 
 target_link_libraries(

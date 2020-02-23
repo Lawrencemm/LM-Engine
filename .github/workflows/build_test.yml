@@ -25,7 +25,9 @@ jobs:
           pkg-config
           libgtkmm-3.0-dev
       - name: Get Conan
-        run: pip install conan
+        run: pip install conan &&
+          conan profile new default --detect &&
+          conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Add remotes to Conan
         run: conan config install conan/config/common
       - name: Run init script

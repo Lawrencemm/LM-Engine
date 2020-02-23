@@ -117,9 +117,10 @@ file(GLOB_RECURSE GLSL_SOURCE_FILES "src/shaders/*")
 foreach (FILE ${GLSL_SOURCE_FILES})
   file(RELATIVE_PATH FILE_NAME "${PROJECT_SOURCE_DIR}/src/shaders" "${FILE}")
   set(SPIRV "${PROJECT_BINARY_DIR}/shaders/${FILE_NAME}.spv")
+  get_filename_component(SPIRV_DIR "${SPIRV}" DIRECTORY)
   add_custom_command(
     OUTPUT ${SPIRV}
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/shaders/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${SPIRV_DIR}"
     COMMAND glslangValidator -V ${FILE} -o ${SPIRV}
     DEPENDS ${FILE}
   )

@@ -1,0 +1,41 @@
+name: Build and test
+
+on: [push, pull_request]
+
+jobs:
+
+  linux:
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - name: Get system dependencies
+        run: sudo apt-get update && sudo apt-get install -y
+          libwayland-dev
+          libx11-xcb-dev
+          libxcb-randr0-dev
+          libxcb-util0-dev
+          pkg-config
+          libgtkmm-3.0-dev
+      - name: Get Conan
+        run: pip install conan
+      - name: Add remotes to Conan
+        run: conan config install conan/config/common
+      - name: Run init script
+        run: ./init.py
+      - name: Conan install
+        run: mkdir build && conan workspace install . -if build --build missing
+      - name: Configure
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+      - name: Build
+        run: cmake --build build -j $(nproc --all)
+      - name: Test
+        working-directory: build
+        run: ./test_lmeditor && ./test_lmengine

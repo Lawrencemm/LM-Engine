@@ -233,27 +233,6 @@ install(
   RUNTIME DESTINATION bin
 )
 
-# Testing
-add_library(
-  mock_lmpl
-
-  src/mock_lmpl.cpp
-)
-
-target_link_libraries(
-  mock_lmpl
-
-  ${TBB_LIBRARIES}
-)
-
-target_include_directories(
-  mock_lmpl
-
-  PUBLIC
-  include
-  ${INCLUDE_DIRS}
-)
-
 add_executable(
   test_lmpl
 
@@ -266,13 +245,6 @@ target_include_directories(
 
   PRIVATE
   ${Catch2_INCLUDE_DIRS}
-)
-
-target_link_libraries(
-  test_lmpl
-
-  mock_lmpl
-  ${fmt_LIBRARIES}
 )
 
 # Following not to be added to CTest list, just utilities to test with system libraries.

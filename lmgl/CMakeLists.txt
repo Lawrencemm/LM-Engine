@@ -103,7 +103,6 @@ install(
 add_executable(
   test_lmgl
 
-  src/vulkan/test/test_vulkan.cpp
   src/vulkan/test/mock_vulkan_api.cpp
   src/test_lmgl.cpp
 )
@@ -126,7 +125,6 @@ target_link_libraries(
 add_executable(
   test_lmgl_vulkan_real
 
-  src/vulkan/test/test_vulkan_api.cpp
   src/vulkan/test/test_vulkan_api_main.cpp
   src/vulkan/vulkan_debug_report_ext.cpp
 )

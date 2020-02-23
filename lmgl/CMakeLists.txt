@@ -120,26 +120,3 @@ target_link_libraries(
   mock_lmgl
   ${fmt_LIBRARIES}
 )
-
-
-add_executable(
-  test_lmgl_vulkan_real
-
-  src/vulkan/test/test_vulkan_api_main.cpp
-  src/vulkan/vulkan_debug_report_ext.cpp
-)
-target_link_libraries(
-  test_lmgl_vulkan_real
-
-  lmgl_base
-  Vulkan::Vulkan
-  Catch2::Catch2
-  fmt::fmt
-)
-if(UNIX)
-  target_link_libraries(
-    test_lmgl_vulkan_real
-
-    ${LINUX_DISPLAY_LIBS}
-  )
-endif()

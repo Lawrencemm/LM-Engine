@@ -232,32 +232,3 @@ install(
   LIBRARY DESTINATION bin
   RUNTIME DESTINATION bin
 )
-
-add_executable(
-  test_lmpl
-
-  ${SOURCES}
-  src/test_lmpl.cpp
-)
-
-target_include_directories(
-  test_lmpl
-
-  PRIVATE
-  ${Catch2_INCLUDE_DIRS}
-)
-
-# Following not to be added to CTest list, just utilities to test with system libraries.
-if(UNIX)
-  add_executable(
-    test_lmpl_xcb_real
-
-    ${SOURCES}
-    src/linux/xcb/test_xcb.cpp
-  )
-  target_link_libraries(
-    test_lmpl_xcb_real
-
-    ${XCB_LIBS}
-  )
-endif()

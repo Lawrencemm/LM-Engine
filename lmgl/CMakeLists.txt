@@ -117,6 +117,5 @@ target_include_directories(
 target_link_libraries(
   test_lmgl
 
-  mock_lmgl
   ${fmt_LIBRARIES}
 )

@@ -27,14 +27,21 @@ jobs:
       - name: Get Conan
         run: pip install conan &&
           conan profile new default --detect &&
-          conan profile update settings.compiler.libcxx=libstdc++11 default
+          conan profile update settings.compiler.libcxx=libstdc++11 default &&
+          conan profile update settings.compiler.version=8 default
       - name: Add remotes to Conan
         run: conan config install conan/config/common
       - name: Run init script
         run: ./init.py
       - name: Conan install
+        env:
+          CC: gcc-8
+          CXX: g++-8
         run: mkdir build && conan workspace install . -if build --build missing
       - name: Configure
+        env:
+          CC: gcc-8
+          CXX: g++-8
         run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
       - name: Build
         run: cmake --build build -j $(nproc --all)

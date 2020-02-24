@@ -47,4 +47,4 @@ jobs:
         run: cmake --build build -j $(nproc --all)
       - name: Test
         working-directory: build
-        run: ./test_lmeditor && ./test_lmengine
+        run: ctest

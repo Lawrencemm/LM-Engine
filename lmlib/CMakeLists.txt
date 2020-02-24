@@ -166,3 +166,5 @@ target_link_libraries(
 
   lmlib
 )
+
+add_test(NAME lmlib COMMAND test_lmlib)

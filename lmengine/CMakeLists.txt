@@ -63,6 +63,8 @@ target_link_libraries(
   lmengine
 )
 
+add_test(NAME lmengine COMMAND test_lmengine)
+
 if(MINGW)
   target_compile_options(lmengine PRIVATE "-Wa,-mbig-obj")
 endif()

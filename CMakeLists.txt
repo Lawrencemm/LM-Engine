@@ -13,4 +13,6 @@ if (MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif ()
 
+enable_testing()
+
 conan_workspace_subdirectories()

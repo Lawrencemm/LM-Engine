@@ -169,3 +169,5 @@ target_link_libraries(
   ${OpenMesn_LIBRARIES}
   Catch2::Catch2
 )
+
+add_test(NAME lmeditor COMMAND test_lmeditor)

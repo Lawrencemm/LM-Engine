@@ -107,7 +107,7 @@ void clone(
 }
 
 template <>
-void lmng::stream_data_out(
+void stream_data_out(
   std::ostream &stream,
   Eigen::Vector3f const &data,
   entt::registry const *)
@@ -116,7 +116,7 @@ void lmng::stream_data_out(
 }
 
 template <>
-void lmng::stream_data_in(
+void stream_data_in(
   std::istream &stream,
   Eigen::Vector3f &data,
   entt::registry const *)
@@ -125,7 +125,7 @@ void lmng::stream_data_in(
 }
 
 template <>
-void lmng::stream_data_out(
+void stream_data_out(
   std::ostream &stream,
   Eigen::Quaternionf const &data,
   entt::registry const *)
@@ -135,7 +135,7 @@ void lmng::stream_data_out(
 }
 
 template <>
-void lmng::stream_data_in(
+void stream_data_in(
   std::istream &stream,
   Eigen::Quaternionf &data,
   entt::registry const *)

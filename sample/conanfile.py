@@ -12,7 +12,7 @@ class SampleConan(ConanFile):
         "lmeditor/0.0.1",
         "lmtk/0.0.1",
         "lmhuv/0.0.1",
-        'boost/1.70.0@conan/stable',
+        'boost/1.70.0',
     )
     build_requires = (
         'Catch2/2.6.1@catchorg/stable',

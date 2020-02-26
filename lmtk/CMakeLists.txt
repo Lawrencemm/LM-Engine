@@ -12,9 +12,9 @@ find_package(lmgl REQUIRED)
 find_package(lmlib REQUIRED)
 find_package(lmpl REQUIRED)
 find_package(embed-resource REQUIRED)
-find_package(freetype REQUIRED)
+find_package(Freetype REQUIRED)
 find_package(scope_guard REQUIRED)
-find_package(boost REQUIRED)
+find_package(Boost REQUIRED)
 find_package(readerwriterqueue REQUIRED)
 
 add_executable(embed-resource IMPORTED)
@@ -74,10 +74,10 @@ target_link_libraries(
   lmpl::lmpl
   lmlib::lmlib
   embed-resource::embed-resource
-  freetype::freetype
+  Freetype::Freetype
   ${PLATFORM_LIBRARIES}
   scope_guard::scope_guard
-  boost::boost
+  Boost::Boost
   readerwriterqueue::readerwriterqueue
 )
 

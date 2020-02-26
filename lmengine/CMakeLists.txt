@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 find_package(lmlib REQUIRED)
 find_package(cereal REQUIRED)
 find_package(entt REQUIRED)
-find_package(bullet3 REQUIRED)
+find_package(Bullet REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Catch2 REQUIRED)
 
@@ -42,7 +42,7 @@ target_link_libraries(
   lmlib::lmlib
   cereal::cereal
   entt::entt
-  bullet3::bullet3
+  Bullet::Bullet
   yaml-cpp::yaml-cpp
 )
 
@@ -62,6 +62,8 @@ target_link_libraries(
   Catch2::Catch2
   lmengine
 )
+
+add_test(NAME lmengine COMMAND test_lmengine)
 
 if(MINGW)
   target_compile_options(lmengine PRIVATE "-Wa,-mbig-obj")

@@ -152,12 +152,12 @@ void map_editor_model::translate(
 
 std::vector<command_description> map_editor_model::get_command_descriptions()
 {
-    return state >> lm::variant_visitor{[](auto &state) {
+    return state >> lm::variant_visitor{[this](auto &state_alternative) {
                return get_command_descriptions(
-                 state.commands,
-                 std::string{state.label}.empty()
+                 state_alternative.commands,
+                 std::string{state_alternative.label}.empty()
                    ? "Map Editor"
-                   : std::string{"Map Editor -> "} + state.label);
+                   : std::string{"Map Editor -> "} + state_alternative.label);
            }};
 }
 

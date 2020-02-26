@@ -1,0 +1,50 @@
+name: Build and test
+
+on: push
+
+jobs:
+
+  linux:
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - name: Get system dependencies
+        run: sudo apt-get update && sudo apt-get install -y
+          libwayland-dev
+          libx11-xcb-dev
+          libxcb-randr0-dev
+          libxcb-util0-dev
+          pkg-config
+          libgtkmm-3.0-dev
+      - name: Get Conan
+        run: pip install conan &&
+          conan profile new default --detect &&
+          conan profile update settings.compiler.libcxx=libstdc++11 default &&
+          conan profile update settings.compiler.version=8 default
+      - name: Add remotes to Conan
+        run: conan config install conan/config/common
+      - name: Run init script
+        run: ./init.py
+      - name: Conan install
+        env:
+          CC: gcc-8
+          CXX: g++-8
+        run: mkdir build && conan workspace install . -if build --build missing
+      - name: Configure
+        env:
+          CC: gcc-8
+          CXX: g++-8
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+      - name: Build
+        run: cmake --build build -j $(nproc --all)
+      - name: Test
+        working-directory: build
+        run: ctest

@@ -9,7 +9,7 @@ find_package(lmengine REQUIRED)
 find_package(lmeditor REQUIRED)
 find_package(lmtk REQUIRED)
 find_package(lmhuv REQUIRED)
-find_package(boost REQUIRED COMPONENTS dll)
+find_package(Boost REQUIRED COMPONENTS dll)
 find_package(Catch2 REQUIRED)
 
 
@@ -49,7 +49,7 @@ target_link_libraries(
 
   lmeditor::lmeditor
   sample_interface
-  boost::boost
+  Boost::Boost
 )
 target_include_directories(
   sample_editor_plugin

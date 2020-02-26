@@ -26,7 +26,7 @@ class LmeditorConan(ConanFile):
         'fmt/5.3.0@bincrafters/stable',
         'yaml-cpp/0.6.2@bincrafters/stable',
         'clara/1.1.5@bincrafters/stable',
-        'boost/1.70.0@conan/stable',
+        'boost/1.70.0',
     )
 
     def imports(self):

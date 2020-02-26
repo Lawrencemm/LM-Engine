@@ -125,6 +125,7 @@ add_library(
 target_link_libraries(
   lmlib
 
+  PUBLIC
   ${LIBS}
 )
 
@@ -149,8 +150,6 @@ install(
 add_executable(
   test_lmlib
 
-  $<TARGET_OBJECTS:lmlib_base>
-  src/util/test_util.cpp
   src/test/test_lmlib.cpp
   src/geometry/test_geometry.cpp
 )
@@ -165,5 +164,7 @@ target_include_directories(
 target_link_libraries(
   test_lmlib
 
-  ${fmt_LIBRARIES}
+  lmlib
 )
+
+add_test(NAME lmlib COMMAND test_lmlib)

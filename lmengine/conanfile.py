@@ -10,7 +10,7 @@ class LmengineConan(ConanFile):
         'lmlib/0.0.1',
         'cereal/1.2.2@conan/stable',
         'entt/3.2.0@skypjack/stable',
-        'bullet3/2.87@bincrafters/stable',
+        'bullet3/2.89',
         'yaml-cpp/0.6.2@bincrafters/stable',
     )
     build_requires = (

@@ -24,7 +24,7 @@ add_executable(embed-resource IMPORTED)
 set_target_properties(embed-resource PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/embed-resource)
 find_package(yaml-cpp REQUIRED)
 find_package(clara REQUIRED)
-find_package(boost REQUIRED COMPONENTS dll)
+find_package(Boost REQUIRED COMPONENTS dll)
 
 include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
 
@@ -93,7 +93,7 @@ target_link_libraries(
   readerwriterqueue::readerwriterqueue
   yaml-cpp::yaml-cpp
   clara::clara
-  boost::boost
+  Boost::Boost
 )
 
 if (UNIX)

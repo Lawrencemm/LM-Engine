@@ -56,8 +56,16 @@ bool gui_state::handle_input_event(state_handle_args const &args)
                     args.app.state = args.app.create_simulation_select_state();
                     return true;
                 }
-                args.app.state = args.app.create_player_state();
-                return true;
+                return false;
+
+            case lmpl::key_code::R:
+                if (key_down_event.input_state.key_state.control())
+                {
+
+                    args.app.state = args.app.create_player_state();
+                    return true;
+                }
+                return false;
 
             case lmpl::key_code::L:
                 if (key_down_event.input_state.key_state.control())

@@ -51,12 +51,11 @@ inspector::add_state inspector::create_add_state()
         height += 32;
     });
 
-    auto state = add_state{
+    return add_state{
       .background = std::move(background),
       .title_line = std::move(title_line),
       .entries = std::move(entries),
     };
-    return std::move(state);
 }
 
 void inspector::add_state::render(lmgl::iframe *frame)
@@ -85,11 +84,11 @@ bool inspector::add_state::handle(state_handle_args const &args)
                        args.inspector, 1, args.resource_sink);
 
                  case lmpl::key_code::Enter:
-                     args.event_handler(
-                       inspector_added_component{selection().type});
                      move_resources(
                        &args.inspector.renderer, args.resource_sink);
                      args.inspector.state = select_state{};
+                     args.event_handler(
+                       inspector_added_component{selection().type});
                      return true;
 
                  default:

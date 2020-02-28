@@ -18,7 +18,7 @@ inline std::string get_name(entt::registry const &registry, entt::entity entity)
     auto name_component = registry.try_get<name>(entity);
 
     return name_component ? name_component->string
-                          : std::to_string(to_integer(entity));
+                          : std::to_string(to_integral(entity));
 }
 
 entt::entity

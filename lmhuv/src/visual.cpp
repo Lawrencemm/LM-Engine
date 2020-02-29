@@ -250,29 +250,29 @@ visual_view_connections::visual_view_connections(
 }
 
 void visual_view_connections::add_box(
-  entt::entity entity,
-  entt::registry &registry)
+  entt::registry &registry,
+  entt::entity entity)
 {
     visual_view.add_box(&renderer, entity);
 }
 
 void visual_view_connections::remove_box(
-  entt::entity entity,
-  entt::registry &registry)
+  entt::registry &registry,
+  entt::entity entity)
 {
     visual_view.destroy_box(&renderer, entity, resource_sink);
 }
 
 void visual_view_connections::add_box_collider(
-  entt::entity entity,
-  entt::registry &registry)
+  entt::registry &registry,
+  entt::entity entity)
 {
     visual_view.add_box_wireframe(&renderer, entity);
 }
 
 void visual_view_connections::remove_box_collider(
-  entt::entity entity,
-  entt::registry &registry)
+  entt::registry &registry,
+  entt::entity entity)
 {
     visual_view.destroy_box_wireframe(&renderer, entity, resource_sink);
 }

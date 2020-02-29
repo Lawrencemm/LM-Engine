@@ -31,11 +31,11 @@ struct visual_view_connections
       lmgl::irenderer &renderer,
       lmtk::resource_sink &resource_sink);
 
-    void add_box(entt::entity entity, entt::registry &registry);
-    void remove_box(entt::entity entity, entt::registry &registry);
+    void add_box(entt::registry &registry, entt::entity entity);
+    void remove_box(entt::registry &registry, entt::entity entity);
 
-    void add_box_collider(entt::entity entity, entt::registry &registry);
-    void remove_box_collider(entt::entity entity, entt::registry &registry);
+    void add_box_collider(entt::registry &registry, entt::entity entity);
+    void remove_box_collider(entt::registry &registry, entt::entity entity);
 };
 
 class ivisual_view

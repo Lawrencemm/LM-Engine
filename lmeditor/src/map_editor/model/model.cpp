@@ -135,11 +135,17 @@ entt::entity map_editor_model::add_adjacent(Eigen::Vector3f const &direction)
 entt::entity map_editor_model::copy_entity(Eigen::Vector3f const &direction)
 {
     auto new_name = get_unique_name(lmng::get_name(map, selected_box).c_str());
-    auto new_box = map.create(selected_box, map);
+    auto new_box = map.create(selected_box);
+    lmng::reflect_components(
+      map, selected_box, [&](lmng::any_component component) {
+          component.assign(map, new_box);
+      });
     auto &transform = map.get<lmng::transform>(new_box);
     transform.position +=
       2 * Eigen::Vector3f{direction.array() * get_selection_extents().array()};
-    map.get<lmng::name>(new_box).string = new_name;
+    map.assign<lmng::name>(new_box, lmng::name{new_name});
+    map.assign<lmng::meta_component>(
+      new_box, map.get<lmng::meta_component>(selected_box));
     return new_box;
 }
 

@@ -4,8 +4,6 @@
 
 #include <entt/entt.hpp>
 
-#include "named_type.h"
-
 namespace lmng
 {
 struct name
@@ -24,5 +22,3 @@ inline std::string get_name(entt::registry const &registry, entt::entity entity)
 entt::entity
   find_entity(entt::registry const &registry, std::string const &name);
 } // namespace lmng
-
-LMNG_NAMED_TYPE(lmng::name, "Name");

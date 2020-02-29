@@ -4,8 +4,6 @@
 
 #include <lmlib/geometry.h>
 
-#include "named_type.h"
-
 namespace lmng
 {
 struct transform
@@ -25,6 +23,3 @@ transform
 
 transform get_frame(entt::registry const &registry, entt::entity entity);
 } // namespace lmng
-
-LMNG_NAMED_TYPE(lmng::transform, "Transform");
-LMNG_NAMED_TYPE(lmng::transform_parent, "Transform Parent");

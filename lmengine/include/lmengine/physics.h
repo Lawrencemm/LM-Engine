@@ -2,8 +2,6 @@
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 
-#include "named_type.h"
-
 namespace lmng
 {
 struct box_collider
@@ -48,7 +46,3 @@ using physics = std::unique_ptr<iphysics>;
 
 physics create_physics(entt::registry &registry);
 } // namespace lmng
-
-LMNG_NAMED_TYPE(lmng::rigid_body, "Rigid Body");
-LMNG_NAMED_TYPE(lmng::character_controller, "Character Controller");
-LMNG_NAMED_TYPE(lmng::box_collider, "Box Collider");

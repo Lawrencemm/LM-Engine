@@ -250,19 +250,6 @@ void set_meta_context(entt::meta_ctx const &ctx);
 void reflect_types();
 } // namespace lmng
 
-ENTT_NAMED_TYPE(uint32_t);
-ENTT_NAMED_TYPE(char const *);
-ENTT_NAMED_TYPE(entt::registry *);
-ENTT_NAMED_TYPE(entt::entity);
-ENTT_NAMED_TYPE(void const *);
-ENTT_NAMED_TYPE(void *);
-ENTT_NAMED_TYPE(std::string);
-ENTT_NAMED_TYPE(std::string const *);
-ENTT_NAMED_TYPE(bool);
-ENTT_NAMED_TYPE(entt::registry const *);
-ENTT_NAMED_TYPE(lmng::meta_component);
-ENTT_NAMED_TYPE(entt::hashed_string);
-
 #define REFLECT_MEMBER(type, member, name)                                     \
     data<&type::member>(name##_hs)                                             \
       .prop("name"_hs.value(), name)                                           \

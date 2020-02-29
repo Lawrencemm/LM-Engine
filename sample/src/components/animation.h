@@ -5,8 +5,6 @@
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 
-#include <lmengine/named_type.h>
-
 struct character_skeleton
 {
     entt::entity left_shoulder{entt::null}, right_shoulder{entt::null};
@@ -26,5 +24,3 @@ struct character_skeleton
 
     std::variant<still, swing, relax> state{still{}};
 };
-
-LMNG_NAMED_TYPE(character_skeleton, "Character Skeleton");

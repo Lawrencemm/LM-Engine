@@ -260,7 +260,7 @@ void reflect_types();
 
 #define REFLECT_TYPE(_type, name)                                              \
     entt::meta<_type>()                                                        \
-      .type()                                                                  \
+      .alias(entt::hashed_string{name}.value())                                \
       .prop("name"_hs.value(), name)                                           \
       .prop(entt::hashed_string{"is_component"})                               \
       .ctor<&lmng::construct<_type>>()                                         \

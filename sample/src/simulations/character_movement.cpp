@@ -30,10 +30,10 @@ character_movement::character
 }
 
 character_movement::character_movement(entt::registry &registry)
-    : physics{lmng::create_physics(registry)},
-      camera{std::get<0>(registry.create<lmng::camera, lmng::transform>())}
+    : physics{lmng::create_physics(registry)}, camera{registry.create()}
 {
-    registry.replace<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
+    registry.assign<lmng::transform>(camera);
+    registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
 }
 
 void character_movement::handle_input_event(

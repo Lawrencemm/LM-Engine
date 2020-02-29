@@ -11,7 +11,7 @@ namespace lmeditor
 void map_editor_model::load_map(std::filesystem::path const &file_path)
 {
     auto map_yaml = YAML::LoadFile(file_path.string());
-    map.reset();
+    map.clear();
     lmng::deserialise(map_yaml, map);
 }
 void map_editor_model::save_map(std::filesystem::path const &file_path)

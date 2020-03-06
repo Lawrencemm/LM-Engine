@@ -7,17 +7,22 @@
 TEST_CASE("Swing Arms")
 {
     entt::registry registry;
-    auto [__, transform, controller, skeleton] = registry.create<
-      lmng::transform,
-      lmng::character_controller,
-      character_skeleton>();
+    auto body = registry.create();
 
-    auto [left_shoulder, left_transform] = registry.create<lmng::transform>();
+    registry.assign<lmng::transform>(body);
+    registry.assign<lmng::character_controller>(body);
+    auto &skeleton = registry.assign<character_skeleton>(body);
+
+    auto left_shoulder = registry.create();
+    auto &left_transform = registry.assign<lmng::transform>(left_shoulder);
+
     left_transform.rotation =
       Eigen::AngleAxisf{lm::pi / 2, Eigen::Vector3f::UnitX()};
     skeleton.left_shoulder = left_shoulder;
 
-    auto [right_shoulder, right_transform] = registry.create<lmng::transform>();
+    auto right_shoulder = registry.create();
+    auto &right_transform = registry.assign<lmng::transform>(right_shoulder);
+
     right_transform.rotation =
       Eigen::AngleAxisf{lm::pi / 2, Eigen::Vector3f::UnitX()};
     skeleton.right_shoulder = right_shoulder;

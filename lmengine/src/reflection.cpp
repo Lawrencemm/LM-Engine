@@ -165,7 +165,7 @@ void stream_data_out(
   entt::entity const &data,
   entt::registry const *context)
 {
-    stream << context->get<name const>(data).string;
+    stream << context->get<name>(data).string;
 }
 
 void stream_data_in(
@@ -184,18 +184,6 @@ void set_meta_context(entt::meta_ctx const &ctx) { entt::meta_ctx::bind(ctx); }
 
 void reflect_types()
 {
-    entt::meta<uint32_t>().type();
-    entt::meta<char const *>().type();
-    entt::meta<entt::registry *>().type();
-    entt::meta<entt::entity>().type();
-    entt::meta<void const *>().type();
-    entt::meta<void *>().type();
-    entt::meta<std::string>().type();
-    entt::meta<std::string const *>().type();
-    entt::meta<bool>().type();
-    entt::meta<entt::registry const *>().type();
-    entt::meta<entt::hashed_string>().type();
-
     REFLECT_TYPE(box_render, "Box Render")
       .REFLECT_MEMBER(box_render, extents, "Extents")
       .REFLECT_MEMBER(box_render, colour, "Colour");

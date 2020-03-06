@@ -1,7 +1,5 @@
 #pragma once
 
-#include "named_type.h"
-
 namespace lmng
 {
 struct camera
@@ -10,5 +8,3 @@ struct camera
     bool active;
 };
 } // namespace lmng
-
-LMNG_NAMED_TYPE(lmng::camera, "Camera");

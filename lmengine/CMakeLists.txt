@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(lmlib REQUIRED)
 find_package(cereal REQUIRED)
-find_package(entt REQUIRED)
+find_package(EnTT REQUIRED)
 find_package(Bullet REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Catch2 REQUIRED)
@@ -41,7 +41,7 @@ target_link_libraries(
   PUBLIC
   lmlib::lmlib
   cereal::cereal
-  entt::entt
+  EnTT::EnTT
   Bullet::Bullet
   yaml-cpp::yaml-cpp
 )

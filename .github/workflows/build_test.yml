@@ -37,7 +37,11 @@ jobs:
         env:
           CC: gcc-8
           CXX: g++-8
-        run: mkdir build && conan workspace install . -if build --build missing
+        run: mkdir build &&
+          conan workspace install .
+          -if build
+          --build missing
+          -s build_type=${{ matrix.configuration }}
       - name: Configure
         env:
           CC: gcc-8

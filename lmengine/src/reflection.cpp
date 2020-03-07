@@ -180,6 +180,17 @@ void stream_data_in(
         throw std::runtime_error{"Entity named " + entity_name + " not found."};
 }
 
+meta_type_map create_meta_type_map()
+{
+    meta_type_map map;
+
+    entt::resolve([&](entt::meta_type const &meta_type) {
+        map[meta_type.id()] = meta_type;
+    });
+
+    return std::move(map);
+}
+
 void set_meta_context(entt::meta_ctx const &ctx) { entt::meta_ctx::bind(ctx); }
 
 void reflect_types()

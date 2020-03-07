@@ -49,19 +49,6 @@ class map_editor : public imap_editor
           *view.visual_view, model.map, *view.renderer, resource_sink};
 
         lmng::remove_from_entity(type, model.map, model.selected_box);
-        auto &meta_component =
-          model.map.get<lmng::meta_component>(model.selected_box);
-
-        auto found_it = ranges::find(meta_component.component_types, type);
-        if (found_it == meta_component.component_types.end())
-            throw std::runtime_error{
-              fmt::format(
-                "Remove component: {} does not have component {}.",
-                lmng::get_name(model.map, model.selected_box),
-                lmng::get_type_name(type)),
-            };
-
-        ranges::erase(meta_component.component_types, found_it);
     }
 
     bool update_selection(

@@ -9,36 +9,35 @@ namespace lmng
 {
 void serialise(entt::registry &registry, YAML::Node &yaml)
 {
-    std::vector<std::tuple<entt::entity, meta_component const *>>
-      sorted_entities;
+    std::vector<entt::entity> entities;
 
-    registry.view<meta_component>().each(
-      [&](auto entity, meta_component const &meta_component) {
-          sorted_entities.emplace_back(std::tuple{entity, &meta_component});
-      });
-    ranges::action::sort(sorted_entities, [](auto &entity, auto &other) {
-        return std::get<0>(entity) < std::get<0>(other);
+    registry.each([&](entt::entity entity) {
+        entities.emplace_back(entt::registry::entity(entity));
     });
-    for (auto &[entity, meta_component] : sorted_entities)
+
+    ranges::action::sort(entities);
+
+    auto const type_map = lmng::create_meta_type_map();
+
+    for (auto entity : entities)
     {
         YAML::Node actor_yaml;
 
-        for (entt::meta_type const &component_type :
-             meta_component->component_types)
-        {
-            YAML::Node component_yaml;
+        lmng::reflect_components(
+          registry,
+          entity,
+          [&](lmng::any_component const &component_any) {
+              YAML::Node component_yaml;
+              component_any.any.type().data([&](entt::meta_data data) {
+                  component_yaml[lmng::get_data_name(data)] =
+                    component_any.get(data, registry);
+              });
+              actor_yaml[component_any.name()] = component_yaml;
+          },
+          type_map);
 
-            entt::meta_any component =
-              lmng::get_component_any(registry, entity, component_type);
-
-            component_type.data([&](entt::meta_data data) {
-                component_yaml[lmng::get_data_name(data)] =
-                  lmng::get_data(component, data, registry);
-            });
-            actor_yaml[lmng::get_type_name(component_type)] = component_yaml;
-        }
         yaml[lmng::get_name(registry, entity)] = actor_yaml;
-    }
+    };
 }
 
 void deserialise(YAML::Node const &yaml, entt::registry &registry)
@@ -60,16 +59,12 @@ void deserialise(YAML::Node const &yaml, entt::registry &registry)
     {
         auto new_entity = name_map[actor_yaml.first.as<std::string>()];
 
-        meta_component meta_component;
-
         for (auto const &component_yaml : actor_yaml.second)
         {
             auto component_name = component_yaml.first.as<std::string>();
             auto component_meta_type =
               entt::resolve(entt::hashed_string{component_name.c_str()});
             auto component = component_meta_type.ctor().invoke();
-
-            meta_component.component_types.push_back(component_meta_type);
 
             for (auto const &data_yaml : component_yaml.second)
             {
@@ -81,9 +76,6 @@ void deserialise(YAML::Node const &yaml, entt::registry &registry)
             }
             lmng::assign_to_entity(component, registry, new_entity);
         }
-
-        registry.assign<struct meta_component>(
-          new_entity, std::move(meta_component));
     }
 }
 

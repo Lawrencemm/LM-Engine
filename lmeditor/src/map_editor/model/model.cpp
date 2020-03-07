@@ -57,8 +57,6 @@ void map_editor_model::add_component_to_selected(entt::meta_type const &type)
 {
     auto component = type.ctor().invoke();
     lmng::assign_to_entity(component, map, selected_box);
-    map.get<lmng::meta_component>(selected_box)
-      .component_types.emplace_back(type);
 }
 
 bool map_editor_model::update_selection(
@@ -91,15 +89,6 @@ entt::entity
       map.assign<lmng::rigid_body>(new_cube, 1.f, 0.25f, 0.75f);
 
     map.assign<lmng::name>(new_cube, get_unique_name("Box"));
-
-    map.assign<lmng::meta_component>(
-      new_cube,
-      std::vector{{
-        entt::resolve<lmng::transform>(),
-        entt::resolve<lmng::box_render>(),
-        entt::resolve<lmng::box_collider>(),
-        entt::resolve<lmng::rigid_body>(),
-      }});
 
     return new_cube;
 }
@@ -144,8 +133,6 @@ entt::entity map_editor_model::copy_entity(Eigen::Vector3f const &direction)
     transform.position +=
       2 * Eigen::Vector3f{direction.array() * get_selection_extents().array()};
     map.assign<lmng::name>(new_box, lmng::name{new_name});
-    map.assign<lmng::meta_component>(
-      new_box, map.get<lmng::meta_component>(selected_box));
     return new_box;
 }
 
@@ -207,9 +194,6 @@ void map_editor_model::reparent_entity(entt::entity entity, entt::entity parent)
           (entity_transform.position - parent_transform.position),
         entity_transform.rotation * parent_transform.rotation.inverse(),
       });
-
-    map.get<lmng::meta_component>(entity).component_types.emplace_back(
-      entt::resolve<lmng::transform_parent>());
 }
 
 Eigen::Vector3f map_editor_model::get_selection_extents() const

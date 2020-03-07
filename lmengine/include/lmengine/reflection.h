@@ -5,11 +5,6 @@
 
 namespace lmng
 {
-struct meta_component
-{
-    std::vector<entt::meta_type> component_types;
-};
-
 entt::meta_any get_component_any(
   entt::registry &registry,
   entt::entity entity,
@@ -95,18 +90,24 @@ class any_component
     entt::meta_any any;
 };
 
+using meta_type_map = std::unordered_map<ENTT_ID_TYPE, entt::meta_type>;
+
+meta_type_map create_meta_type_map();
+
 /// Supply a function to be called with every reflected component on the entity.
 template <typename function_type>
 void reflect_components(
   entt::registry &registry,
   entt::entity entity,
-  function_type const &function)
+  function_type const &function,
+  meta_type_map type_map = create_meta_type_map())
 {
-    auto &reflection_component = registry.get<struct meta_component>(entity);
-    for (auto &type : reflection_component.component_types)
-    {
-        function(any_component{registry, entity, type});
-    }
+    registry.visit(entity, [&](auto type_id) {
+        auto found_meta_type = type_map.find(type_id);
+
+        if (found_meta_type != type_map.end())
+            function(any_component{registry, entity, found_meta_type->second});
+    });
 }
 
 template <typename component_type>

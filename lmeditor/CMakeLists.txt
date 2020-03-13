@@ -55,10 +55,6 @@ add_library(
   src/map_editor/model/states/rotate.cpp
   src/map_editor/view/rendering.cpp
   src/map_editor/view/view.cpp
-
-  src/mesh_editor/mesh_editor.cpp
-  src/mesh_editor/mesh_editor_hit_testing.cpp
-  src/mesh_editor/mesh_editor_move_geometry.cpp
   src/map_editor/model/move_selection_commands.cpp
   src/map_editor/model/states/reparent.cpp
 

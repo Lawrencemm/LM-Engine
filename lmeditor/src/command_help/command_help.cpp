@@ -1,6 +1,8 @@
 #include "command_help.h"
 
 #include <range/v3/algorithm/all_of.hpp>
+#include <range/v3/span.hpp>
+#include <range/v3/view/concat.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/tail.hpp>
 #include <range/v3/view/transform.hpp>
@@ -49,18 +51,19 @@ lmtk::iwidget &command_help::add_to_frame(lmgl::iframe *frame)
 
     auto filter_value = filter.get_value();
 
-    auto shown_rows =
+    auto shown_rows = ranges::view::concat(
+      ranges::span{&rows[0], 1},
       ranges::view::zip(commands, ranges::view::tail(rows)) |
-      ranges::view::filter([&](auto const &desc_and_row) {
-          return ranges::all_of(filter_value, [&](auto c) {
-              auto lower = ranges::view::transform(
-                std::get<0>(desc_and_row).name, ::tolower);
-              return ranges::find(lower, std::tolower(c)) != lower.end();
-          });
-      }) |
-      ranges::view::transform([&](auto const &pair) -> decltype(rows[0]) {
-          return std::get<1>(pair);
-      });
+        ranges::view::filter([&](auto const &desc_and_row) {
+            return ranges::all_of(filter_value, [&](auto c) {
+                auto lower = ranges::view::transform(
+                  std::get<0>(desc_and_row).name, ::tolower);
+                return ranges::find(lower, std::tolower(c)) != lower.end();
+            });
+        }) |
+        ranges::view::transform([&](auto const &pair) -> decltype(rows[0]) {
+            return std::get<1>(pair);
+        }));
 
     lmtk::table{shown_rows, {0, filter.get_size().height}};
 

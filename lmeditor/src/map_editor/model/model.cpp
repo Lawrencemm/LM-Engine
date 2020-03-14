@@ -181,21 +181,6 @@ Eigen::Vector3f
     return lm::snap_to_axis(view_to_world(view_vector));
 }
 
-void map_editor_model::reparent_entity(entt::entity entity, entt::entity parent)
-{
-    auto entity_transform = lmng::resolve_transform(map, entity);
-    auto parent_transform = lmng::resolve_transform(map, parent);
-
-    map.assign<lmng::transform_parent>(entity, lmng::transform_parent{parent});
-    map.replace<lmng::transform>(
-      entity,
-      lmng::transform{
-        parent_transform.rotation.inverse() *
-          (entity_transform.position - parent_transform.position),
-        entity_transform.rotation * parent_transform.rotation.inverse(),
-      });
-}
-
 Eigen::Vector3f map_editor_model::get_selection_extents() const
 {
 

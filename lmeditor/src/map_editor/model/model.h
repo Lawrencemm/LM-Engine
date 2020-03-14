@@ -77,8 +77,6 @@ class map_editor_model : public viewport
 
     Eigen::Vector3f get_selection_extents() const;
 
-    void reparent_entity(entt::entity entity, entt::entity parent);
-
     struct command_args
     {
         void *state_ptr;

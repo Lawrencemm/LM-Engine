@@ -10,7 +10,8 @@ map_editor_model::command select_parent{
       if (args.model.selected_box == state.entity)
           return false;
 
-      args.model.reparent_entity(state.entity, args.model.selected_box);
+      lmng::set_transform_parent(
+        args.model.map, state.entity, args.model.selected_box);
       args.model.leave_state(state, args.on_state_change);
       return true;
   },

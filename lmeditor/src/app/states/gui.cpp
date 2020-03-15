@@ -16,8 +16,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::I:
                 if (key_down_event.input_state.key_state.alt())
                 {
-                    args.app.toggle_tool_panel(
-                      args.app.resources.inspector.get());
+                    args.app.toggle_tool_panel(args.app.inspector.get());
                     return true;
                 }
                 return false;
@@ -25,8 +24,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::M:
                 if (key_down_event.input_state.key_state.alt())
                 {
-                    args.app.toggle_tool_panel(
-                      args.app.resources.map_editor.get());
+                    args.app.toggle_tool_panel(args.app.map_editor.get());
                     return true;
                 }
                 return false;
@@ -78,14 +76,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
                             input_event,
                             map_selector_event_handler{
                               [&](map_selector_chose_map const &ev) {
-                                  app.resources.map_editor->load_map(
-                                    app.resources.project_dir /
-                                      (ev.path_to_file.string() + ".lmap"),
-                                    app.resources.renderer.get(),
-                                    app.resources.resource_sink);
-                                  app.map_file_project_relative_path =
-                                    ev.path_to_file;
-                                  app.sync_entity_list();
+                                  app.load_map(ev.path_to_file);
                                   app.state.emplace<gui_state>(app);
                               }});
                       }});
@@ -93,8 +84,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
                 }
                 if (key_down_event.input_state.key_state.alt())
                 {
-                    args.app.toggle_tool_panel(
-                      args.app.resources.entity_list.get());
+                    args.app.toggle_tool_panel(args.app.entity_list.get());
                     return true;
                 }
                 return false;
@@ -131,9 +121,9 @@ gui_state::gui_state(editor_app &app) {}
 void gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
     for (auto &ppanel : app.visible_panels)
-        ppanel->add_to_frame(frame);
+        ppanel->add_to_frame(frame, app);
 
-    app.resources.active_panel_border->add_to_frame(frame);
+    app.active_panel_border->add_to_frame(frame);
 }
 
 void gui_state::move_resources(editor_app &app) {}

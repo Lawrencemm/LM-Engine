@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tool_panel.h"
 #include <filesystem>
 #include <functional>
 #include <lmtk/lmtk.h>
@@ -12,20 +13,21 @@ struct map_selector_chose_map;
 struct map_selector_event_handler;
 struct map_selector_init;
 
-class map_selector : public lmtk::iwidget
+class map_selector : public itool_panel
 {
   public:
     map_selector(map_selector_init const &init);
     bool handle(
       lmtk::input_event const &input_event,
       map_selector_event_handler const &event_handler);
-    iwidget &add_to_frame(lmgl::iframe *frame) override;
+    map_selector &add_to_frame(lmgl::iframe *frame, editor_app const &app);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
-    iwidget &set_rect(lm::point2i position, lm::size2i size) override;
-    iwidget &move_resources(
+    map_selector &set_rect(lm::point2i position, lm::size2i size) override;
+    map_selector &move_resources(
       lmgl::irenderer *renderer,
       lmtk::resource_sink &resource_sink) override;
+    std::vector<command_description> get_command_descriptions() override;
 
   private:
     std::vector<std::filesystem::path> file_paths;

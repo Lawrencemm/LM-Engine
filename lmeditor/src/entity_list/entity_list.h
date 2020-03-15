@@ -18,7 +18,7 @@ class entity_list : public itool_panel
   public:
     explicit entity_list(entity_list_init const &init);
 
-    iwidget &add_to_frame(lmgl::iframe *frame) override;
+    entity_list &add_to_frame(lmgl::iframe *frame, editor_app const &app);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     iwidget &set_rect(lm::point2i position, lm::size2i size) override;
@@ -44,6 +44,8 @@ class entity_list : public itool_panel
     bool move_selection(int movement);
 };
 
+using pentity_list = lm::reference<entity_list>;
+
 struct entity_list_init
 {
     lmgl::irenderer &renderer;
@@ -52,8 +54,6 @@ struct entity_list_init
     lm::point2i position{0, 0};
     lm::size2i size{0, 0};
 
-    entity_list operator()() { return entity_list{*this}; }
+    pentity_list operator()() { return std::make_unique<entity_list>(*this); }
 };
-
-using pentity_list = lm::reference<entity_list>;
 } // namespace lmeditor

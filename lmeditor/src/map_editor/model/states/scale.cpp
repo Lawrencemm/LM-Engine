@@ -21,12 +21,11 @@ map_editor_model::command create_scale_command(char const *name)
 
           if (
             auto maybe_box_render =
-              args.model.map.try_get<lmng::box_render>(args.model.selected_box))
+              args.map.try_get<lmng::box_render>(args.model.selected_box))
               pextents = &maybe_box_render->extents;
           else if (
             auto maybe_box_collider =
-              args.model.map.try_get<lmng::box_collider>(
-                args.model.selected_box))
+              args.map.try_get<lmng::box_collider>(args.model.selected_box))
               pextents = &maybe_box_collider->extents;
 
           auto &extents = *pextents;
@@ -37,7 +36,7 @@ map_editor_model::command create_scale_command(char const *name)
               amount = extents[axis] * 0.5f;
 
           extents[axis] += sign * amount;
-          args.event_handler(map_editor_modified_selected{args.model.map});
+          args.event_handler(map_editor_modified_selected{args.map});
           return true;
       },
       name,

@@ -58,7 +58,8 @@ lmgl::material map_editor_view::create_outline_material()
 
 void map_editor_view::render_selection_outline(
   lmgl::iframe *frame,
-  map_editor_model const &model) const
+  map_editor_model const &model,
+  entt::registry const &map) const
 {
     if (model.selected_box == entt::null)
         return;
@@ -75,15 +76,14 @@ void map_editor_view::render_selection_outline(
       viewport_pos,
       viewport_size,
     };
-    auto const &transform =
-      lmng::resolve_transform(model.map, model.selected_box);
+    auto const &transform = lmng::resolve_transform(map, model.selected_box);
 
     lmgl::add_buffer_update(
       frame,
       selection_outline_ubuffer.get(),
       selection_ubuffer_data{
         lmhuv::get_box_mvp_matrix(
-          transform, model.get_selection_extents(), model.camera),
+          transform, model.get_selection_extents(map), model.camera),
         selection_outline_colour,
       });
     frame->add({selection_stencil_geometry.get()}, viewport);

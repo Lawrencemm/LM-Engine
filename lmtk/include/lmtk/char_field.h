@@ -19,7 +19,7 @@ class char_field : public iwidget
       lmgl::irenderer *renderer,
       ifont const *font,
       resource_sink &resource_sink);
-    iwidget &add_to_frame(lmgl::iframe *frame) override;
+    iwidget &add_to_frame(lmgl::iframe *frame);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     char_field &set_position(lm::point2i new_position);

@@ -38,14 +38,15 @@ add_library(
   src/app/states/modal.cpp
   src/app/inspector_handler.cpp
   src/app/map_editor_handler.cpp
+  src/app/save_load_map.cpp
 
   src/viewport/orbital_camera.cpp
   src/trimesh/trimesh.cpp
 
   src/map_editor/map_editor.cpp
+  src/map_editor/add_to_frame.cpp
   src/map_editor/model/model.cpp
   src/map_editor/model/move_selection.cpp
-  src/map_editor/model/save_load.cpp
   src/map_editor/model/states/add_adjacent.cpp
   src/map_editor/model/states/translate.cpp
   src/map_editor/model/states/select.cpp

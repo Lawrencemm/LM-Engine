@@ -18,7 +18,7 @@ class text_line_selector : public iwidget
   public:
     explicit text_line_selector(text_line_selector_init const &init);
 
-    iwidget &add_to_frame(lmgl::iframe *frame) override;
+    iwidget &add_to_frame(lmgl::iframe *frame);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     iwidget &set_rect(lm::point2i position, lm::size2i size) override;
@@ -42,5 +42,7 @@ struct text_line_selector_init
     lmgl::material font_material;
     ifont const *font;
     lmgl::material rect_material;
+
+    text_line_selector operator()() { return text_line_selector{*this}; }
 };
 } // namespace lmtk

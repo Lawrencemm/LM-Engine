@@ -8,8 +8,9 @@
 
 namespace lmeditor
 {
-struct map_saver : public lmtk::iwidget
+struct map_saver : public itool_panel
 {
+    std::vector<command_description> get_command_descriptions() override;
     lmtk::text_layout header;
     lmtk::char_field field;
 
@@ -17,14 +18,14 @@ struct map_saver : public lmtk::iwidget
 
     static bool handle(
       editor_app &app,
-      lmtk::iwidget *widget,
+      itool_panel *widget,
       lmtk::input_event const &input_event);
 
-    lmtk::iwidget &add_to_frame(lmgl::iframe *frame) override;
+    map_saver &add_to_frame(lmgl::iframe *frame, editor_app const &app);
     lm::size2i get_size() override { return lm::size2i(); }
     lm::point2i get_position() override { return lm::point2i(); }
-    lmtk::iwidget &set_rect(lm::point2i position, lm::size2i size) override;
-    lmtk::iwidget &move_resources(
+    map_saver &set_rect(lm::point2i position, lm::size2i size) override;
+    map_saver &move_resources(
       lmgl::irenderer *renderer,
       lmtk::resource_sink &resource_sink) override;
 };

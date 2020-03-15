@@ -72,7 +72,7 @@ struct iinspector : public itool_panel
       lmtk::resource_sink &resource_sink,
       inspector_event_handler const &event_handler) = 0;
     virtual void display(
-      entt::registry &registry,
+      entt::registry const &registry,
       entt::entity entity,
       lmtk::resource_sink &resource_sink) = 0;
     virtual void

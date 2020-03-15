@@ -11,7 +11,7 @@ map_editor_model::command select_parent{
           return false;
 
       lmng::set_transform_parent(
-        args.model.map, state.entity, args.model.selected_box);
+        args.map, state.entity, args.model.selected_box);
       args.model.leave_state(state, args.on_state_change);
       return true;
   },
@@ -45,4 +45,4 @@ map_editor_model::reparent_state::reparent_state(
       entity{map_editor.selected_box}
 {
 }
-}
+} // namespace lmeditor

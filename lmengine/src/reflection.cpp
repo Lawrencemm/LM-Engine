@@ -20,21 +20,6 @@ char const *get_type_name(entt::meta_type const &type)
     return type.prop("name"_hs.value()).value().cast<char const *>();
 }
 
-// Registry can't be const because then it
-// wouldn't be able to return a non-const component.
-entt::meta_any get_component_any(
-  entt::registry &registry,
-  entt::entity entity,
-  entt::meta_type const &type)
-{
-    auto get_func = type.func("get_from_entity"_hs);
-    if (!get_func)
-        throw std::runtime_error{"entt meta error."};
-    return get_func.invoke({}, &registry, entity);
-}
-
-// Registry can't be const because then it
-// wouldn't be able to return a non-const component.
 entt::meta_any get_component_any(
   entt::registry const &registry,
   entt::entity entity,

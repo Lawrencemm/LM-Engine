@@ -7,12 +7,13 @@ void do_copy(
   map_editor_model::command_args const &args,
   Eigen::Vector3f const &direction)
 {
-    auto new_box = args.model.copy_entity(args.model.view_to_axis(direction));
-    args.event_handler(map_editor_created_entity{args.model.map, new_box});
+    auto new_box =
+      args.model.copy_entity(args.map, args.model.view_to_axis(direction));
+    args.event_handler(map_editor_created_entity{args.map, new_box});
 
     args.model.select_box(new_box);
     args.event_handler(
-      map_editor_changed_selection{.map = args.model.map, .entity = new_box});
+      map_editor_changed_selection{.map = args.map, .entity = new_box});
 
     args.model.leave_state(
       *static_cast<map_editor_model::copy_entity_state *>(args.state_ptr),

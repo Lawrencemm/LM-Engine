@@ -26,14 +26,6 @@ class editor_app_resources : public lmtk::app_resources
     lmtk::font font;
     lmgl::material text_material, border_material, rect_material;
 
-    lm::size2i inspector_size, entity_list_size, map_editor_size;
-    pmap_editor map_editor;
-    pinspector inspector;
-    pentity_list entity_list;
-    std::unique_ptr<lmtk::iwidget> active_panel_border;
-    std::filesystem::path project_dir;
-    std::array<float, 3> unselected_box_colour{0.5f, 0.5f, 0.7f};
-
   public:
     editor_app_resources(std::filesystem::path const &project_dir);
     editor_app_resources(editor_app_resources const &) = delete;

@@ -8,10 +8,11 @@ namespace lmeditor
 {
 Eigen::Vector3f get_translation(
   map_editor_model &map_editor,
+  entt::registry const &map,
   lmtk::key_down_event const &key_down_event,
   Eigen::Vector3f const &direction)
 {
-    auto extents = map_editor.get_selection_extents();
+    auto extents = map_editor.get_selection_extents(map);
 
     auto snapped_direction = map_editor.view_to_axis(direction);
 
@@ -21,7 +22,7 @@ Eigen::Vector3f get_translation(
         translation.normalize();
         translation *= 0.01f;
     }
-    auto frame = lmng::get_frame(map_editor.map, map_editor.selected_box);
+    auto frame = lmng::get_frame(map, map_editor.selected_box);
     return frame.rotation.inverse() * translation;
 }
 
@@ -30,10 +31,11 @@ void do_translation(
   Eigen::Vector3f const &direction)
 {
     args.model.translate(
+      args.map,
       args.model.selected_box,
-      get_translation(args.model, args.key_down_event, direction));
+      get_translation(args.model, args.map, args.key_down_event, direction));
 
-    args.event_handler(map_editor_modified_selected{args.model.map});
+    args.event_handler(map_editor_modified_selected{args.map});
 }
 
 map_editor_model::command move_up_command{

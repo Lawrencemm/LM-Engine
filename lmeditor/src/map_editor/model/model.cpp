@@ -19,8 +19,9 @@ map_editor_model::map_editor_model(init const &init)
 }
 
 bool map_editor_model::handle(
+  entt::registry &map,
   lmtk::input_event const &event,
-  map_editor_event_handler const &event_handler,
+  const map_editor_event_handler &event_handler,
   state_change_handler on_state_change)
 {
     return std::visit(
@@ -42,6 +43,7 @@ bool map_editor_model::handle(
             return itfound->second.fn(command_args{
               &state_alternative,
               *this,
+              map,
               event_handler,
               key_down_event,
               on_state_change,
@@ -53,24 +55,10 @@ bool map_editor_model::handle(
       state);
 }
 
-void map_editor_model::add_component_to_selected(entt::meta_type const &type)
-{
-    auto component = type.ctor().invoke();
-    lmng::assign_to_entity(component, map, selected_box);
-}
-
-bool map_editor_model::update_selection(
-  entt::meta_data const &data,
-  std::string const &string_repr)
-{
-    auto component = lmng::any_component{map, selected_box, data.parent()};
-    component.set(data, string_repr, map);
-    component.replace(map, selected_box);
-    return true;
-}
-
-entt::entity
-  map_editor_model::add_cube(Eigen::Vector3f const &position, float extent)
+entt::entity map_editor_model::add_cube(
+  entt::registry &map,
+  Eigen::Vector3f const &position,
+  float extent)
 {
     auto new_cube = map.create();
 
@@ -88,18 +76,20 @@ entt::entity
     auto &rigid_body =
       map.assign<lmng::rigid_body>(new_cube, 1.f, 0.25f, 0.75f);
 
-    map.assign<lmng::name>(new_cube, get_unique_name("Box"));
+    map.assign<lmng::name>(new_cube, get_unique_name(map, "Box"));
 
     return new_cube;
 }
 
-std::string map_editor_model::get_unique_name(char const *prefix)
+std::string map_editor_model::get_unique_name(
+  entt::registry const &map,
+  char const *prefix)
 {
     std::string unique_name{prefix};
 
     unsigned postfix{0};
 
-    auto name_view = map.view<lmng::name>();
+    auto name_view = map.view<lmng::name const>();
 
     while (auto found_existing = ranges::find_if(name_view, [&](auto entity) {
                                      return name_view.get(entity).string ==
@@ -112,18 +102,23 @@ std::string map_editor_model::get_unique_name(char const *prefix)
     return unique_name;
 }
 
-entt::entity map_editor_model::add_adjacent(Eigen::Vector3f const &direction)
+entt::entity map_editor_model::add_adjacent(
+  entt::registry &map,
+  Eigen::Vector3f const &direction)
 {
-    auto add_pos = get_selection_position();
-    auto extents = get_selection_extents();
+    auto add_pos = get_selection_position(map);
+    auto extents = get_selection_extents(map);
     extents += Eigen::Vector3f::Ones();
     add_pos += std::abs(extents.dot(direction)) * direction;
-    return add_cube(add_pos, 1.f);
+    return add_cube(map, add_pos, 1.f);
 }
 
-entt::entity map_editor_model::copy_entity(Eigen::Vector3f const &direction)
+entt::entity map_editor_model::copy_entity(
+  entt::registry &map,
+  Eigen::Vector3f const &direction)
 {
-    auto new_name = get_unique_name(lmng::get_name(map, selected_box).c_str());
+    auto new_name =
+      get_unique_name(map, lmng::get_name(map, selected_box).c_str());
     auto new_box = map.create(selected_box);
     lmng::reflect_components(
       map, selected_box, [&](lmng::any_component component) {
@@ -131,12 +126,14 @@ entt::entity map_editor_model::copy_entity(Eigen::Vector3f const &direction)
       });
     auto &transform = map.get<lmng::transform>(new_box);
     transform.position +=
-      2 * Eigen::Vector3f{direction.array() * get_selection_extents().array()};
+      2 *
+      Eigen::Vector3f{direction.array() * get_selection_extents(map).array()};
     map.assign<lmng::name>(new_box, lmng::name{new_name});
     return new_box;
 }
 
 void map_editor_model::translate(
+  entt::registry &map,
   entt::entity entity,
   Eigen::Vector3f const &vector)
 {
@@ -181,7 +178,8 @@ Eigen::Vector3f
     return lm::snap_to_axis(view_to_world(view_vector));
 }
 
-Eigen::Vector3f map_editor_model::get_selection_extents() const
+Eigen::Vector3f
+  map_editor_model::get_selection_extents(entt::registry const &map) const
 {
 
     auto maybe_box_render = map.try_get<lmng::box_render>(selected_box);

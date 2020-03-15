@@ -12,13 +12,9 @@ bool editor_app::entity_list_handle(lmtk::input_event const &input_event)
             {
             case lmpl::key_code::Enter:
             {
-                entt::entity new_selection{resources.entity_list->get_selection(
-                  resources.map_editor->get_map())};
-                resources.map_editor->select(new_selection);
-                resources.inspector->display(
-                  resources.map_editor->get_map(),
-                  new_selection,
-                  resources.resource_sink);
+                entt::entity new_selection{entity_list->get_selection(map)};
+                map_editor->select(new_selection);
+                inspector->display(map, new_selection, resources.resource_sink);
                 return true;
             }
 
@@ -31,6 +27,6 @@ bool editor_app::entity_list_handle(lmtk::input_event const &input_event)
     if (handled)
         return true;
 
-    return resources.entity_list->handle(input_event);
+    return entity_list->handle(input_event);
 }
 } // namespace lmeditor

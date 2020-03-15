@@ -6,7 +6,7 @@ namespace lmeditor
 {
 struct map_editor_changed_selection
 {
-    entt::registry &map;
+    entt::registry const &map;
     entt::entity entity;
 };
 struct map_editor_modified_selected

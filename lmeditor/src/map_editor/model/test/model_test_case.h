@@ -6,6 +6,7 @@
 class model_test_case
 {
   protected:
+    entt::registry map;
     lmeditor::map_editor_model model;
 
   public:

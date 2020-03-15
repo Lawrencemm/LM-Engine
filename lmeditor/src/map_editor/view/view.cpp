@@ -52,11 +52,14 @@ map_editor_view::map_editor_view(init const &init)
     selection_outline_geometry->set_line_width(6.f);
 }
 
-void map_editor_view::render(lmgl::iframe *frame, map_editor_model &model)
+void map_editor_view::render(
+  lmgl::iframe *frame,
+  map_editor_model &model,
+  entt::registry const &map)
 {
     visual_view->set_camera_override(model.camera);
-    visual_view->add_to_frame(model.map, frame, lmgl::viewport{position, size});
-    render_selection_outline(frame, model);
+    visual_view->add_to_frame(map, frame, lmgl::viewport{position, size});
+    render_selection_outline(frame, model, map);
     render_state_text(frame);
 }
 

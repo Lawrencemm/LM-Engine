@@ -1,5 +1,7 @@
 #pragma once
 
+#include "command.h"
+#include "tool_panel.h"
 #include <lmgl/lmgl.h>
 #include <lmtk/char_field.h>
 #include <lmtk/iwidget.h>
@@ -8,11 +10,6 @@
 
 namespace lmeditor
 {
-struct command_description
-{
-    std::string name, key, context;
-};
-
 struct command_help_init
 {
     lmgl::irenderer &renderer;
@@ -21,15 +18,17 @@ struct command_help_init
     std::vector<command_description> commands;
 };
 
-class command_help : public lmtk::iwidget
+class command_help : public itool_panel
 {
   public:
-    iwidget &add_to_frame(lmgl::iframe *frame) override;
+    command_help &
+      add_to_frame(lmgl::iframe *frame, editor_app const &app) override;
+    std::vector<command_description> get_command_descriptions() override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
-    iwidget &set_rect(lm::point2i position, lm::size2i size) override;
+    command_help &set_rect(lm::point2i position, lm::size2i size) override;
     command_help(lmeditor::command_help_init const &init);
-    iwidget &move_resources(
+    command_help &move_resources(
       lmgl::irenderer *renderer,
       lmtk::resource_sink &resource_sink) override;
 

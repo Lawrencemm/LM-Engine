@@ -1,42 +1,82 @@
-#include <random>
-
+#include "app.h"
 #include <boost/rational.hpp>
-
 #include <lmeditor/map_editor.h>
+#include <lmeditor/widget_panel_wrapper.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/text_line_selector.h>
+#include <random>
 #include <range/v3/view.hpp>
-
-#include "app.h"
 
 using namespace tbb::flow;
 
 namespace lmeditor
 {
 editor_app::editor_app(const std::filesystem::path &project_dir)
-    : resources{project_dir},
+    : project_dir{project_dir},
+      resources{project_dir},
       flow_graph(
         resources,
         [&](auto &ev) { return on_input_event(ev); },
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); }),
       state{gui_state{*this}},
+      inspector{create_inspector(
+        *resources.renderer.get(),
+        resources.text_material,
+        resources.font.get(),
+        lm::size2i{
+          resources.window_size.width / 5,
+          resources.window_size.height,
+        })},
+      map_editor{map_editor_init{
+        .map = map,
+        .renderer = resources.renderer.get(),
+        .position = {inspector->get_size().width, 0},
+        .size =
+          lm::size2i{
+            resources.window_size.width - 2 * inspector->get_size().width,
+            resources.window_size.height,
+          },
+        .selection_outline_colour = std::array{0.7f, 0.5f, 0.5f},
+        .text_material = resources.text_material,
+        .font = resources.font.get(),
+      }()},
+      entity_list{entity_list_init{
+        .renderer = *resources.renderer,
+        .text_material = resources.text_material,
+        .rect_material = resources.rect_material,
+        .font = resources.font.get(),
+        .position =
+          lm::point2i{
+            inspector->get_size().width + map_editor->get_size().width,
+            0,
+          },
+        .size = inspector->get_size(),
+      }()},
+      active_panel_border{std::make_unique<lmtk::rect_border>(lmtk::rect_border{
+        resources.renderer.get(),
+        resources.border_material,
+        {0, 0},
+        {0, 0},
+        resources.active_panel_border_colour,
+        1.f,
+      })},
       panel_order_horizontal{
-        resources.inspector.get(),
-        resources.map_editor.get(),
-        resources.entity_list.get(),
+        inspector.get(),
+        map_editor.get(),
+        entity_list.get(),
       },
       visible_panels{
-        resources.map_editor.get(),
-        resources.inspector.get(),
-        resources.entity_list.get(),
+        map_editor.get(),
+        inspector.get(),
+        entity_list.get(),
       },
       input_handlers{
-        {resources.map_editor.get(),
+        {map_editor.get(),
          [](auto &app, auto &ev) { return app.map_editor_handle(ev); }},
-        {resources.inspector.get(),
+        {inspector.get(),
          [](auto &app, auto &ev) { return app.inspector_handle(ev); }},
-        {resources.entity_list.get(),
+        {entity_list.get(),
          [](auto &app, auto &ev) { return app.entity_list_handle(ev); }},
       }
 {
@@ -72,12 +112,20 @@ void editor_app::on_quit()
                    state_alternative.move_resources(*this);
                },
              };
+    active_panel_border->move_resources(
+      resources.renderer.get(), resources.resource_sink);
+    entity_list->move_resources(
+      resources.renderer.get(), resources.resource_sink);
+    map_editor->move_resources(
+      resources.renderer.get(), resources.resource_sink);
+    inspector->move_resources(
+      resources.renderer.get(), resources.resource_sink);
     resources.free();
 }
 
 void editor_app::focus_tool_panel(itool_panel *tool_panel)
 {
-    resources.active_panel_border->set_rect(
+    active_panel_border->set_rect(
       tool_panel->get_position(), tool_panel->get_size());
 }
 
@@ -98,7 +146,7 @@ void editor_app::toggle_tool_panel(itool_panel *tool_panel)
 
     visible_panels.erase(found_visible);
 
-    if (was_focused && tool_panel != resources.map_editor.get())
+    if (was_focused && tool_panel != map_editor.get())
     {
         refit_visible_panels();
     }
@@ -115,7 +163,7 @@ void editor_app::refit_visible_panels()
 
     for (auto panel : visible_panels)
     {
-        if (panel == resources.map_editor.get())
+        if (panel == map_editor.get())
             continue;
 
         total_width += panel->get_size().width;
@@ -123,9 +171,9 @@ void editor_app::refit_visible_panels()
 
     int remainder = resources.window_size.width - total_width;
 
-    auto map_editor_size = resources.map_editor->get_size();
+    auto map_editor_size = map_editor->get_size();
     map_editor_size.width = remainder;
-    resources.map_editor->set_rect({0, 0}, map_editor_size);
+    map_editor->set_rect({0, 0}, map_editor_size);
 
     int current_pos{0};
     for (auto panel : panel_order_horizontal)
@@ -143,7 +191,7 @@ void editor_app::refit_visible_panels()
 map_selector editor_app::create_map_selector()
 {
     return map_selector(map_selector_init{
-      .directory = resources.project_dir,
+      .directory = project_dir,
       .renderer = resources.renderer.get(),
       .font_material = resources.text_material,
       .font = resources.font.get(),
@@ -154,42 +202,42 @@ map_selector editor_app::create_map_selector()
 modal_state editor_app::create_simulation_select_state()
 {
     return modal_state{
-      std::make_unique<lmtk::text_line_selector>(lmtk::text_line_selector_init{
-        .lines = resources.simulation_names,
-        .renderer = resources.renderer.get(),
-        .font_material = resources.text_material,
-        .font = resources.font.get(),
-        .rect_material = resources.rect_material}),
+      std::make_unique<widget_panel_wrapper<lmtk::text_line_selector>>(
+        lmtk::text_line_selector_init{.lines = resources.simulation_names,
+                                      .renderer = resources.renderer.get(),
+                                      .font_material = resources.text_material,
+                                      .font = resources.font.get(),
+                                      .rect_material =
+                                        resources.rect_material}()),
       [](auto &app, auto widget_ptr, auto &input_event) {
-          auto selector = dynamic_cast<lmtk::text_line_selector *>(widget_ptr);
+          auto wrapper =
+            dynamic_cast<widget_panel_wrapper<lmtk::text_line_selector> *>(
+              widget_ptr);
           return input_event >>
                  lm::variant_visitor{
                    [&](lmtk::key_down_event const &key_down_event) {
                        if (key_down_event.key == lmpl::key_code::Enter)
                        {
                            app.resources.selected_simulation_index =
-                             selector->get_selection_index();
-                           selector->move_resources(
+                             wrapper->widget.get_selection_index();
+                           wrapper->widget.move_resources(
                              app.resources.renderer.get(),
                              app.resources.resource_sink);
                            app.state = gui_state{app};
                            return true;
                        }
-                       return selector->handle(key_down_event);
+                       return wrapper->widget.handle(key_down_event);
                    },
                    [&](auto &event_alternative) {
-                       return selector->handle(event_alternative);
+                       return wrapper->widget.handle(event_alternative);
                    }};
       }};
 }
 
 void editor_app::sync_entity_list()
 {
-    resources.entity_list->display(
-      *resources.renderer,
-      resources.resource_sink,
-      *resources.font,
-      resources.map_editor->get_map());
+    entity_list->display(
+      *resources.renderer, resources.resource_sink, *resources.font, map);
 }
 
 editor_app::~editor_app() {}

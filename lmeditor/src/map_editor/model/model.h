@@ -22,26 +22,26 @@ class map_editor_model : public viewport
     using state_change_handler = std::function<void(map_editor_model const &)>;
 
     bool handle(
+      entt::registry &map,
       lmtk::input_event const &event,
-      map_editor_event_handler const &event_handler = {},
+      const map_editor_event_handler &event_handler = {},
       state_change_handler on_state_change = [](auto &) {});
 
-    void add_component_to_selected(entt::meta_type const &type);
+    entt::entity add_cube(
+      entt::registry &map,
+      Eigen::Vector3f const &position,
+      float extent);
 
-    entt::entity add_cube(Eigen::Vector3f const &position, float extent);
-
-    bool update_selection(
-      entt::meta_data const &data,
-      std::string const &string_repr);
-
-    entt::registry map;
     entt::entity selected_box{entt::null};
 
     void select_box(entt::entity entity) { selected_box = entity; }
 
-    bool have_selection() { return map.valid(selected_box); }
+    bool have_selection() { return selected_box != entt::null; }
 
-    void translate(entt::entity entity, Eigen::Vector3f const &vector);
+    void translate(
+      entt::registry &map,
+      entt::entity entity,
+      Eigen::Vector3f const &vector);
 
     Eigen::Vector3f view_to_world(Eigen::Vector3f const &view_vector)
     {
@@ -50,37 +50,43 @@ class map_editor_model : public viewport
 
     Eigen::Vector3f view_to_axis(Eigen::Vector3f const &view_vector);
 
-    entt::entity
-      nearest_entity(entt::entity entity, const Eigen::Vector3f &direction);
-    entt::entity farthest_entity(Eigen::Vector3f const &direction);
+    entt::entity nearest_entity(
+      entt::registry const &map,
+      entt::entity entity,
+      Eigen::Vector3f const &direction);
+    entt::entity farthest_entity(
+      entt::registry const &map,
+      Eigen::Vector3f const &direction);
     bool move_selection(
+      entt::registry const &map,
       Eigen::Vector3f const &direction,
       map_editor_event_handler const &event_handler = {});
     bool move_selection_view(
-      const Eigen::Vector3f &view_axis,
+      entt::registry const &map,
+      Eigen::Vector3f const &view_axis,
       map_editor_event_handler const &event_handler);
 
-    void load_map(std::filesystem::path const &file_path);
-    void save_map(std::filesystem::path const &file_path);
+    entt::entity
+      add_adjacent(entt::registry &map, Eigen::Vector3f const &direction);
+    entt::entity
+      copy_entity(entt::registry &map, Eigen::Vector3f const &direction);
 
-    entt::entity add_adjacent(Eigen::Vector3f const &direction);
-    entt::entity copy_entity(Eigen::Vector3f const &direction);
-
-    std::string get_unique_name(char const *prefix);
+    std::string get_unique_name(entt::registry const &map, char const *prefix);
 
     std::vector<command_description> get_command_descriptions();
 
-    Eigen::Vector3f get_selection_position()
+    Eigen::Vector3f get_selection_position(entt::registry const &map)
     {
         return lmng::resolve_transform(map, selected_box).position;
     }
 
-    Eigen::Vector3f get_selection_extents() const;
+    Eigen::Vector3f get_selection_extents(entt::registry const &map) const;
 
     struct command_args
     {
         void *state_ptr;
         class map_editor_model &model;
+        entt::registry &map;
         map_editor_event_handler const &event_handler;
         lmtk::key_down_event const &key_down_event;
         state_change_handler const &on_state_change;
@@ -203,6 +209,7 @@ class map_editor_model : public viewport
     void leave_state(
       state_type &current_state,
       state_change_handler on_state_change);
+    void set_map(entt::registry const &registry);
 };
 
 template <typename new_state_type, typename current_state_type>

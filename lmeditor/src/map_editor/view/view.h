@@ -40,14 +40,18 @@ class map_editor_view
     map_editor_view(map_editor_view const &) = delete;
     map_editor_view(map_editor_view &&) = delete;
 
-    void render(lmgl::iframe *frame, map_editor_model &model);
+    void render(
+      lmgl::iframe *frame,
+      map_editor_model &model,
+      entt::registry const &map);
     void move_resources(lmtk::resource_sink &sink);
 
   public:
     void render_state_text(lmgl::iframe *frame);
     void render_selection_outline(
       lmgl::iframe *frame,
-      map_editor_model const &model) const;
+      map_editor_model const &model,
+      entt::registry const &map) const;
     lmgl::material create_selection_stencil_material();
 
     lmgl::geometry
@@ -82,7 +86,7 @@ class map_editor_view
 
 struct map_editor_view::init : public map_editor_init
 {
-    entt::registry &map;
+    entt::registry const &map;
     std::string initial_state_text;
 };
 } // namespace lmeditor

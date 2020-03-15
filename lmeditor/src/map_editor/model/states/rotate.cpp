@@ -62,10 +62,11 @@ map_editor_model::command_list rotate_commands{
 map_editor_model::rotate_state::rotate_state(
   map_editor_model::select_state &,
   map_editor_model &)
-    : commands{ranges::view::concat(
-        map_editor_model::viewport_commands,
-        rotate_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::viewport_commands,
+                 rotate_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

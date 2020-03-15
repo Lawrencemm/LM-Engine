@@ -143,7 +143,7 @@ void inspector::create_text(entt::registry &registry)
 
     lmtk::layout_vertical(
       lmtk::vertical_layout{.start = position.y, .spacing = 15},
-      ranges::view::transform(
+      ranges::views::transform(
         labels, [](auto &label) -> lmtk::text_layout & { return label.text; }));
 
     for (auto &label : labels)

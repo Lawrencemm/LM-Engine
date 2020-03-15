@@ -16,7 +16,7 @@ template <typename range_type>
 void layout_vertical(vertical_layout const &layout, range_type &widgets)
 {
     int current{layout.start};
-    for (auto [i, widget] : ranges::view::enumerate(widgets))
+    for (auto [i, widget] : ranges::views::enumerate(widgets))
     {
         if (i)
             current +=
@@ -32,7 +32,7 @@ template <typename range_type>
 void layout_vertical(vertical_layout const &layout, range_type const &widgets)
 {
     int current{layout.start};
-    for (auto [i, widget] : ranges::view::enumerate(widgets))
+    for (auto [i, widget] : ranges::views::enumerate(widgets))
     {
         if (i)
             current +=
@@ -50,7 +50,7 @@ void layout_vertical_pointers(
   range_type &widgets)
 {
     int current{layout.start};
-    for (auto [i, widget] : ranges::view::enumerate(widgets))
+    for (auto [i, widget] : ranges::views::enumerate(widgets))
     {
         if (i)
             current +=

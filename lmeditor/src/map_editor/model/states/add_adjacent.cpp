@@ -91,10 +91,11 @@ map_editor_model::command_list add_adjacent_commands{
 map_editor_model::add_adjacent_state::add_adjacent_state(
   map_editor_model::select_state &,
   map_editor_model &map_editor)
-    : commands{ranges::view::concat(
-        map_editor_model::viewport_commands,
-        add_adjacent_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::viewport_commands,
+                 add_adjacent_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

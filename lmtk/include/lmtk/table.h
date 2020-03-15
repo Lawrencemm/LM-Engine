@@ -14,10 +14,10 @@ class table
     {
         std::vector<int> column_widths{};
         std::vector<int> row_heights{};
-        for (auto [i, row] : ranges::view::enumerate(range))
+        for (auto [i, row] : ranges::views::enumerate(range))
         {
             row_heights.emplace_back(0);
-            for (auto [j, col] : ranges::view::enumerate(row))
+            for (auto [j, col] : ranges::views::enumerate(row))
             {
                 column_widths.emplace_back(0);
                 auto col_size = col.get_size();
@@ -27,13 +27,13 @@ class table
         }
 
         int ypos{0};
-        for (auto [i, row] : ranges::view::enumerate(range))
+        for (auto [i, row] : ranges::views::enumerate(range))
         {
             if (i)
                 ypos += row_heights[i - 1] + row_padding;
 
             int xpos{0};
-            for (auto [j, col] : ranges::view::enumerate(row))
+            for (auto [j, col] : ranges::views::enumerate(row))
             {
                 if (j)
                     xpos += column_widths[j - 1] + column_padding;

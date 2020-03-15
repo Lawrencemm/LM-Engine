@@ -36,7 +36,8 @@ std::map<std::string, simulation_creation_fn> simulation_creation_map{
 
 std::vector<std::string> list_simulations_cpp()
 {
-    return ranges::view::keys(simulation_creation_map);
+    return ranges::views::keys(simulation_creation_map) |
+           ranges::to<std::vector>();
 }
 
 BOOST_DLL_ALIAS(list_simulations_cpp, list_simulations);

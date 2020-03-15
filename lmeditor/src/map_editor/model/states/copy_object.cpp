@@ -90,10 +90,11 @@ map_editor_model::command_list copy_adjacent_commands{
 map_editor_model::copy_entity_state::copy_entity_state(
   map_editor_model::select_state &,
   map_editor_model &map_editor)
-    : commands{ranges::view::concat(
-        map_editor_model::viewport_commands,
-        copy_adjacent_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::viewport_commands,
+                 copy_adjacent_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

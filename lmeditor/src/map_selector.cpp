@@ -9,13 +9,14 @@ std::vector<std::filesystem::path>
   get_map_files(std::filesystem::path const &dir)
 {
     return std::filesystem::recursive_directory_iterator{dir} |
-           ranges::view::filter(
+           ranges::views::filter(
              [](auto &entry) { return entry.path().extension() == ".lmap"; }) |
-           ranges::view::transform([&](auto &entry) {
+           ranges::views::transform([&](auto &entry) {
                auto with_ext = std::filesystem::relative(entry, dir).string();
                return with_ext.substr(
                  0, with_ext.size() - std::string{".lmap"}.size());
-           });
+           }) |
+           ranges::to<std::vector<std::filesystem::path>>();
 }
 
 namespace lmeditor

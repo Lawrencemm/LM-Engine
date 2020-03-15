@@ -168,7 +168,7 @@ std::vector<command_description> map_editor_model::get_command_descriptions(
         std::string keystroke_string;
         command_lines.emplace_back(command_description{
           command.description,
-          ranges::view::join(key_names, ' '),
+          ranges::views::join(key_names, ' ') | ranges::to<std::string>(),
           context,
         });
     }

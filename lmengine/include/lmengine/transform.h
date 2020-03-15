@@ -22,4 +22,9 @@ transform
   resolve_transform(entt::registry const &registry, entt::entity entity);
 
 transform get_frame(entt::registry const &registry, entt::entity entity);
+
+void set_transform_parent(
+  entt::registry &registry,
+  entt::entity entity,
+  entt::entity parent);
 } // namespace lmng

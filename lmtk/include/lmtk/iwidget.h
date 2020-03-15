@@ -10,7 +10,6 @@ namespace lmtk
 class iwidget
 {
   public:
-    virtual iwidget &add_to_frame(lmgl::iframe *frame) = 0;
     virtual lm::size2i get_size() = 0;
     virtual lm::point2i get_position() = 0;
     virtual iwidget &set_rect(lm::point2i position, lm::size2i size) = 0;

@@ -32,6 +32,6 @@ void modal_state::move_resources(editor_app &app) {}
 
 void modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
-    modal->add_to_frame(frame);
+    modal->add_to_frame(frame, app);
 }
 } // namespace lmeditor

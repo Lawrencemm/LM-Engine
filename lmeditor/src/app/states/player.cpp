@@ -5,7 +5,7 @@ namespace lmeditor
 {
 player_state editor_app::create_player_state()
 {
-    auto play_registry = resources.map_editor->get_map().clone();
+    auto play_registry = map.clone();
     auto simulation = resources.create_simulation(
       resources.simulation_names[resources.selected_simulation_index],
       play_registry);

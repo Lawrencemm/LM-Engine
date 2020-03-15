@@ -9,13 +9,14 @@ std::vector<std::filesystem::path>
   get_map_files(std::filesystem::path const &dir)
 {
     return std::filesystem::recursive_directory_iterator{dir} |
-           ranges::view::filter(
+           ranges::views::filter(
              [](auto &entry) { return entry.path().extension() == ".lmap"; }) |
-           ranges::view::transform([&](auto &entry) {
+           ranges::views::transform([&](auto &entry) {
                auto with_ext = std::filesystem::relative(entry, dir).string();
                return with_ext.substr(
                  0, with_ext.size() - std::string{".lmap"}.size());
-           });
+           }) |
+           ranges::to<std::vector<std::filesystem::path>>();
 }
 
 namespace lmeditor
@@ -97,7 +98,8 @@ bool map_selector::handle(
                           };
 }
 
-lmtk::iwidget &map_selector::add_to_frame(lmgl::iframe *frame)
+map_selector &
+  map_selector::add_to_frame(lmgl::iframe *frame, editor_app const &app)
 {
     if (file_paths.size() > 0)
     {
@@ -116,12 +118,12 @@ lm::size2i map_selector::get_size() { return lm::size2i(); }
 
 lm::point2i map_selector::get_position() { return lm::point2i(); }
 
-lmtk::iwidget &map_selector::set_rect(lm::point2i position, lm::size2i size)
+map_selector &map_selector::set_rect(lm::point2i position, lm::size2i size)
 {
     return *this;
 }
 
-lmtk::iwidget &map_selector::move_resources(
+map_selector &map_selector::move_resources(
   lmgl::irenderer *renderer,
   lmtk::resource_sink &resource_sink)
 {
@@ -130,5 +132,10 @@ lmtk::iwidget &map_selector::move_resources(
 
     selection_background.move_resources(renderer, resource_sink);
     return *this;
+}
+
+std::vector<command_description> map_selector::get_command_descriptions()
+{
+    return std::vector<command_description>();
 }
 } // namespace lmeditor

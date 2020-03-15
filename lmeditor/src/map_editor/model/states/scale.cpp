@@ -21,12 +21,11 @@ map_editor_model::command create_scale_command(char const *name)
 
           if (
             auto maybe_box_render =
-              args.model.map.try_get<lmng::box_render>(args.model.selected_box))
+              args.map.try_get<lmng::box_render>(args.model.selected_box))
               pextents = &maybe_box_render->extents;
           else if (
             auto maybe_box_collider =
-              args.model.map.try_get<lmng::box_collider>(
-                args.model.selected_box))
+              args.map.try_get<lmng::box_collider>(args.model.selected_box))
               pextents = &maybe_box_collider->extents;
 
           auto &extents = *pextents;
@@ -37,7 +36,7 @@ map_editor_model::command create_scale_command(char const *name)
               amount = extents[axis] * 0.5f;
 
           extents[axis] += sign * amount;
-          args.event_handler(map_editor_modified_selected{args.model.map});
+          args.event_handler(map_editor_modified_selected{args.map});
           return true;
       },
       name,
@@ -67,10 +66,11 @@ map_editor_model::command_list scale_commands{
 map_editor_model::scale_state::scale_state(
   map_editor_model::select_state &,
   map_editor_model &)
-    : commands{ranges::view::concat(
-        map_editor_model::viewport_commands,
-        scale_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::viewport_commands,
+                 scale_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

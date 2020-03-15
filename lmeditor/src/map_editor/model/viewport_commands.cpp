@@ -45,7 +45,7 @@ map_editor_model::command move_to_selection_command{
   [](map_editor_model::command_args const &args) {
       if (args.model.have_selection())
           args.model.camera.move_to_target(
-            lmng::resolve_transform(args.model.map, args.model.selected_box)
+            lmng::resolve_transform(args.map, args.model.selected_box)
               .position);
       return true;
   },

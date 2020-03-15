@@ -10,7 +10,8 @@ map_editor_model::command select_parent{
       if (args.model.selected_box == state.entity)
           return false;
 
-      args.model.reparent_entity(state.entity, args.model.selected_box);
+      lmng::set_transform_parent(
+        args.map, state.entity, args.model.selected_box);
       args.model.leave_state(state, args.on_state_change);
       return true;
   },
@@ -35,12 +36,13 @@ map_editor_model::command_list reparent_commands{
 map_editor_model::reparent_state::reparent_state(
   map_editor_model::select_state &,
   map_editor_model &map_editor)
-    : commands{ranges::view::concat(
-        map_editor_model::move_selection_commands,
-        map_editor_model::viewport_commands,
-        reparent_commands)},
-      key_command_map{ranges::view::all(commands)},
+    : commands{ranges::views::concat(
+                 map_editor_model::move_selection_commands,
+                 map_editor_model::viewport_commands,
+                 reparent_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()},
       entity{map_editor.selected_box}
 {
 }
-}
+} // namespace lmeditor

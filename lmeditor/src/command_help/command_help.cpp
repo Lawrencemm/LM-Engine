@@ -45,23 +45,24 @@ command_help::command_help(command_help_init const &init)
     lmtk::table{rows, get_table_origin()};
 }
 
-lmtk::iwidget &command_help::add_to_frame(lmgl::iframe *frame)
+command_help &
+  command_help::add_to_frame(lmgl::iframe *frame, editor_app const &app)
 {
     filter.add_to_frame(frame);
 
     auto filter_value = filter.get_value();
 
-    auto shown_rows = ranges::view::concat(
+    auto shown_rows = ranges::views::concat(
       ranges::span{&rows[0], 1},
-      ranges::view::zip(commands, ranges::view::tail(rows)) |
-        ranges::view::filter([&](auto const &desc_and_row) {
+      ranges::views::zip(commands, ranges::views::tail(rows)) |
+        ranges::views::filter([&](auto const &desc_and_row) {
             return ranges::all_of(filter_value, [&](auto c) {
-                auto lower = ranges::view::transform(
+                auto lower = ranges::views::transform(
                   std::get<0>(desc_and_row).name, ::tolower);
                 return ranges::find(lower, std::tolower(c)) != lower.end();
             });
         }) |
-        ranges::view::transform([&](auto const &pair) -> decltype(rows[0]) {
+        ranges::views::transform([&](auto const &pair) -> decltype(rows[0]) {
             return std::get<1>(pair);
         }));
 
@@ -83,12 +84,12 @@ lm::point2i command_help::get_position()
     throw std::runtime_error{"Not implemented."};
 }
 
-lmtk::iwidget &command_help::set_rect(lm::point2i position, lm::size2i size)
+command_help &command_help::set_rect(lm::point2i position, lm::size2i size)
 {
     throw std::runtime_error{"Not implemented."};
 }
 
-lmtk::iwidget &command_help::move_resources(
+command_help &command_help::move_resources(
   lmgl::irenderer *renderer,
   lmtk::resource_sink &resource_sink)
 {
@@ -111,5 +112,10 @@ bool command_help::handle(
 lm::point2i command_help::get_table_origin()
 {
     return {0, filter.get_size().height + 15};
+}
+
+std::vector<command_description> command_help::get_command_descriptions()
+{
+    return std::vector<command_description>();
 }
 } // namespace lmeditor

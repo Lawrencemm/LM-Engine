@@ -8,10 +8,11 @@
 namespace lmeditor
 {
 entt::entity map_editor_model::nearest_entity(
+  entt::registry const &map,
   entt::entity entity,
   const Eigen::Vector3f &direction)
 {
-    auto transforms = map.view<lmng::transform>();
+    auto transforms = map.view<lmng::transform const>();
 
     if (transforms.size() == 1)
     {
@@ -43,9 +44,11 @@ entt::entity map_editor_model::nearest_entity(
     return nearest_entity;
 }
 
-entt::entity map_editor_model::farthest_entity(const Eigen::Vector3f &direction)
+entt::entity map_editor_model::farthest_entity(
+  entt::registry const &map,
+  const Eigen::Vector3f &direction)
 {
-    auto transforms = map.view<lmng::transform>();
+    auto transforms = map.view<lmng::transform const>();
 
     if (transforms.empty())
         return entt::null;
@@ -70,12 +73,13 @@ entt::entity map_editor_model::farthest_entity(const Eigen::Vector3f &direction)
 }
 
 bool map_editor_model::move_selection(
+  entt::registry const &map,
   Eigen::Vector3f const &direction,
   map_editor_event_handler const &event_handler)
 {
     if (!have_selection())
     {
-        auto farthest = farthest_entity(direction);
+        auto farthest = farthest_entity(map, direction);
         if (!map.valid(farthest))
             return false;
 
@@ -84,7 +88,7 @@ bool map_editor_model::move_selection(
         return true;
     }
 
-    auto nearest = nearest_entity(selected_box, direction);
+    auto nearest = nearest_entity(map, selected_box, direction);
 
     if (!map.valid(nearest))
         return false;
@@ -95,10 +99,17 @@ bool map_editor_model::move_selection(
 }
 
 bool map_editor_model::move_selection_view(
+  entt::registry const &map,
   const Eigen::Vector3f &view_axis,
   map_editor_event_handler const &event_handler)
 {
     return move_selection(
-      lm::snap_to_axis(camera.rotation * view_axis), event_handler);
+      map, lm::snap_to_axis(camera.rotation * view_axis), event_handler);
+}
+
+void map_editor_model::set_map(const entt::registry &registry)
+{
+    state.emplace<select_state>(*this);
+    selected_box = entt::null;
 }
 } // namespace lmeditor

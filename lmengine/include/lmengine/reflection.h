@@ -6,7 +6,7 @@
 namespace lmng
 {
 entt::meta_any get_component_any(
-  entt::registry &registry,
+  entt::registry const &registry,
   entt::entity entity,
   entt::meta_type const &type);
 
@@ -45,7 +45,7 @@ class any_component
 {
   public:
     any_component(
-      entt::registry &registry,
+      entt::registry const &registry,
       entt::entity entity,
       entt::meta_type const &type)
         : any{lmng::get_component_any(registry, entity, type)}
@@ -97,7 +97,7 @@ meta_type_map create_meta_type_map();
 /// Supply a function to be called with every reflected component on the entity.
 template <typename function_type>
 void reflect_components(
-  entt::registry &registry,
+  entt::registry const &registry,
   entt::entity entity,
   function_type const &function,
   meta_type_map type_map = create_meta_type_map())
@@ -131,7 +131,8 @@ void replace_on_entity(
 }
 
 template <typename component_type>
-component_type get_from_entity(entt::registry *registry, entt::entity entity)
+component_type
+  get_from_entity(entt::registry const *registry, entt::entity entity)
 {
     return registry->get<component_type>(entity);
 }

@@ -8,9 +8,9 @@ map_editor_model::command delete_selected_command{
   [](map_editor_model::command_args const &args) {
       if (args.model.have_selection())
       {
-          args.event_handler(map_editor_destroying_entity{
-            args.model.map, args.model.selected_box});
-          args.model.map.destroy(args.model.selected_box);
+          args.event_handler(
+            map_editor_destroying_entity{args.map, args.model.selected_box});
+          args.map.destroy(args.model.selected_box);
           args.model.selected_box = entt::null;
           return true;
       }
@@ -30,11 +30,11 @@ map_editor_model::command add_command{
           return true;
       }
 
-      entt::entity new_box = args.model.add_cube(add_pos, 1.f);
-      args.event_handler(map_editor_created_entity{args.model.map, new_box});
+      entt::entity new_box = args.model.add_cube(args.map, add_pos, 1.f);
+      args.event_handler(map_editor_created_entity{args.map, new_box});
 
       args.model.selected_box = new_box;
-      args.event_handler(map_editor_changed_selection{args.model.map, new_box});
+      args.event_handler(map_editor_changed_selection{args.map, new_box});
 
       return true;
   },
@@ -104,8 +104,8 @@ map_editor_model::command scale_command{
   [](map_editor_model::command_args const &args) {
       if (
         args.model.have_selection() &&
-        (args.model.map.has<lmng::box_render>(args.model.selected_box) ||
-         args.model.map.has<lmng::box_collider>(args.model.selected_box)))
+        (args.map.has<lmng::box_render>(args.model.selected_box) ||
+         args.map.has<lmng::box_collider>(args.model.selected_box)))
       {
           args.model.template enter_state<map_editor_model::scale_state>(
             *static_cast<map_editor_model::select_state *>(args.state_ptr),
@@ -145,11 +145,12 @@ map_editor_model::command_list select_commands{
 };
 
 map_editor_model::select_state::select_state(map_editor_model &map_editor)
-    : commands{ranges::view::concat(
-        map_editor_model::move_selection_commands,
-        map_editor_model::viewport_commands,
-        select_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::move_selection_commands,
+                 map_editor_model::viewport_commands,
+                 select_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

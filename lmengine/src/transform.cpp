@@ -40,4 +40,24 @@ transform get_frame(entt::registry const &registry, entt::entity entity)
 
     return transform{Eigen::Vector3f::Zero(), Eigen::Quaternionf{}};
 }
+
+void set_transform_parent(
+  entt::registry &registry,
+  entt::entity entity,
+  entt::entity parent)
+{
+    auto entity_transform = lmng::resolve_transform(registry, entity);
+    auto parent_transform = lmng::resolve_transform(registry, parent);
+
+    registry.assign_or_replace<lmng::transform_parent>(
+      entity, lmng::transform_parent{parent});
+
+    registry.replace<lmng::transform>(
+      entity,
+      lmng::transform{
+        parent_transform.rotation.inverse() *
+          (entity_transform.position - parent_transform.position),
+        entity_transform.rotation * parent_transform.rotation.inverse(),
+      });
+}
 } // namespace lmng

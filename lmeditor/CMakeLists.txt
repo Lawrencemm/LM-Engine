@@ -38,14 +38,15 @@ add_library(
   src/app/states/modal.cpp
   src/app/inspector_handler.cpp
   src/app/map_editor_handler.cpp
+  src/app/save_load_map.cpp
 
   src/viewport/orbital_camera.cpp
   src/trimesh/trimesh.cpp
 
   src/map_editor/map_editor.cpp
+  src/map_editor/add_to_frame.cpp
   src/map_editor/model/model.cpp
   src/map_editor/model/move_selection.cpp
-  src/map_editor/model/save_load.cpp
   src/map_editor/model/states/add_adjacent.cpp
   src/map_editor/model/states/translate.cpp
   src/map_editor/model/states/select.cpp
@@ -55,10 +56,6 @@ add_library(
   src/map_editor/model/states/rotate.cpp
   src/map_editor/view/rendering.cpp
   src/map_editor/view/view.cpp
-
-  src/mesh_editor/mesh_editor.cpp
-  src/mesh_editor/mesh_editor_hit_testing.cpp
-  src/mesh_editor/mesh_editor_move_geometry.cpp
   src/map_editor/model/move_selection_commands.cpp
   src/map_editor/model/states/reparent.cpp
 

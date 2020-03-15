@@ -31,16 +31,6 @@ dep_node create_node(tbb::flow::graph &g, callable_type fn)
 
 editor_app_resources::editor_app_resources(
   std::filesystem::path const &project_dir)
-    : project_dir{project_dir},
-      inspector_size{lm::size2i{
-        window_size.width / 5,
-        window_size.height,
-      }},
-      entity_list_size{inspector_size},
-      map_editor_size{lm::size2i{
-        window_size.width - inspector_size.width - entity_list_size.width,
-        window_size.height,
-      }}
 {
     using namespace tbb::flow;
 
@@ -99,62 +89,8 @@ editor_app_resources::editor_app_resources(
 
     make_edge(root_node, rect_material_node);
 
-    auto border_node = function_node<lmgl::material>{
-      init_graph, 1, [&](lmgl::material material) {
-          active_panel_border =
-            std::make_unique<lmtk::rect_border>(lmtk::rect_border{
-              renderer.get(),
-              material,
-              {0, 0},
-              {0, 0},
-              active_panel_border_colour,
-              1.f,
-            });
-          return continue_msg{};
-      }};
-
-    make_edge(border_material_node, border_node);
-
-    using widget_args_type = tuple<lmgl::material, lmtk::ifont const *>;
-
-    auto widget_args_join_node = join_node<widget_args_type>{init_graph};
-
-    lm::make_edge(text_material_node, widget_args_join_node);
-    lm::make_edge(font_node, widget_args_join_node);
-
-    auto map_editor_node =
-      function_node<widget_args_type>(init_graph, 1, [&](auto inputs) {
-          map_editor = create_map_editor(map_editor_init{
-            .renderer = renderer.get(),
-            .position = {inspector_size.width, 0},
-            .size = map_editor_size,
-            .selection_outline_colour = std::array{0.7f, 0.5f, 0.5f},
-            .text_material = get<0>(inputs),
-            .font = get<1>(inputs),
-          });
-      });
-
-    make_edge(widget_args_join_node, map_editor_node);
-
-    auto inspector_node =
-      function_node<widget_args_type>(init_graph, 1, [&](auto inputs) {
-          inspector = create_inspector(
-            *renderer, get<0>(inputs), get<1>(inputs), inspector_size);
-      });
-
-    make_edge(widget_args_join_node, inspector_node);
-
     root_node.try_put(continue_msg{});
     init_graph.wait_for_all();
-
-    entity_list = std::make_unique<lmeditor::entity_list>(entity_list_init{
-      .renderer = *renderer,
-      .text_material = text_material,
-      .rect_material = rect_material,
-      .font = font.get(),
-      .position = {inspector_size.width + map_editor_size.width, 0},
-      .size = entity_list_size,
-    });
 }
 
 editor_app_resources::~editor_app_resources() {}
@@ -178,9 +114,6 @@ void editor_app_resources::free()
     resource_sink.add(
       renderer.get(), text_material, border_material, rect_material);
     font->move_resources(renderer.get(), resource_sink);
-    active_panel_border->move_resources(renderer.get(), resource_sink);
-    map_editor->move_resources(renderer.get(), resource_sink);
-    inspector->move_resources(renderer.get(), resource_sink);
 }
 
 lmtk::char_field editor_app_resources::create_char_field(

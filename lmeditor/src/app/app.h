@@ -40,9 +40,8 @@ struct gui_state
 struct modal_state
 {
     bool handle_input_event(state_handle_args const &args);
-    std::unique_ptr<lmtk::iwidget> modal;
-    std::function<
-      bool(editor_app &, lmtk::iwidget *, lmtk::input_event const &)>
+    std::unique_ptr<itool_panel> modal;
+    std::function<bool(editor_app &, itool_panel *, lmtk::input_event const &)>
       input_handler{[](auto &, auto, auto &) { return false; }};
     void add_to_frame(editor_app &app, lmgl::iframe *frame);
     void move_resources(editor_app &app);
@@ -76,6 +75,14 @@ class editor_app
     editor_app_resources resources;
     lmtk::app_flow_graph flow_graph;
 
+    entt::registry map;
+
+    pinspector inspector;
+    pmap_editor map_editor;
+    pentity_list entity_list;
+    std::unique_ptr<lmtk::rect_border> active_panel_border;
+    std::filesystem::path project_dir;
+
     state_variant_type state;
     std::vector<itool_panel *> panel_order_horizontal;
     std::vector<itool_panel *> visible_panels;
@@ -98,6 +105,9 @@ class editor_app
     map_selector create_map_selector();
 
     void sync_entity_list();
+
+    void load_map(std::filesystem::path const &project_path);
+    void save_map(std::filesystem::path const &absolute_path);
 
   protected:
     bool on_input_event(lmtk::input_event const &variant);

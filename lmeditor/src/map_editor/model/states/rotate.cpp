@@ -21,12 +21,12 @@ map_editor_model::command create_rotate_command(char const *name)
           axis_vector[axis] = 1.f;
 
           auto &transform =
-            args.model.map.get<lmng::transform>(args.model.selected_box);
+            args.map.get<lmng::transform>(args.model.selected_box);
 
           transform.rotation =
             transform.rotation * Eigen::AngleAxisf{amount, axis_vector};
 
-          args.event_handler(map_editor_modified_selected{args.model.map});
+          args.event_handler(map_editor_modified_selected{args.map});
           return true;
       },
       name,
@@ -62,10 +62,11 @@ map_editor_model::command_list rotate_commands{
 map_editor_model::rotate_state::rotate_state(
   map_editor_model::select_state &,
   map_editor_model &)
-    : commands{ranges::view::concat(
-        map_editor_model::viewport_commands,
-        rotate_commands)},
-      key_command_map{ranges::view::all(commands)}
+    : commands{ranges::views::concat(
+                 map_editor_model::viewport_commands,
+                 rotate_commands) |
+               ranges::to<command_list>()},
+      key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }
 } // namespace lmeditor

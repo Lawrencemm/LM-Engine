@@ -47,7 +47,7 @@ inspector::inspector(
 }
 
 void inspector::display(
-  entt::registry &registry,
+  entt::registry const &registry,
   entt::entity entity,
   lmtk::resource_sink &resource_sink)
 {
@@ -59,7 +59,7 @@ void inspector::display(
     update_selection_background();
 }
 
-void inspector::create_text(entt::registry &registry)
+void inspector::create_text(const entt::registry &registry)
 {
     int name_xpos = position.x + 5;
 
@@ -143,7 +143,7 @@ void inspector::create_text(entt::registry &registry)
 
     lmtk::layout_vertical(
       lmtk::vertical_layout{.start = position.y, .spacing = 15},
-      ranges::view::transform(
+      ranges::views::transform(
         labels, [](auto &label) -> lmtk::text_layout & { return label.text; }));
 
     for (auto &label : labels)
@@ -200,7 +200,7 @@ bool inspector::handle(
            }};
 }
 
-inspector &inspector::add_to_frame(lmgl::iframe *frame)
+inspector &inspector::add_to_frame(lmgl::iframe *frame, editor_app const &app)
 {
     render_base(frame);
 

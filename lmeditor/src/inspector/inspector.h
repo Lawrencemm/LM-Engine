@@ -29,13 +29,15 @@ class inspector : public iinspector
       override;
 
     void display(
-      entt::registry &registry,
+      entt::registry const &registry,
       entt::entity entity,
       lmtk::resource_sink &resource_sink) override;
 
     void clear(lmtk::resource_sink &resource_sink) override;
 
-    inspector &add_to_frame(lmgl::iframe *frame) override;
+    inspector &
+      add_to_frame(lmgl::iframe *frame, editor_app const &app) override;
+
     lm::size2i get_size() override;
     iwidget &set_rect(lm::point2i position, lm::size2i size) override;
 
@@ -53,7 +55,7 @@ class inspector : public iinspector
     }
 
     bool move_selection(int movement, lmtk::resource_sink &resource_sink);
-    void create_text(entt::registry &registry);
+    void create_text(entt::registry const &registry);
     void clear_text(lmtk::resource_sink &resource_sink);
 
     struct state_handle_args

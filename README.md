@@ -34,6 +34,9 @@ Example first/third person game made with the engine.
 ## Requirements
 * Python 3
 * The [Conan](https://conan.io/) package manager
+    * You may need to run 
+    `conan profile update settings.compiler.libcxx=libstdc++11 default`
+    to set the standard library Conan uses by default.
 * [CMake](https://cmake.org/)
 * Vulkan graphics drivers
 * Linux

@@ -6,19 +6,19 @@ namespace lmng
 {
 struct box_collider
 {
-    Eigen::Vector3f extents;
+    Eigen::Vector3f extents{0, 0, 0};
 };
 
 struct rigid_body
 {
-    float mass;
-    float restitution;
-    float friction;
+    float mass{0.f};
+    float restitution{0.f};
+    float friction{0.f};
 };
 
 struct character_controller
 {
-    Eigen::Vector3f requested_velocity;
+    Eigen::Vector3f requested_velocity{0, 0, 0};
 };
 
 class iphysics

@@ -84,12 +84,14 @@ bool inspector::add_state::handle(state_handle_args const &args)
                        args.inspector, 1, args.resource_sink);
 
                  case lmpl::key_code::Enter:
+                 {
+                     auto meta_type = selection().type;
                      move_resources(
                        &args.inspector.renderer, args.resource_sink);
                      args.inspector.state = select_state{};
-                     args.event_handler(
-                       inspector_added_component{selection().type});
+                     args.event_handler(inspector_added_component{meta_type});
                      return true;
+                 }
 
                  default:
                      return false;

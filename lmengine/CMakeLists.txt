@@ -54,6 +54,7 @@ add_executable(
   test_lmengine
   test/test_lmengine.cpp
   test/test_transform.cpp
+  test/test_transform_hierarchy_visit.cpp
 )
 
 target_link_libraries(

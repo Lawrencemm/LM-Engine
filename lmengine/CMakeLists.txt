@@ -52,8 +52,8 @@ endif()
 
 add_executable(
   test_lmengine
-  src/test_lmengine.cpp
-  src/test_transform.cpp
+  test/test_lmengine.cpp
+  test/test_transform.cpp
 )
 
 target_link_libraries(

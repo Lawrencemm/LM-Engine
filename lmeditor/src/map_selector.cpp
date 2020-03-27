@@ -98,8 +98,7 @@ bool map_selector::handle(
                           };
 }
 
-map_selector &
-  map_selector::add_to_frame(lmgl::iframe *frame, editor_app const &app)
+map_selector &map_selector::add_to_frame(lmgl::iframe *frame)
 {
     if (file_paths.size() > 0)
     {
@@ -132,10 +131,5 @@ map_selector &map_selector::move_resources(
 
     selection_background.move_resources(renderer, resource_sink);
     return *this;
-}
-
-std::vector<command_description> map_selector::get_command_descriptions()
-{
-    return std::vector<command_description>();
 }
 } // namespace lmeditor

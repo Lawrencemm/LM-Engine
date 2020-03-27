@@ -30,22 +30,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
                 return false;
 
             case lmpl::key_code::F1:
-                args.app.state = modal_state{
-                  std::make_unique<command_help>(command_help_init{
-                    .renderer = *args.app.resources.renderer,
-                    .material = args.app.resources.text_material,
-                    .font = args.app.resources.font.get(),
-                    .commands = args.app.visible_panels.front()
-                                  ->get_command_descriptions(),
-                  }),
-                  [](editor_app &app, auto help_widget, auto &input_event) {
-                      return dynamic_cast<command_help *>(help_widget)
-                        ->handle(
-                          input_event,
-                          app.resources.renderer.get(),
-                          app.resources.font.get(),
-                          app.resources.resource_sink);
-                  }};
+                args.app.init_command_help();
                 return true;
 
             case lmpl::key_code::P:
@@ -59,7 +44,6 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::R:
                 if (key_down_event.input_state.key_state.control())
                 {
-
                     args.app.state = args.app.create_player_state();
                     return true;
                 }
@@ -68,18 +52,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::L:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    args.app.state.emplace<modal_state>(modal_state{
-                      std::make_unique<map_selector>(
-                        args.app.create_map_selector()),
-                      [](editor_app &app, auto widget, auto &input_event) {
-                          return dynamic_cast<map_selector *>(widget)->handle(
-                            input_event,
-                            map_selector_event_handler{
-                              [&](map_selector_chose_map const &ev) {
-                                  app.load_map(ev.path_to_file);
-                                  app.state.emplace<gui_state>(app);
-                              }});
-                      }});
+                    args.app.init_map_selector();
                     return true;
                 }
                 if (key_down_event.input_state.key_state.alt())
@@ -92,14 +65,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::S:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    auto path =
-                      args.app.map_file_project_relative_path.string();
-                    args.app.state.emplace<modal_state>(modal_state{
-                      .modal = std::make_unique<map_saver>(
-                        args.app.resources,
-                        path.substr(0, path.rfind(".lmap"))),
-                      .input_handler = map_saver::handle,
-                    });
+                    args.app.init_map_saver();
                     return true;
                 }
                 return false;

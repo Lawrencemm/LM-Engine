@@ -18,12 +18,10 @@ struct command_help_init
     std::vector<command_description> commands;
 };
 
-class command_help : public itool_panel
+class command_help : public lmtk::iwidget
 {
   public:
-    command_help &
-      add_to_frame(lmgl::iframe *frame, editor_app const &app) override;
-    std::vector<command_description> get_command_descriptions() override;
+    command_help &add_to_frame(lmgl::iframe *frame);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     command_help &set_rect(lm::point2i position, lm::size2i size) override;

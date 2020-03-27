@@ -2,6 +2,20 @@
 
 namespace lmeditor
 {
+void editor_app::init_map_saver()
+{
+    auto path = map_file_project_relative_path.string();
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<map_saver>(
+        resources, path.substr(0, path.rfind(".lmap"))),
+      .input_handler = map_saver::handle,
+      .renderer =
+        [](auto saver, auto frame) {
+            dynamic_cast<map_saver *>(saver)->add_to_frame(frame);
+        },
+    });
+}
+
 map_saver::map_saver(
   editor_app_resources &resources,
   std::string const &initial)
@@ -13,7 +27,7 @@ map_saver::map_saver(
 
 bool map_saver::handle(
   editor_app &app,
-  itool_panel *widget,
+  iwidget *widget,
   lmtk::input_event const &input_event)
 {
     auto saver = dynamic_cast<map_saver *>(widget);
@@ -37,7 +51,7 @@ bool map_saver::handle(
       app.resources.resource_sink);
 }
 
-map_saver &map_saver::add_to_frame(lmgl::iframe *frame, editor_app const &app)
+map_saver &map_saver::add_to_frame(lmgl::iframe *frame)
 {
     header.render(frame);
     field.add_to_frame(frame);
@@ -57,10 +71,5 @@ map_saver &map_saver::set_rect(lm::point2i position, lm::size2i size)
 {
     throw std::runtime_error{"Not implemented."};
     return *this;
-}
-
-std::vector<command_description> map_saver::get_command_descriptions()
-{
-    return std::vector<command_description>();
 }
 } // namespace lmeditor

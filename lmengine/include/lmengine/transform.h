@@ -30,11 +30,11 @@ void set_transform_parent(
 
 template <typename functor_type>
 void visit_transform_children(
-  entt::registry &registry,
+  entt::registry const &registry,
   entt::entity entity,
   functor_type &&fn)
 {
-    auto child_view = registry.view<transform_parent>();
+    auto child_view = registry.view<transform_parent const>();
 
     auto children =
       ranges::views::filter(child_view, [&registry, entity](auto child) {
@@ -44,7 +44,6 @@ void visit_transform_children(
     for (auto child : children)
     {
         fn(child);
-        visit_transform_children(registry, child, fn);
     }
 }
 } // namespace lmng

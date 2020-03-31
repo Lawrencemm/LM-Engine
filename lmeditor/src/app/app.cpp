@@ -2,6 +2,7 @@
 #include "saver.h"
 #include <boost/rational.hpp>
 #include <lmeditor/map_editor.h>
+#include <lmengine/name.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/text_line_selector.h>
 #include <random>
@@ -314,6 +315,44 @@ void editor_app::init_map_saver()
                 app.save_map(absolute);
 
                 app.map_file_project_relative_path = relative;
+                app.state.emplace<gui_state>(app);
+                return true;
+            }
+
+            return saver->field.handle(
+              input_event,
+              app.resources.renderer.get(),
+              app.resources.font.get(),
+              app.resources.resource_sink);
+        },
+      .renderer =
+        [](auto saver, auto frame) {
+            dynamic_cast<lmeditor::saver *>(saver)->add_to_frame(frame);
+        },
+    });
+}
+
+void editor_app::init_pose_saver()
+{
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<saver>(
+        resources,
+        "Save pose",
+        lmng::get_name(map, map_editor->get_selection())),
+      .input_handler =
+        [](editor_app &app, auto widget, auto &input_event) {
+            auto saver = dynamic_cast<lmeditor::saver *>(widget);
+            auto maybe_key_down_msg =
+              std::get_if<lmtk::key_down_event>(&input_event);
+            if (
+              maybe_key_down_msg &&
+              maybe_key_down_msg->key == lmpl::key_code::Enter)
+            {
+                auto relative = saver->field.get_value();
+                auto absolute = app.project_dir / (relative + ".lpose");
+
+                app.save_pose(absolute);
+
                 app.state.emplace<gui_state>(app);
                 return true;
             }

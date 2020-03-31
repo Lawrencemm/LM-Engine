@@ -39,6 +39,7 @@ add_library(
   src/app/inspector_handler.cpp
   src/app/map_editor_handler.cpp
   src/app/save_load_map.cpp
+  src/app/save_load_pose.cpp
 
   src/viewport/orbital_camera.cpp
   src/trimesh/trimesh.cpp

@@ -23,8 +23,12 @@ TEST_CASE("Visit transform children")
         visited[ranges::find(entities, entity) - entities.begin()] = true;
     });
 
+    lmng::visit_transform_children(registry, entities[2], [&](auto entity) {
+        visited[ranges::find(entities, entity) - entities.begin()] = true;
+    });
+
     CAPTURE(visited);
 
     REQUIRE(ranges::equal(
-      visited, std::array{false, true, true, true, true, false, false}));
+      visited, std::array{false, true, false, true, true, false, false}));
 }

@@ -68,7 +68,7 @@ add_library(
   src/command_help/command_help.cpp
 
   src/map_selector.cpp
-  src/app/map_saver.cpp
+  src/app/saver.cpp
 
   src/entity_list/entity_list.cpp
   src/entity_list/view.cpp

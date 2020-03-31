@@ -43,4 +43,27 @@ void editor_app::save_pose(std::filesystem::path const &absolute_path)
     std::ofstream output{absolute_path};
     output << yaml;
 }
+
+void editor_app::load_pose(std::filesystem::path const &project_path)
+{
+    auto yaml = YAML::LoadFile(project_dir / project_path.string());
+
+    for (auto const &yaml_entity : yaml)
+    {
+        auto child =
+          lmng::find_entity(map, yaml_entity.first.as<std::string>());
+
+        Eigen::Vector3f pos;
+        Eigen::Quaternionf rot;
+
+        std::istringstream{
+          yaml_entity.second["Transform"]["Position"].as<std::string>()} >>
+          pos.x() >> pos.y() >> pos.z();
+        std::istringstream{
+          yaml_entity.second["Transform"]["Rotation"].as<std::string>()} >>
+          rot.x() >> rot.y() >> rot.z() >> rot.w();
+
+        map.replace<lmng::transform>(child, lmng::transform{pos, rot});
+    }
+}
 } // namespace lmeditor

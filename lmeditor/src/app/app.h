@@ -104,6 +104,7 @@ class editor_app
     void init_map_selector();
     void init_command_help();
     void init_pose_saver();
+    void init_pose_loader();
 
     bool map_editor_handle(lmtk::input_event const &input_event);
     bool inspector_handle(lmtk::input_event const &input_event);
@@ -119,6 +120,7 @@ class editor_app
     void load_map(std::filesystem::path const &project_path);
     void save_map(std::filesystem::path const &absolute_path);
 
+    void load_pose(std::filesystem::path const &project_path);
     void save_pose(std::filesystem::path const &absolute_path);
 
   protected:

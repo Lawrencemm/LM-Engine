@@ -369,4 +369,60 @@ void editor_app::init_pose_saver()
         },
     });
 }
+
+void editor_app::init_pose_loader()
+{
+    auto is_lpose_file = [](auto &file) {
+        return file.path().extension() == ".lpose";
+    };
+
+    auto proj_relative_no_ext = [&](auto &entry) {
+        auto with_ext = std::filesystem::relative(entry, project_dir).string();
+        return with_ext.substr(
+          0, with_ext.size() - std::string{".lpose"}.size());
+    };
+
+    auto pose_paths =
+      std::filesystem::recursive_directory_iterator{project_dir} |
+      ranges::views::filter(is_lpose_file) |
+      ranges::views::transform(proj_relative_no_ext) |
+      ranges::to<std::vector<std::string>>();
+
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<lmtk::text_line_selector>(
+        lmtk::text_line_selector_init{.lines = pose_paths,
+                                      .renderer = resources.renderer.get(),
+                                      .font_material = resources.text_material,
+                                      .font = resources.font.get(),
+                                      .rect_material =
+                                        resources.rect_material}()),
+      .input_handler =
+        [pose_paths = std::move(pose_paths)](
+          auto &app, auto widget_ptr, auto &input_event) {
+            auto selector =
+              dynamic_cast<lmtk::text_line_selector *>(widget_ptr);
+
+            return input_event >>
+                   lm::variant_visitor{
+                     [&](lmtk::key_down_event const &key_down_event) {
+                         if (key_down_event.key == lmpl::key_code::Enter)
+                         {
+                             app.load_pose(
+                               pose_paths[selector->get_selection_index()] +
+                               ".lpose");
+                             return true;
+                         }
+                         return selector->handle(key_down_event);
+                     },
+                     [&](auto &event_alternative) {
+                         return selector->handle(event_alternative);
+                     }};
+        },
+      .renderer =
+        [](auto widget, auto frame) {
+            dynamic_cast<lmtk::text_line_selector *>(widget)->add_to_frame(
+              frame);
+        },
+    });
+}
 } // namespace lmeditor

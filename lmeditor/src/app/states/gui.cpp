@@ -73,9 +73,15 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::B:
                 if (key_down_event.input_state.key_state.control())
                 {
+                    if (key_down_event.input_state.key_state.shift())
+                    {
+                        args.app.init_pose_loader();
+                        return true;
+                    }
                     args.app.init_pose_saver();
                     return true;
                 }
+                return false;
 
             default:
                 return false;

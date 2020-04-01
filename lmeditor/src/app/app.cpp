@@ -2,6 +2,7 @@
 #include "saver.h"
 #include <boost/rational.hpp>
 #include <lmeditor/map_editor.h>
+#include <lmeditor/save_load_pose.h>
 #include <lmengine/name.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/text_line_selector.h>
@@ -351,7 +352,9 @@ void editor_app::init_pose_saver()
                 auto relative = saver->field.get_value();
                 auto absolute = app.project_dir / (relative + ".lpose");
 
-                app.save_pose(absolute);
+                std::ofstream output{absolute};
+                output << lmeditor::save_pose(
+                  app.map, app.map_editor->get_selection());
 
                 app.state.emplace<gui_state>(app);
                 return true;
@@ -398,7 +401,7 @@ void editor_app::init_pose_loader()
                                         resources.rect_material}()),
       .input_handler =
         [pose_paths = std::move(pose_paths)](
-          auto &app, auto widget_ptr, auto &input_event) {
+          editor_app &app, auto widget_ptr, auto &input_event) {
             auto selector =
               dynamic_cast<lmtk::text_line_selector *>(widget_ptr);
 
@@ -407,9 +410,17 @@ void editor_app::init_pose_loader()
                      [&](lmtk::key_down_event const &key_down_event) {
                          if (key_down_event.key == lmpl::key_code::Enter)
                          {
-                             app.load_pose(
-                               pose_paths[selector->get_selection_index()] +
-                               ".lpose");
+                             auto pose_path =
+                               app.project_dir /
+                               (pose_paths[selector->get_selection_index()] +
+                                ".lpose");
+
+                             load_pose(
+                               app.map,
+                               app.map_editor->get_selection(),
+                               YAML::LoadFile(pose_path));
+
+                             app.state.emplace<gui_state>(app);
                              return true;
                          }
                          return selector->handle(key_down_event);

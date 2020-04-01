@@ -120,9 +120,6 @@ class editor_app
     void load_map(std::filesystem::path const &project_path);
     void save_map(std::filesystem::path const &absolute_path);
 
-    void load_pose(std::filesystem::path const &project_path);
-    void save_pose(std::filesystem::path const &absolute_path);
-
   protected:
     bool on_input_event(lmtk::input_event const &variant);
     bool on_new_frame(lmgl::iframe *frame);

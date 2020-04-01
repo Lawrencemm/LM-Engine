@@ -39,7 +39,6 @@ add_library(
   src/app/inspector_handler.cpp
   src/app/map_editor_handler.cpp
   src/app/save_load_map.cpp
-  src/app/save_load_pose.cpp
 
   src/viewport/orbital_camera.cpp
   src/trimesh/trimesh.cpp
@@ -73,7 +72,9 @@ add_library(
 
   src/entity_list/entity_list.cpp
   src/entity_list/view.cpp
-  src/app/entity_list_handle.cpp)
+  src/app/entity_list_handle.cpp
+  src/save_load_pose.cpp
+)
 
 target_link_libraries(
   lmeditor

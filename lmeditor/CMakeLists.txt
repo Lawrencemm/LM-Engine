@@ -152,6 +152,7 @@ add_executable(
   test/test_trimesh.cpp
   test/map_editor/test.cpp
   test/map_editor/test_move_selection.cpp
+  test/test_pose.cpp
 )
 
 target_include_directories(

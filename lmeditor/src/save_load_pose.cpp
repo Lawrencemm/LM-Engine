@@ -3,6 +3,7 @@
 #include <fstream>
 #include <lmeditor/save_load_pose.h>
 #include <lmengine/name.h>
+#include <lmengine/serialisation.h>
 #include <lmengine/transform.h>
 
 static YAML::Node
@@ -10,22 +11,8 @@ static YAML::Node
 {
     YAML::Node yaml_node;
 
-    auto transform = registry.get<lmng::transform>(child);
-    YAML::Node transform_node;
-
-    transform_node["Position"] = fmt::format(
-      "{} {} {}",
-      transform.position.x(),
-      transform.position.y(),
-      transform.position.z());
-    transform_node["Rotation"] = fmt::format(
-      "{} {} {} {}",
-      transform.rotation.x(),
-      transform.rotation.y(),
-      transform.rotation.z(),
-      transform.rotation.w());
-
-    yaml_node["Transform"] = transform_node;
+    yaml_node["Transform"] =
+      lmng::serialise_component(registry, registry.get<lmng::transform>(child));
 
     return std::move(yaml_node);
 }

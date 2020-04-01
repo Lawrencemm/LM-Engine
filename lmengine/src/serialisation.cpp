@@ -7,6 +7,20 @@
 
 namespace lmng
 {
+YAML::Node serialise_component(
+  entt::registry const &registry,
+  const entt::meta_any &component)
+{
+    YAML::Node component_yaml;
+
+    component.type().data([&](entt::meta_data data) {
+        component_yaml[lmng::get_data_name(data)] =
+          get_data(component, data, registry);
+    });
+
+    return component_yaml;
+}
+
 void serialise(entt::registry &registry, YAML::Node &yaml)
 {
     std::vector<entt::entity> entities;
@@ -27,12 +41,8 @@ void serialise(entt::registry &registry, YAML::Node &yaml)
           registry,
           entity,
           [&](lmng::any_component const &component_any) {
-              YAML::Node component_yaml;
-              component_any.any.type().data([&](entt::meta_data data) {
-                  component_yaml[lmng::get_data_name(data)] =
-                    component_any.get(data, registry);
-              });
-              actor_yaml[component_any.name()] = component_yaml;
+              actor_yaml[component_any.name()] =
+                serialise_component(registry, component_any.any);
           },
           type_map);
 

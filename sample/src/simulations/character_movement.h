@@ -3,16 +3,19 @@
 #include <entt/entity/registry.hpp>
 
 #include "../components/animation.h"
+#include <lmengine/animation.h>
 #include <lmengine/physics.h>
+#include <lmengine/simulation.h>
 #include <lmengine/transform.h>
 #include <lmtk/lmtk.h>
+#include <yaml-cpp/node/node.h>
 
 #include "../components/character_input.h"
 
 class character_movement
 {
   public:
-    explicit character_movement(entt::registry &registry);
+    explicit character_movement(lmng::simulation_init const &init);
 
     void handle_input_event(
       lmtk::input_event const &input_event,
@@ -24,6 +27,7 @@ class character_movement
       lmtk::input_state const &input_state);
 
     lmng::physics physics;
+    lmng::animation_system animation_system;
     entt::entity camera;
 
     struct character
@@ -45,6 +49,6 @@ class character_movement
       entt::registry &registry,
       character const &character);
 
-    static void
-      apply_animation(character &character, entt::registry &registry, float dt);
+    lmng::pose left_forward_pose, right_forward_pose;
+    lmng::animation swing_arms_animation;
 };

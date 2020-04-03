@@ -89,7 +89,6 @@ add_executable(
   src/test_sample.cpp
 
   src/simulations/character_movement.cpp
-  src/simulations/test_character_movement.cpp
 )
 
 target_link_libraries(

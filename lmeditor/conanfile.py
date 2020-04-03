@@ -24,7 +24,6 @@ class LmeditorConan(ConanFile):
         'Catch2/2.6.1@catchorg/stable',
         'embed-resource/0.2@lawrencem/stable',
         'fmt/5.3.0@bincrafters/stable',
-        'yaml-cpp/0.6.2@bincrafters/stable',
         'clara/1.1.5@bincrafters/stable',
         'boost/1.70.0',
     )

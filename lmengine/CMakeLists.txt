@@ -27,6 +27,7 @@ add_library(
   src/transform.cpp
   src/name.cpp
   src/pose.cpp
+  src/animation.cpp
 )
 
 target_include_directories(

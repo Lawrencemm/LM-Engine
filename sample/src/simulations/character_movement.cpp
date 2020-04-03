@@ -2,10 +2,13 @@
 #include <range/v3/algorithm/copy.hpp>
 
 #include <iostream>
+#include <lmengine/animation.h>
 #include <lmengine/camera.h>
 #include <lmengine/kinematic.h>
+#include <lmengine/simulation.h>
 #include <lmengine/transform.h>
 #include <lmlib/math_constants.h>
+#include <yaml-cpp/yaml.h>
 
 #include "../components/animation.h"
 #include "../components/character_input.h"
@@ -29,11 +32,23 @@ character_movement::character
     };
 }
 
-character_movement::character_movement(entt::registry &registry)
-    : physics{lmng::create_physics(registry)}, camera{registry.create()}
+character_movement::character_movement(lmng::simulation_init const &init)
+    : physics{lmng::create_physics(init.registry)},
+      camera{init.registry.create()},
+      animation_system{},
+      left_forward_pose{animation_system.load_pose(
+        init.registry,
+        "left_forward",
+        YAML::LoadFile(init.project_dir / "left_forward.lpose"))},
+      right_forward_pose{animation_system.load_pose(
+        init.registry,
+        "right_forward",
+        YAML::LoadFile(init.project_dir / "right_forward.lpose"))},
+      swing_arms_animation{animation_system.load_animation(
+        YAML::LoadFile(init.project_dir / "swing_arms.lmanim"))}
 {
-    registry.assign<lmng::transform>(camera);
-    registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
+    init.registry.assign<lmng::transform>(camera);
+    init.registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
 }
 
 void character_movement::handle_input_event(
@@ -53,7 +68,7 @@ void character_movement::update(
 
     physics->step(registry, dt);
 
-    apply_animation(character, registry, dt);
+    animation_system.update(registry, dt);
 
     camera_follow_character(registry, character);
 }
@@ -102,7 +117,28 @@ void character_movement::apply_movement_controls(
 
     Eigen::Vector3f const world_velocity = local_to_world * movement_direction;
 
+    bool was_moving =
+      character.controller.requested_velocity.squaredNorm() > 0.001f;
+
+    bool started_moving = !was_moving && world_velocity.squaredNorm() > 0.001f;
+
+    bool stopped_moving = was_moving && world_velocity.squaredNorm() < 0.001f;
+
     character.controller.requested_velocity = world_velocity;
+
+    if (started_moving)
+    {
+        animation_system.animate(
+          registry,
+          character.entity,
+          swing_arms_animation,
+          0.5f,
+          1.f,
+          lmng::anim_loop_type::pendulum);
+    }
+
+    if (stopped_moving)
+        registry.remove<lmng::animation_state>(character.entity);
 
     if (input_state.key_state[lmpl::key_code::Left])
     {
@@ -127,96 +163,4 @@ void character_movement::apply_movement_controls(
             0.f,
           });
     }
-}
-
-void character_movement::apply_animation(
-  character_movement::character &character,
-  entt::registry &registry,
-  float dt)
-{
-    auto &left_transform =
-      registry.get<lmng::transform>(character.skeleton.left_shoulder);
-    auto &right_transform =
-      registry.get<lmng::transform>(character.skeleton.right_shoulder);
-
-    Eigen::Vector3f left_arm_forward_vector =
-      left_transform.rotation * Eigen::Vector3f::UnitZ();
-
-    float rotation = character.skeleton.arm_swing_speed * 2 * lm::pi * dt;
-    float apex_angle = character.skeleton.arm_swing_height * lm::pi / 2;
-    float curr_angle_left =
-      std::asin(left_arm_forward_vector.dot(Eigen::Vector3f::UnitZ()));
-
-    if (character.controller.requested_velocity.squaredNorm() > 0)
-    {
-        character.skeleton.state >>
-          lm::variant_visitor{
-            [&](character_skeleton::still) {
-                character.skeleton.state.emplace<character_skeleton::swing>(
-                  character_skeleton::swing{true});
-            },
-            [&](character_skeleton::swing &swing_state) {
-                bool at_top = std::abs(curr_angle_left) >= apex_angle;
-
-                if (at_top)
-                {
-                    left_transform.rotation = Eigen::AngleAxisf{
-                      swing_state.left_forward ? lm::pi / 2 - apex_angle
-                                               : lm::pi / 2 + apex_angle,
-                      Eigen::Vector3f::UnitX()};
-                    swing_state.left_forward = !swing_state.left_forward;
-                }
-            },
-            [&](character_skeleton::relax const &relax_state) {
-                character.skeleton.state.emplace<character_skeleton::swing>(
-                  character_skeleton::swing{relax_state.left_forward});
-            },
-          };
-    }
-    else
-    {
-        character.skeleton.state >>
-          lm::variant_visitor{
-            [&](character_skeleton::still) {},
-            [&](character_skeleton::swing const &swing_state) {
-                character.skeleton.state.emplace<character_skeleton::relax>(
-                  character_skeleton::relax{left_arm_forward_vector.dot(
-                                              Eigen::Vector3f::UnitZ()) >= 0});
-            },
-            [&](character_skeleton::relax const &relax_state) {
-                bool at_bottom = left_arm_forward_vector.dot(
-                                   Eigen::Vector3f::UnitZ()) <= 0.f ==
-                                 relax_state.left_forward;
-
-                if (at_bottom)
-                {
-                    character.skeleton.state
-                      .emplace<character_skeleton::still>();
-                }
-            },
-          };
-    }
-
-    character.skeleton.state >>
-      lm::variant_visitor{
-        [&](character_skeleton::still) {},
-        [&](character_skeleton::swing const &swing_state) {
-            Eigen::AngleAxisf left_rotation{
-              swing_state.left_forward ? -rotation : rotation,
-              Eigen::Vector3f::UnitX(),
-            };
-            left_transform.rotation = left_rotation * left_transform.rotation;
-            right_transform.rotation =
-              left_rotation.inverse() * right_transform.rotation;
-        },
-        [&](character_skeleton::relax const &relax_state) {
-            Eigen::AngleAxisf left_rotation{
-              relax_state.left_forward ? rotation : -rotation,
-              Eigen::Vector3f::UnitX(),
-            };
-            left_transform.rotation = left_rotation * left_transform.rotation;
-            right_transform.rotation =
-              left_rotation.inverse() * right_transform.rotation;
-        },
-      };
 }

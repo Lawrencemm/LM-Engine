@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include <lmengine/simulation.h>
 #include <lmlib/reference.h>
 #include <lmtk/lmtk.h>
 
@@ -26,7 +27,7 @@ typedef void (*set_meta_context_fn)(entt::meta_ctx const &);
 typedef void (*reflect_types_fn)();
 typedef std::vector<std::string> (*list_simulations_fn)();
 typedef psimulation (
-  *create_simulation_fn)(std::string const &, entt::registry &);
+  *create_simulation_fn)(std::string const &, lmng::simulation_init const &);
 } // namespace lmeditor
 
 #define LMEDITOR_SIMULATION_PLUGIN(simulation_class)                           \
@@ -35,8 +36,8 @@ typedef psimulation (
         simulation_class underlying_instance;                                  \
                                                                                \
       public:                                                                  \
-        explicit simulation_class##_plugin(entt::registry &registry)           \
-            : underlying_instance{registry}                                    \
+        explicit simulation_class##_plugin(lmng::simulation_init const &init)  \
+            : underlying_instance{init}                                        \
         {                                                                      \
         }                                                                      \
         void handle_input_event(                                               \

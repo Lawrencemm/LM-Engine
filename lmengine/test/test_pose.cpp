@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <iostream>
-#include <lmeditor/save_load_pose.h>
 #include <lmengine/name.h>
+#include <lmengine/pose.h>
 #include <lmengine/reflection.h>
 #include <lmengine/serialisation.h>
 #include <lmengine/transform.h>
@@ -44,7 +44,7 @@ TEST_CASE("Save/load pose")
         CHECK(child_transform.position == Eigen::Vector3f::Zero());
     }
 
-    lmeditor::load_pose(registry, parent, pose_yaml);
+    lmng::load_pose(registry, parent, pose_yaml);
 
     for (auto [child, expected_transform] :
          ranges::views::zip(children, transforms))

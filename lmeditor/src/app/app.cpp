@@ -2,8 +2,8 @@
 #include "saver.h"
 #include <boost/rational.hpp>
 #include <lmeditor/map_editor.h>
-#include <lmeditor/save_load_pose.h>
 #include <lmengine/name.h>
+#include <lmengine/pose.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/text_line_selector.h>
 #include <random>
@@ -353,7 +353,7 @@ void editor_app::init_pose_saver()
                 auto absolute = app.project_dir / (relative + ".lpose");
 
                 std::ofstream output{absolute};
-                output << lmeditor::save_pose(
+                output << lmng::save_pose(
                   app.map, app.map_editor->get_selection());
 
                 app.state.emplace<gui_state>(app);
@@ -415,7 +415,7 @@ void editor_app::init_pose_loader()
                                (pose_paths[selector->get_selection_index()] +
                                 ".lpose");
 
-                             load_pose(
+                             lmng::load_pose(
                                app.map,
                                app.map_editor->get_selection(),
                                YAML::LoadFile(pose_path));

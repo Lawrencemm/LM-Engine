@@ -1,7 +1,7 @@
-#include <entt/entt.hpp>
+#include <entt/fwd.hpp>
 #include <yaml-cpp/yaml.h>
 
-namespace lmeditor
+namespace lmng
 {
 void load_pose(
   entt::registry &registry,
@@ -9,4 +9,4 @@ void load_pose(
   YAML::Node const &pose_yaml);
 
 YAML::Node save_pose(entt::registry const &registry, entt::entity entity);
-} // namespace lmeditor
+} // namespace lmng

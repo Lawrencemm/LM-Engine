@@ -26,6 +26,7 @@ add_library(
   src/bullet_physics/character_controller.cpp
   src/transform.cpp
   src/name.cpp
+  src/pose.cpp
 )
 
 target_include_directories(
@@ -55,6 +56,7 @@ add_executable(
   test/test_lmengine.cpp
   test/test_transform.cpp
   test/test_transform_hierarchy_visit.cpp
+  test/test_pose
 )
 
 target_link_libraries(

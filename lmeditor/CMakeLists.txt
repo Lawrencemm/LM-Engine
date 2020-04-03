@@ -73,7 +73,6 @@ add_library(
   src/entity_list/entity_list.cpp
   src/entity_list/view.cpp
   src/app/entity_list_handle.cpp
-  src/save_load_pose.cpp
 )
 
 target_link_libraries(
@@ -152,7 +151,6 @@ add_executable(
   test/test_trimesh.cpp
   test/map_editor/test.cpp
   test/map_editor/test_move_selection.cpp
-  test/test_pose.cpp
 )
 
 target_include_directories(

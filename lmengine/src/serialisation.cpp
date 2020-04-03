@@ -71,22 +71,44 @@ void deserialise(YAML::Node const &yaml, entt::registry &registry)
 
         for (auto const &component_yaml : actor_yaml.second)
         {
-            auto component_name = component_yaml.first.as<std::string>();
-            auto component_meta_type =
-              entt::resolve(entt::hashed_string{component_name.c_str()});
-            auto component = component_meta_type.ctor().invoke();
-
-            for (auto const &data_yaml : component_yaml.second)
-            {
-                auto data = component_meta_type.data(entt::hashed_string{
-                  data_yaml.first.as<std::string>().c_str()});
-
-                auto data_str = data_yaml.second.as<std::string>();
-                lmng::set_data(component, data, data_str, registry);
-            }
-            lmng::assign_to_entity(component, registry, new_entity);
+            lmng::assign_to_entity(
+              deserialise_component(
+                registry, component_yaml.first, component_yaml.second),
+              registry,
+              new_entity);
         }
     }
+}
+
+entt::meta_any deserialise_component(
+  const entt::registry &registry,
+  std::string const &component_type_name,
+  YAML::Node const &component_yaml)
+{
+    auto component_meta_type =
+      entt::resolve(entt::hashed_string{component_type_name.c_str()});
+
+    auto component = component_meta_type.ctor().invoke();
+
+    for (auto const &data_yaml : component_yaml)
+    {
+        auto data = component_meta_type.data(
+          entt::hashed_string{data_yaml.first.as<std::string>().c_str()});
+
+        auto data_str = data_yaml.second.as<std::string>();
+        set_data(component, data, data_str, registry);
+    }
+
+    return component;
+}
+
+entt::meta_any deserialise_component(
+  const entt::registry &registry,
+  const YAML::Node &component_name_yaml,
+  YAML::Node const &component_yaml)
+{
+    return deserialise_component(
+      registry, component_name_yaml.as<std::string>(), component_yaml);
 }
 
 entt::registry deserialise(YAML::Node const &yaml)

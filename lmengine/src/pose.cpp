@@ -28,17 +28,11 @@ void load_pose(
     {
         auto child = find_entity(registry, yaml_entity.first.as<std::string>());
 
-        Eigen::Vector3f pos;
-        Eigen::Quaternionf rot;
-
-        std::istringstream{
-          yaml_entity.second["Transform"]["Position"].as<std::string>()} >>
-          pos.x() >> pos.y() >> pos.z();
-        std::istringstream{
-          yaml_entity.second["Transform"]["Rotation"].as<std::string>()} >>
-          rot.x() >> rot.y() >> rot.z() >> rot.w();
-
-        registry.replace<transform>(child, transform{pos, rot});
+        registry.replace<transform>(
+          child,
+          deserialise_component(
+            registry, "Transform", yaml_entity.second["Transform"])
+            .cast<transform>());
     }
 }
 

@@ -1,7 +1,9 @@
 #include "app.h"
+#include "saver.h"
 #include <boost/rational.hpp>
 #include <lmeditor/map_editor.h>
-#include <lmeditor/widget_panel_wrapper.h>
+#include <lmengine/name.h>
+#include <lmengine/pose.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/text_line_selector.h>
 #include <random>
@@ -202,36 +204,42 @@ map_selector editor_app::create_map_selector()
 modal_state editor_app::create_simulation_select_state()
 {
     return modal_state{
-      std::make_unique<widget_panel_wrapper<lmtk::text_line_selector>>(
+      .modal = std::make_unique<lmtk::text_line_selector>(
         lmtk::text_line_selector_init{.lines = resources.simulation_names,
                                       .renderer = resources.renderer.get(),
                                       .font_material = resources.text_material,
                                       .font = resources.font.get(),
                                       .rect_material =
                                         resources.rect_material}()),
-      [](auto &app, auto widget_ptr, auto &input_event) {
-          auto wrapper =
-            dynamic_cast<widget_panel_wrapper<lmtk::text_line_selector> *>(
-              widget_ptr);
-          return input_event >>
-                 lm::variant_visitor{
-                   [&](lmtk::key_down_event const &key_down_event) {
-                       if (key_down_event.key == lmpl::key_code::Enter)
-                       {
-                           app.resources.selected_simulation_index =
-                             wrapper->widget.get_selection_index();
-                           wrapper->widget.move_resources(
-                             app.resources.renderer.get(),
-                             app.resources.resource_sink);
-                           app.state = gui_state{app};
-                           return true;
-                       }
-                       return wrapper->widget.handle(key_down_event);
-                   },
-                   [&](auto &event_alternative) {
-                       return wrapper->widget.handle(event_alternative);
-                   }};
-      }};
+      .input_handler =
+        [](auto &app, auto widget_ptr, auto &input_event) {
+            auto selector =
+              dynamic_cast<lmtk::text_line_selector *>(widget_ptr);
+            return input_event >>
+                   lm::variant_visitor{
+                     [&](lmtk::key_down_event const &key_down_event) {
+                         if (key_down_event.key == lmpl::key_code::Enter)
+                         {
+                             app.resources.selected_simulation_index =
+                               selector->get_selection_index();
+                             selector->move_resources(
+                               app.resources.renderer.get(),
+                               app.resources.resource_sink);
+                             app.state = gui_state{app};
+                             return true;
+                         }
+                         return selector->handle(key_down_event);
+                     },
+                     [&](auto &event_alternative) {
+                         return selector->handle(event_alternative);
+                     }};
+        },
+      .renderer =
+        [](auto widget, auto frame) {
+            dynamic_cast<lmtk::text_line_selector *>(widget)->add_to_frame(
+              frame);
+        },
+    };
 }
 
 void editor_app::sync_entity_list()
@@ -241,4 +249,191 @@ void editor_app::sync_entity_list()
 }
 
 editor_app::~editor_app() {}
+
+void editor_app::init_map_selector()
+{
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<map_selector>(create_map_selector()),
+      .input_handler =
+        [](editor_app &app, auto widget, auto &input_event) {
+            return dynamic_cast<map_selector *>(widget)->handle(
+              input_event,
+              map_selector_event_handler{[&](map_selector_chose_map const &ev) {
+                  app.load_map(ev.path_to_file);
+                  app.state.emplace<gui_state>(app);
+              }});
+        },
+      .renderer =
+        [](auto widget, auto frame) {
+            dynamic_cast<map_selector *>(widget)->add_to_frame(frame);
+        },
+    });
+}
+
+void editor_app::init_command_help()
+{
+    state = modal_state{
+      .modal = std::make_unique<command_help>(command_help_init{
+        .renderer = *resources.renderer,
+        .material = resources.text_material,
+        .font = resources.font.get(),
+        .commands = visible_panels.front()->get_command_descriptions(),
+      }),
+      .input_handler =
+        [](editor_app &app, auto help_widget, auto &input_event) {
+            return dynamic_cast<command_help *>(help_widget)
+              ->handle(
+                input_event,
+                app.resources.renderer.get(),
+                app.resources.font.get(),
+                app.resources.resource_sink);
+        },
+      .renderer =
+        [](auto help_widget, auto frame) {
+            dynamic_cast<command_help *>(help_widget)->add_to_frame(frame);
+        },
+    };
+}
+
+void editor_app::init_map_saver()
+{
+    auto path = map_file_project_relative_path.string();
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<saver>(
+        resources, "Save map", path.substr(0, path.rfind(".lmap"))),
+      .input_handler =
+        [](editor_app &app, auto widget, auto &input_event) {
+            auto saver = dynamic_cast<lmeditor::saver *>(widget);
+            auto maybe_key_down_msg =
+              std::get_if<lmtk::key_down_event>(&input_event);
+            if (
+              maybe_key_down_msg &&
+              maybe_key_down_msg->key == lmpl::key_code::Enter)
+            {
+                auto relative = saver->field.get_value();
+                auto absolute = app.project_dir / (relative + ".lmap");
+
+                app.save_map(absolute);
+
+                app.map_file_project_relative_path = relative;
+                app.state.emplace<gui_state>(app);
+                return true;
+            }
+
+            return saver->field.handle(
+              input_event,
+              app.resources.renderer.get(),
+              app.resources.font.get(),
+              app.resources.resource_sink);
+        },
+      .renderer =
+        [](auto saver, auto frame) {
+            dynamic_cast<lmeditor::saver *>(saver)->add_to_frame(frame);
+        },
+    });
+}
+
+void editor_app::init_pose_saver()
+{
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<saver>(
+        resources,
+        "Save pose",
+        lmng::get_name(map, map_editor->get_selection())),
+      .input_handler =
+        [](editor_app &app, auto widget, auto &input_event) {
+            auto saver = dynamic_cast<lmeditor::saver *>(widget);
+            auto maybe_key_down_msg =
+              std::get_if<lmtk::key_down_event>(&input_event);
+            if (
+              maybe_key_down_msg &&
+              maybe_key_down_msg->key == lmpl::key_code::Enter)
+            {
+                auto relative = saver->field.get_value();
+                auto absolute = app.project_dir / (relative + ".lpose");
+
+                std::ofstream output{absolute};
+                output << lmng::save_pose(
+                  app.map, app.map_editor->get_selection());
+
+                app.state.emplace<gui_state>(app);
+                return true;
+            }
+
+            return saver->field.handle(
+              input_event,
+              app.resources.renderer.get(),
+              app.resources.font.get(),
+              app.resources.resource_sink);
+        },
+      .renderer =
+        [](auto saver, auto frame) {
+            dynamic_cast<lmeditor::saver *>(saver)->add_to_frame(frame);
+        },
+    });
+}
+
+void editor_app::init_pose_loader()
+{
+    auto is_lpose_file = [](auto &file) {
+        return file.path().extension() == ".lpose";
+    };
+
+    auto proj_relative_no_ext = [&](auto &entry) {
+        auto with_ext = std::filesystem::relative(entry, project_dir).string();
+        return with_ext.substr(
+          0, with_ext.size() - std::string{".lpose"}.size());
+    };
+
+    auto pose_paths =
+      std::filesystem::recursive_directory_iterator{project_dir} |
+      ranges::views::filter(is_lpose_file) |
+      ranges::views::transform(proj_relative_no_ext) |
+      ranges::to<std::vector<std::string>>();
+
+    state.emplace<modal_state>(modal_state{
+      .modal = std::make_unique<lmtk::text_line_selector>(
+        lmtk::text_line_selector_init{.lines = pose_paths,
+                                      .renderer = resources.renderer.get(),
+                                      .font_material = resources.text_material,
+                                      .font = resources.font.get(),
+                                      .rect_material =
+                                        resources.rect_material}()),
+      .input_handler =
+        [pose_paths = std::move(pose_paths)](
+          editor_app &app, auto widget_ptr, auto &input_event) {
+            auto selector =
+              dynamic_cast<lmtk::text_line_selector *>(widget_ptr);
+
+            return input_event >>
+                   lm::variant_visitor{
+                     [&](lmtk::key_down_event const &key_down_event) {
+                         if (key_down_event.key == lmpl::key_code::Enter)
+                         {
+                             auto pose_path =
+                               app.project_dir /
+                               (pose_paths[selector->get_selection_index()] +
+                                ".lpose");
+
+                             lmng::load_pose(
+                               app.map,
+                               app.map_editor->get_selection(),
+                               YAML::LoadFile(pose_path));
+
+                             app.state.emplace<gui_state>(app);
+                             return true;
+                         }
+                         return selector->handle(key_down_event);
+                     },
+                     [&](auto &event_alternative) {
+                         return selector->handle(event_alternative);
+                     }};
+        },
+      .renderer =
+        [](auto widget, auto frame) {
+            dynamic_cast<lmtk::text_line_selector *>(widget)->add_to_frame(
+              frame);
+        },
+    });
+}
 } // namespace lmeditor

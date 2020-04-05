@@ -40,11 +40,16 @@ struct gui_state
 struct modal_state
 {
     bool handle_input_event(state_handle_args const &args);
-    std::unique_ptr<itool_panel> modal;
-    std::function<bool(editor_app &, itool_panel *, lmtk::input_event const &)>
-      input_handler{[](auto &, auto, auto &) { return false; }};
     void add_to_frame(editor_app &app, lmgl::iframe *frame);
     void move_resources(editor_app &app);
+
+    std::unique_ptr<lmtk::iwidget> modal;
+
+    std::function<
+      bool(editor_app &, lmtk::iwidget *, lmtk::input_event const &)>
+      input_handler{[](auto &, auto, auto &) { return false; }};
+
+    std::function<void(lmtk::iwidget *, lmgl::iframe *)> renderer;
 };
 struct player_state
 {
@@ -94,6 +99,12 @@ class editor_app
 
     player_state create_player_state();
     modal_state create_simulation_select_state();
+
+    void init_map_saver();
+    void init_map_selector();
+    void init_command_help();
+    void init_pose_saver();
+    void init_pose_loader();
 
     bool map_editor_handle(lmtk::input_event const &input_event);
     bool inspector_handle(lmtk::input_event const &input_event);

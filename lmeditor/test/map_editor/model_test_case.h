@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../model.h"
+#include "../../src/map_editor/model/model.h"
 #include <catch2/catch.hpp>
 
 class model_test_case

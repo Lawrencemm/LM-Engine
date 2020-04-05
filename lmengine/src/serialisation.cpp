@@ -7,6 +7,20 @@
 
 namespace lmng
 {
+YAML::Node serialise_component(
+  entt::registry const &registry,
+  const entt::meta_any &component)
+{
+    YAML::Node component_yaml;
+
+    component.type().data([&](entt::meta_data data) {
+        component_yaml[lmng::get_data_name(data)] =
+          get_data(component, data, registry);
+    });
+
+    return component_yaml;
+}
+
 void serialise(entt::registry &registry, YAML::Node &yaml)
 {
     std::vector<entt::entity> entities;
@@ -27,12 +41,8 @@ void serialise(entt::registry &registry, YAML::Node &yaml)
           registry,
           entity,
           [&](lmng::any_component const &component_any) {
-              YAML::Node component_yaml;
-              component_any.any.type().data([&](entt::meta_data data) {
-                  component_yaml[lmng::get_data_name(data)] =
-                    component_any.get(data, registry);
-              });
-              actor_yaml[component_any.name()] = component_yaml;
+              actor_yaml[component_any.name()] =
+                serialise_component(registry, component_any.any);
           },
           type_map);
 
@@ -61,22 +71,44 @@ void deserialise(YAML::Node const &yaml, entt::registry &registry)
 
         for (auto const &component_yaml : actor_yaml.second)
         {
-            auto component_name = component_yaml.first.as<std::string>();
-            auto component_meta_type =
-              entt::resolve(entt::hashed_string{component_name.c_str()});
-            auto component = component_meta_type.ctor().invoke();
-
-            for (auto const &data_yaml : component_yaml.second)
-            {
-                auto data = component_meta_type.data(entt::hashed_string{
-                  data_yaml.first.as<std::string>().c_str()});
-
-                auto data_str = data_yaml.second.as<std::string>();
-                lmng::set_data(component, data, data_str, registry);
-            }
-            lmng::assign_to_entity(component, registry, new_entity);
+            lmng::assign_to_entity(
+              deserialise_component(
+                registry, component_yaml.first, component_yaml.second),
+              registry,
+              new_entity);
         }
     }
+}
+
+entt::meta_any deserialise_component(
+  const entt::registry &registry,
+  std::string const &component_type_name,
+  YAML::Node const &component_yaml)
+{
+    auto component_meta_type =
+      entt::resolve(entt::hashed_string{component_type_name.c_str()});
+
+    auto component = component_meta_type.ctor().invoke();
+
+    for (auto const &data_yaml : component_yaml)
+    {
+        auto data = component_meta_type.data(
+          entt::hashed_string{data_yaml.first.as<std::string>().c_str()});
+
+        auto data_str = data_yaml.second.as<std::string>();
+        set_data(component, data, data_str, registry);
+    }
+
+    return component;
+}
+
+entt::meta_any deserialise_component(
+  const entt::registry &registry,
+  const YAML::Node &component_name_yaml,
+  YAML::Node const &component_yaml)
+{
+    return deserialise_component(
+      registry, component_name_yaml.as<std::string>(), component_yaml);
 }
 
 entt::registry deserialise(YAML::Node const &yaml)

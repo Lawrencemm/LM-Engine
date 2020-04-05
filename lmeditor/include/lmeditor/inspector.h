@@ -2,6 +2,7 @@
 
 #include <variant>
 
+#include <entt/entt.hpp>
 #include <entt/meta/meta.hpp>
 
 #include <lmlib/reference.h>

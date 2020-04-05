@@ -45,8 +45,7 @@ command_help::command_help(command_help_init const &init)
     lmtk::table{rows, get_table_origin()};
 }
 
-command_help &
-  command_help::add_to_frame(lmgl::iframe *frame, editor_app const &app)
+command_help &command_help::add_to_frame(lmgl::iframe *frame)
 {
     filter.add_to_frame(frame);
 
@@ -112,10 +111,5 @@ bool command_help::handle(
 lm::point2i command_help::get_table_origin()
 {
     return {0, filter.get_size().height + 15};
-}
-
-std::vector<command_description> command_help::get_command_descriptions()
-{
-    return std::vector<command_description>();
 }
 } // namespace lmeditor

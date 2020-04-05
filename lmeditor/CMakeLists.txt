@@ -68,11 +68,12 @@ add_library(
   src/command_help/command_help.cpp
 
   src/map_selector.cpp
-  src/app/map_saver.cpp
+  src/app/saver.cpp
 
   src/entity_list/entity_list.cpp
   src/entity_list/view.cpp
-  src/app/entity_list_handle.cpp)
+  src/app/entity_list_handle.cpp
+)
 
 target_link_libraries(
   lmeditor
@@ -146,10 +147,10 @@ target_link_libraries(Editor lmeditor)
 add_executable(
   test_lmeditor
 
-  src/test_lmeditor.cpp
-  src/trimesh/test_trimesh.cpp
-  src/map_editor/model/test/test.cpp
-  src/map_editor/model/test/test_move_selection.cpp
+  test/test_lmeditor.cpp
+  test/test_trimesh.cpp
+  test/map_editor/test.cpp
+  test/map_editor/test_move_selection.cpp
 )
 
 target_include_directories(

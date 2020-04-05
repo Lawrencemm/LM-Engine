@@ -11,6 +11,11 @@ struct transform
     Eigen::Vector3f position{Eigen::Vector3f::Zero()};
     Eigen::Quaternionf rotation{Eigen::Quaternionf::Identity()};
 };
+inline bool operator==(transform const &lhs, transform const &rhs)
+{
+    return lhs.position == rhs.position &&
+           lhs.rotation.vec() == rhs.rotation.vec();
+}
 struct transform_parent
 {
     entt::entity entity;
@@ -46,4 +51,6 @@ void visit_transform_children(
         fn(child);
     }
 }
+
+transform compose_transforms(transform const &lhs, transform const &rhs);
 } // namespace lmng

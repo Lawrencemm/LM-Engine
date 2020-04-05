@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fstream>
 #include <lmengine/name.h>
+#include <lmengine/pose.h>
 #include <lmengine/serialisation.h>
 #include <lmengine/transform.h>
 #include <yaml-cpp/yaml.h>
@@ -13,6 +14,7 @@ static YAML::Node
 
     yaml_node["Transform"] =
       lmng::serialise_component(registry, registry.get<lmng::transform>(child));
+    yaml_node["Children"] = lmng::save_pose(registry, child);
 
     return std::move(yaml_node);
 }
@@ -33,6 +35,8 @@ void load_pose(
           deserialise_component(
             registry, "Transform", yaml_entity.second["Transform"])
             .cast<transform>());
+
+        load_pose(registry, child, yaml_entity.second["Children"]);
     }
 }
 

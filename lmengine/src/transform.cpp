@@ -9,8 +9,7 @@ void look_at(transform &from, transform const &to)
     from.rotation = lm::pitch_yaw_quat(from.position, to.position);
 }
 
-template <typename lhs_type, typename rhs_type>
-static transform compose_transforms(lhs_type const &lhs, rhs_type const &rhs)
+transform compose_transforms(transform const &lhs, transform const &rhs)
 {
     return transform{lhs.position + lhs.rotation * rhs.position,
                      lhs.rotation * rhs.rotation};

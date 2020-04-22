@@ -117,28 +117,9 @@ void character_movement::apply_movement_controls(
 
     Eigen::Vector3f const world_velocity = local_to_world * movement_direction;
 
-    bool was_moving =
-      character.controller.requested_velocity.squaredNorm() > 0.001f;
-
-    bool started_moving = !was_moving && world_velocity.squaredNorm() > 0.001f;
-
-    bool stopped_moving = was_moving && world_velocity.squaredNorm() < 0.001f;
+    control_animation(character, registry, dt, world_velocity);
 
     character.controller.requested_velocity = world_velocity;
-
-    if (started_moving)
-    {
-        animation_system.animate(
-          registry,
-          character.entity,
-          swing_arms_animation,
-          0.5f,
-          1.f,
-          lmng::anim_loop_type::pendulum);
-    }
-
-    if (stopped_moving)
-        registry.remove<lmng::animation_state>(character.entity);
 
     if (input_state.key_state[lmpl::key_code::Left])
     {
@@ -162,5 +143,76 @@ void character_movement::apply_movement_controls(
             M_PI * dt,
             0.f,
           });
+    }
+}
+
+void character_movement::control_animation(
+  character &character,
+  entt::registry &registry,
+  float dt,
+  Eigen::Vector3f const &new_velocity)
+{
+    bool was_moving =
+      character.controller.requested_velocity.squaredNorm() > 0.001f;
+
+    bool started_moving = !was_moving && new_velocity.squaredNorm() > 0.001f;
+
+    bool stopped_moving = was_moving && new_velocity.squaredNorm() < 0.001f;
+
+    if (!was_moving)
+    {
+        auto maybe_animation_state =
+          registry.try_get<lmng::animation_state>(character.entity);
+
+        if (maybe_animation_state)
+        {
+            auto &animation_state = *maybe_animation_state;
+
+            bool left_forward = animation_state.progress >= 0.5f;
+
+            if (
+              (animation_state.rate < 0.f && !left_forward) ||
+              (animation_state.rate > 0.f && left_forward))
+            {
+                registry.remove<lmng::animation_state>(character.entity);
+            }
+        }
+    }
+
+    if (started_moving)
+    {
+        auto maybe_animation_state =
+          registry.try_get<lmng::animation_state>(character.entity);
+
+        if (maybe_animation_state)
+        {
+            auto &animation_state = *maybe_animation_state;
+
+            bool left_forward = animation_state.progress >= 0.5f;
+
+            animation_state.rate =
+              std::abs(animation_state.rate) * (left_forward ? 1.f : -1.f);
+        }
+        else
+        {
+            animation_system.animate(
+              registry,
+              character.entity,
+              swing_arms_animation,
+              0.5f,
+              1.f,
+              lmng::anim_loop_type::pendulum);
+        }
+    }
+
+    if (stopped_moving)
+    {
+        auto &animation_state =
+          registry.get<lmng::animation_state>(character.entity);
+
+        bool left_forward = animation_state.progress >= 0.5f;
+
+        animation_state.rate =
+          std::abs(animation_state.rate) * (left_forward ? -1.f : 1.f);
     }
 }

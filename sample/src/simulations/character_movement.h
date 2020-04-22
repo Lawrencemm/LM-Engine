@@ -45,6 +45,11 @@ class character_movement
       entt::registry &registry,
       float dt,
       lmtk::input_state const &input_state);
+    void control_animation(
+      character &character,
+      entt::registry &registry,
+      float dt,
+      Eigen::Vector3f const &new_velocity);
     void camera_follow_character(
       entt::registry &registry,
       character const &character);

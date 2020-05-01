@@ -1,0 +1,55 @@
+Left Shoulder:
+  Transform:
+    Rotation: 0.156435 -5.82881e-08 -1.30037e-08 0.987689
+    Position: -0.486261 0.179998 0.0287547
+  Children:
+    Left Arm:
+      Transform:
+        Rotation: 0 0 0 1
+        Position: 0 0 0.288279
+      Children: ~
+Right Shoulder:
+  Transform:
+    Rotation: 0.987689 0 0 0.156435
+    Position: 0.474377 0.179998 5.40167e-08
+  Children:
+    Right Arm:
+      Transform:
+        Rotation: 0 0 0 1
+        Position: 0 0 0.288279
+      Children: ~
+Left Leg:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: -0.218753 -0.611723 -2.98023e-08
+  Children:
+    Left Foot:
+      Transform:
+        Rotation: 0 0 0 1
+        Position: 0.0699997 -0.233442 -4.47035e-08
+      Children: ~
+Right Leg:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0.214377 -0.611723 2.98023e-08
+  Children:
+    Right Foot:
+      Transform:
+        Rotation: 0 0 0 1
+        Position: 0.0712452 -0.233442 0.00312997
+      Children: ~
+Body:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 -0.02 0
+  Children: ~
+Neck:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 0.37 0
+  Children: ~
+Head:
+  Transform:
+    Rotation: 0 -0.707107 0 0.707107
+    Position: 0 0.74 0
+  Children: ~

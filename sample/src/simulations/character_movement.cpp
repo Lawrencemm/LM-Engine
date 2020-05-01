@@ -2,10 +2,13 @@
 #include <range/v3/algorithm/copy.hpp>
 
 #include <iostream>
+#include <lmengine/animation.h>
 #include <lmengine/camera.h>
 #include <lmengine/kinematic.h>
+#include <lmengine/simulation.h>
 #include <lmengine/transform.h>
 #include <lmlib/math_constants.h>
+#include <yaml-cpp/yaml.h>
 
 #include "../components/animation.h"
 #include "../components/character_input.h"
@@ -29,11 +32,23 @@ character_movement::character
     };
 }
 
-character_movement::character_movement(entt::registry &registry)
-    : physics{lmng::create_physics(registry)}, camera{registry.create()}
+character_movement::character_movement(lmng::simulation_init const &init)
+    : physics{lmng::create_physics(init.registry)},
+      camera{init.registry.create()},
+      animation_system{},
+      left_forward_pose{animation_system.load_pose(
+        init.registry,
+        "left_forward",
+        YAML::LoadFile(init.project_dir / "left_forward.lpose"))},
+      right_forward_pose{animation_system.load_pose(
+        init.registry,
+        "right_forward",
+        YAML::LoadFile(init.project_dir / "right_forward.lpose"))},
+      swing_arms_animation{animation_system.load_animation(
+        YAML::LoadFile(init.project_dir / "swing_arms.lmanim"))}
 {
-    registry.assign<lmng::transform>(camera);
-    registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
+    init.registry.assign<lmng::transform>(camera);
+    init.registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
 }
 
 void character_movement::handle_input_event(
@@ -53,7 +68,7 @@ void character_movement::update(
 
     physics->step(registry, dt);
 
-    apply_animation(character, registry, dt);
+    animation_system.update(registry, dt);
 
     camera_follow_character(registry, character);
 }
@@ -102,6 +117,8 @@ void character_movement::apply_movement_controls(
 
     Eigen::Vector3f const world_velocity = local_to_world * movement_direction;
 
+    control_animation(character, registry, dt, world_velocity);
+
     character.controller.requested_velocity = world_velocity;
 
     if (input_state.key_state[lmpl::key_code::Left])
@@ -129,94 +146,73 @@ void character_movement::apply_movement_controls(
     }
 }
 
-void character_movement::apply_animation(
-  character_movement::character &character,
+void character_movement::control_animation(
+  character &character,
   entt::registry &registry,
-  float dt)
+  float dt,
+  Eigen::Vector3f const &new_velocity)
 {
-    auto &left_transform =
-      registry.get<lmng::transform>(character.skeleton.left_shoulder);
-    auto &right_transform =
-      registry.get<lmng::transform>(character.skeleton.right_shoulder);
+    bool was_moving =
+      character.controller.requested_velocity.squaredNorm() > 0.001f;
 
-    Eigen::Vector3f left_arm_forward_vector =
-      left_transform.rotation * Eigen::Vector3f::UnitZ();
+    bool started_moving = !was_moving && new_velocity.squaredNorm() > 0.001f;
 
-    float rotation = character.skeleton.arm_swing_speed * 2 * lm::pi * dt;
-    float apex_angle = character.skeleton.arm_swing_height * lm::pi / 2;
-    float curr_angle_left =
-      std::asin(left_arm_forward_vector.dot(Eigen::Vector3f::UnitZ()));
+    bool stopped_moving = was_moving && new_velocity.squaredNorm() < 0.001f;
 
-    if (character.controller.requested_velocity.squaredNorm() > 0)
+    if (!was_moving)
     {
-        character.skeleton.state >>
-          lm::variant_visitor{
-            [&](character_skeleton::still) {
-                character.skeleton.state.emplace<character_skeleton::swing>(
-                  character_skeleton::swing{true});
-            },
-            [&](character_skeleton::swing &swing_state) {
-                bool at_top = std::abs(curr_angle_left) >= apex_angle;
+        auto maybe_animation_state =
+          registry.try_get<lmng::animation_state>(character.entity);
 
-                if (at_top)
-                {
-                    left_transform.rotation = Eigen::AngleAxisf{
-                      swing_state.left_forward ? lm::pi / 2 - apex_angle
-                                               : lm::pi / 2 + apex_angle,
-                      Eigen::Vector3f::UnitX()};
-                    swing_state.left_forward = !swing_state.left_forward;
-                }
-            },
-            [&](character_skeleton::relax const &relax_state) {
-                character.skeleton.state.emplace<character_skeleton::swing>(
-                  character_skeleton::swing{relax_state.left_forward});
-            },
-          };
-    }
-    else
-    {
-        character.skeleton.state >>
-          lm::variant_visitor{
-            [&](character_skeleton::still) {},
-            [&](character_skeleton::swing const &swing_state) {
-                character.skeleton.state.emplace<character_skeleton::relax>(
-                  character_skeleton::relax{left_arm_forward_vector.dot(
-                                              Eigen::Vector3f::UnitZ()) >= 0});
-            },
-            [&](character_skeleton::relax const &relax_state) {
-                bool at_bottom = left_arm_forward_vector.dot(
-                                   Eigen::Vector3f::UnitZ()) <= 0.f ==
-                                 relax_state.left_forward;
+        if (maybe_animation_state)
+        {
+            auto &animation_state = *maybe_animation_state;
 
-                if (at_bottom)
-                {
-                    character.skeleton.state
-                      .emplace<character_skeleton::still>();
-                }
-            },
-          };
+            bool left_forward = animation_state.progress >= 0.5f;
+
+            if (
+              (animation_state.rate < 0.f && !left_forward) ||
+              (animation_state.rate > 0.f && left_forward))
+            {
+                registry.remove<lmng::animation_state>(character.entity);
+            }
+        }
     }
 
-    character.skeleton.state >>
-      lm::variant_visitor{
-        [&](character_skeleton::still) {},
-        [&](character_skeleton::swing const &swing_state) {
-            Eigen::AngleAxisf left_rotation{
-              swing_state.left_forward ? -rotation : rotation,
-              Eigen::Vector3f::UnitX(),
-            };
-            left_transform.rotation = left_rotation * left_transform.rotation;
-            right_transform.rotation =
-              left_rotation.inverse() * right_transform.rotation;
-        },
-        [&](character_skeleton::relax const &relax_state) {
-            Eigen::AngleAxisf left_rotation{
-              relax_state.left_forward ? rotation : -rotation,
-              Eigen::Vector3f::UnitX(),
-            };
-            left_transform.rotation = left_rotation * left_transform.rotation;
-            right_transform.rotation =
-              left_rotation.inverse() * right_transform.rotation;
-        },
-      };
+    if (started_moving)
+    {
+        auto maybe_animation_state =
+          registry.try_get<lmng::animation_state>(character.entity);
+
+        if (maybe_animation_state)
+        {
+            auto &animation_state = *maybe_animation_state;
+
+            bool left_forward = animation_state.progress >= 0.5f;
+
+            animation_state.rate =
+              std::abs(animation_state.rate) * (left_forward ? 1.f : -1.f);
+        }
+        else
+        {
+            animation_system.animate(
+              registry,
+              character.entity,
+              swing_arms_animation,
+              0.5f,
+              1.f,
+              lmng::anim_loop_type::pendulum);
+        }
+    }
+
+    if (stopped_moving)
+    {
+        auto &animation_state =
+          registry.get<lmng::animation_state>(character.entity);
+
+        bool left_forward = animation_state.progress >= 0.5f;
+
+        animation_state.rate =
+          std::abs(animation_state.rate) * (left_forward ? -1.f : 1.f);
+    }
 }

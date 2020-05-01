@@ -5,8 +5,8 @@
 #include "../components/enemy.h"
 #include "../components/protagonist.h"
 
-rigid_bodies_battle::rigid_bodies_battle(entt::registry &registry)
-    : physics{lmng::create_physics(registry)}
+rigid_bodies_battle::rigid_bodies_battle(lmng::simulation_init const &init)
+    : physics{lmng::create_physics(init.registry)}
 {
     physics->set_gravity({0.f, -20.f, 0.f});
 }

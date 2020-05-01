@@ -15,21 +15,20 @@ LMEDITOR_SIMULATION_PLUGIN(rigid_bodies_battle);
 LMEDITOR_SIMULATION_PLUGIN(character_movement);
 
 using simulation_creation_fn =
-  std::function<lmeditor::psimulation(entt::registry &)>;
+  std::function<lmeditor::psimulation(lmng::simulation_init const &)>;
 
 std::map<std::string, simulation_creation_fn> simulation_creation_map{
   std::pair{
     "Rigid Bodies Battle",
-    [](auto &registry) {
+    [](auto &init) {
         return lm::reference{
-          std::make_unique<rigid_bodies_battle_plugin>(registry)};
+          std::make_unique<rigid_bodies_battle_plugin>(init)};
     },
   },
   std::pair{
     "Character Movement",
-    [](auto &registry) {
-        return lm::reference{
-          std::make_unique<character_movement_plugin>(registry)};
+    [](auto &init) {
+        return lm::reference{std::make_unique<character_movement_plugin>(init)};
     },
   },
 };
@@ -42,10 +41,11 @@ std::vector<std::string> list_simulations_cpp()
 
 BOOST_DLL_ALIAS(list_simulations_cpp, list_simulations);
 
-lmeditor::psimulation
-  create_simulation_cpp(std::string const &name, entt::registry &registry)
+lmeditor::psimulation create_simulation_cpp(
+  std::string const &name,
+  lmng::simulation_init const &init)
 {
-    return simulation_creation_map[name](registry);
+    return simulation_creation_map[name](init);
 }
 
 BOOST_DLL_ALIAS(create_simulation_cpp, create_simulation);

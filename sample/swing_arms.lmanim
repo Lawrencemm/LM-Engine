@@ -1,0 +1,5 @@
+Keyframes:
+  - Pose: right_forward
+    Time: 0
+  - Pose: left_forward
+    Time: 1

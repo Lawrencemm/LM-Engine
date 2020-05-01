@@ -2,12 +2,13 @@
 #include <entt/entt.hpp>
 
 #include <lmengine/physics.h>
+#include <lmengine/simulation.h>
 #include <lmtk/lmtk.h>
 
 class rigid_bodies_battle
 {
   public:
-    explicit rigid_bodies_battle(entt::registry &registry);
+    explicit rigid_bodies_battle(lmng::simulation_init const &init);
 
     void handle_input_event(
       lmtk::input_event const &input_event,

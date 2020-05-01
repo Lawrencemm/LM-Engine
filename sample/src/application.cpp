@@ -13,9 +13,9 @@ sample_app::sample_app()
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); },
       },
-      registry{lmng::deserialise(
-        YAML::LoadFile("../sample/rigid_bodies_battle.lmap"))},
-      simulation{registry},
+      registry{
+        lmng::deserialise(YAML::LoadFile("../sample/character_movement.lmap"))},
+      simulation{{registry, "../sample"}},
       visual_view{lmhuv::create_visual_view(lmhuv::visual_view_init{
         registry,
         resources.renderer.get(),

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "simulations/rigid_bodies_battle.h"
+#include "simulations/character_movement.h"
 #include <entt/entity/registry.hpp>
 #include <lmhuv.h>
 #include <lmlib/realtime_clock.h>
@@ -22,7 +22,7 @@ class sample_app
     lmtk::app_flow_graph flow_graph;
 
     entt::registry registry;
-    rigid_bodies_battle simulation;
+    character_movement simulation;
     lmhuv::pvisual_view visual_view;
 
     lm::realtime_clock clock;

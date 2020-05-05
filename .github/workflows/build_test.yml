@@ -52,3 +52,46 @@ jobs:
       - name: Test
         working-directory: build
         run: ctest
+
+  windows:
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - uses: seanmiddleditch/gha-setup-ninja@v1~
+      - uses: ilammy/msvc-dev-cmd@v1.2.0
+      - name: Get Conan
+        run: pip install conan && conan profile new default --detect
+      - name: Add remotes to Conan
+        run: conan config install conan/config/common
+      - name: Run init script
+        run: python init.py
+      - name: Conan install
+        run: mkdir build &&
+          conan config set general.parallel_download=8 &&
+          conan workspace install .
+          -if build
+          --build missing
+          -s build_type=${{ matrix.configuration }}
+          -e WORKSPACE_DIR=../../../build
+      - name: Configure
+        env:
+          CC: cl
+          CXX: cl
+        run: cd build &&
+          cmake
+          -G "Ninja"
+          -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          ..
+      - name: Build
+        run: cmake --build build -j $(nproc --all)
+      - name: Test
+        working-directory: build
+        run: ctest

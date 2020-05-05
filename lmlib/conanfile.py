@@ -41,3 +41,7 @@ class LmlibConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["lmlib"]
+
+    def imports(self):
+        if (not self.in_local_cache):
+            self.copy("*.dll", src="bin", dst="../..")

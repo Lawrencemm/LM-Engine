@@ -1,3 +1,5 @@
+import os
+
 from conans import ConanFile, CMake, tools
 
 
@@ -27,6 +29,9 @@ class LmeditorConan(ConanFile):
         'clara/1.1.5@bincrafters/stable',
         'boost/1.70.0',
     )
+    default_options = {
+        "OpenMesh:shared": True,
+    }
 
     def imports(self):
         self.copy("embed-resource", src="bin")
@@ -34,6 +39,8 @@ class LmeditorConan(ConanFile):
         self.copy('embed-resource.cmake', dst='scripts', src='cmake')
         self.copy('glslangValidator*', src='bin')
         self.copy('*.dll', src='bin')
+        if not self.in_local_cache and self.settings.os == "Windows":
+            self.copy("*.dll", dst=os.getenv("WORKSPACE_DIR"))
 
     def package_info(self):
         self.cpp_info.libs = ['lmeditor']

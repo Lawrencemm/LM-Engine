@@ -2,8 +2,7 @@
 Made with [EnTT](https://github.com/skypjack/entt/) and 
 [Bullet Physics](https://github.com/bulletphysics/bullet3).
 
-Currently builds on Linux and Windows, though improvements are needed on the 
-Windows side to streamline setting up the project.
+Currently builds on Linux and Windows.
 
 ## Modules
 
@@ -57,15 +56,11 @@ On the command line, in the repository root directory, run:
     set the environment variable CONAN_USER_HOME to a directory of your 
     choice while running these commands.
 * `mkdir build && conan workspace install . -if build --build missing`
+    * Windows: add the arguments `-e WORKSPACE_DIR=../../../build` to copy 
+    required DLLs to the build directory. 
 
 You may now run a regular CMake config/build in the build directory. See 
 documentation of CMake and Conan for using different configurations/settings.
-
-### Windows
-Currently compiles only with the MinGW-w64 toolset, version 7.
-
-Windows requires DLLs to be copied into the build directory, namely `tbb.dll` 
-and `OpenMeshCore.dll` at the time of writing. This is to be streamlined.
 
 ## Running the Editor
 Run the `Editor` executable in the build directory with the `--project-dir` 

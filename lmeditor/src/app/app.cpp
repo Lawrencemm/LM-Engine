@@ -385,20 +385,24 @@ void editor_app::init_pose_loader()
           0, with_ext.size() - std::string{".lpose"}.size());
     };
 
-    auto pose_paths =
-      std::filesystem::recursive_directory_iterator{project_dir} |
-      ranges::views::filter(is_lpose_file) |
-      ranges::views::transform(proj_relative_no_ext) |
-      ranges::to<std::vector<std::string>>();
+    std::vector<std::string> pose_paths;
+    for (auto &path :
+         std::filesystem::recursive_directory_iterator{project_dir})
+    {
+        if (!is_lpose_file(path))
+            continue;
+
+        pose_paths.emplace_back(proj_relative_no_ext(path));
+    }
 
     state.emplace<modal_state>(modal_state{
       .modal = std::make_unique<lmtk::text_line_selector>(
-        lmtk::text_line_selector_init{.lines = pose_paths,
-                                      .renderer = resources.renderer.get(),
-                                      .font_material = resources.text_material,
-                                      .font = resources.font.get(),
-                                      .rect_material =
-                                        resources.rect_material}()),
+        lmtk::text_line_selector_init{
+          .lines = pose_paths,
+          .renderer = resources.renderer.get(),
+          .font_material = resources.text_material,
+          .font = resources.font.get(),
+          .rect_material = resources.rect_material}()),
       .input_handler =
         [pose_paths = std::move(pose_paths)](
           editor_app &app, auto widget_ptr, auto &input_event) {
@@ -418,7 +422,7 @@ void editor_app::init_pose_loader()
                              lmng::load_pose(
                                app.map,
                                app.map_editor->get_selection(),
-                               YAML::LoadFile(pose_path));
+                               YAML::LoadFile(pose_path.string()));
 
                              app.state.emplace<gui_state>(app);
                              return true;

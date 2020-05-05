@@ -160,7 +160,7 @@ std::vector<command_description> map_editor_model::get_command_descriptions(
     {
         std::vector<std::string> key_names;
         for (auto key : keys)
-            key_names.emplace_back(lmpl::key_code_name_map.at(key));
+            key_names.emplace_back(lmpl::get_keycode_string(key));
 
         std::string keystroke_string;
         command_lines.emplace_back(command_description{

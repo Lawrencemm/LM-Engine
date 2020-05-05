@@ -131,7 +131,7 @@ enum class key_code
     n_keys
 };
 
-extern std::map<key_code, std::string> const key_code_name_map;
+std::string get_keycode_string(key_code code);
 
 class key_state
 {
@@ -210,7 +210,7 @@ class key_state
     template <typename function_type>
     void names(function_type const &function) const
     {
-        keys([&](auto key) { function(key_code_name_map.at(key)); });
+        keys([&](auto key) { function(get_keycode_string(key)); });
     }
 };
 

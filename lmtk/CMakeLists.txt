@@ -2,11 +2,7 @@ project(lmtk)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(CMAKE_CXX_STANDARD 17)
-else ()
-  set(CMAKE_CXX_STANDARD 20)
-endif ()
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(lmgl REQUIRED)
 find_package(lmlib REQUIRED)

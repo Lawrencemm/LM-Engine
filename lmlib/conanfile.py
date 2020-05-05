@@ -15,7 +15,7 @@ class LmlibConan(ConanFile):
     requires = (
         'eigen/3.3.5@conan/stable',
         'TBB/2019_U4@conan/stable',
-        'range-v3/0.9.1',
+        'range-v3/0.10.0@lawrencemm/stable',
         ('scope_guard/0.2.3@lawrencem/stable', 'private'),
         ('Vulkan/1.1.92.1@lawrencem/stable', 'private'),
         'fmt/5.3.0@bincrafters/stable',

@@ -14,7 +14,7 @@ if (UNIX)
   pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 endif ()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
   set(

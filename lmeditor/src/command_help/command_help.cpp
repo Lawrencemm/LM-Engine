@@ -17,7 +17,10 @@ std::vector<std::array<lmtk::text_layout, 3>>
 {
     std::vector<std::array<lmtk::text_layout, 3>> rows;
     lmtk::text_layout_factory layout_factory{
-      init.renderer, init.material, init.font, .colour = {1.f, 1.f, 1.f}};
+      .renderer = init.renderer,
+      .material = init.material,
+      .font = init.font,
+      .colour = {1.f, 1.f, 1.f}};
     rows.emplace_back(std::array{layout_factory.create("Command"),
                                  layout_factory.create("Keystroke"),
                                  layout_factory.create("Context")});

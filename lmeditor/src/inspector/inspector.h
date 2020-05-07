@@ -35,8 +35,7 @@ class inspector : public iinspector
 
     void clear(lmtk::resource_sink &resource_sink) override;
 
-    inspector &
-      add_to_frame(lmgl::iframe *frame, editor_app const &app) override;
+    inspector &add_to_frame(lmgl::iframe *frame, editor_app &app) override;
 
     lm::size2i get_size() override;
     iwidget &set_rect(lm::point2i position, lm::size2i size) override;

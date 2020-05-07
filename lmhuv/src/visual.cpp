@@ -8,6 +8,13 @@
 
 namespace lmhuv::internal
 {
+struct box_mesh_tag
+{
+};
+struct box_collider_mesh_tag
+{
+};
+
 visual::visual(visual_view_init const &init)
     : box_material{box_material_init{*init.renderer}()},
       box_wireframe_material{box_material_init{
@@ -16,12 +23,62 @@ visual::visual(visual_view_init const &init)
       }()},
       light_direction{Eigen::Vector3f{0.2f, 0.6f, -0.75f}.normalized()},
       aspect_ratio{init.aspect_ratio},
-      do_render_box_colliders{init.render_box_colliders}
+      do_render_box_colliders{init.render_box_colliders},
+      box_render_observer{
+        init.registry,
+        entt::collector.group<lmng::box_render>()},
+      box_collider_observer{
+        init.registry,
+        entt::collector.group<lmng::box_collider>()},
+      box_render_destroyed_connection{
+        init.registry.on_destroy<lmng::box_render>()
+          .connect<&entt::registry::remove_if_exists<box_mesh_tag>>()},
+      box_collider_destroyed_connection{
+        init.registry.on_destroy<lmng::box_collider>()
+          .connect<&entt::registry::remove_if_exists<box_collider_mesh_tag>>()},
+      box_mesh_tag_destroyed_connection{
+        init.registry.on_destroy<box_mesh_tag>()
+          .connect<&visual::handle_box_mesh_tag_destroyed>(this)},
+      box_collider_mesh_tag_destroyed_connection{
+        init.registry.on_destroy<box_collider_mesh_tag>()
+          .connect<&visual::handle_box_collider_mesh_tag_destroyed>(this)}
 {
     std::tie(box_vpositions, box_vnormals, box_indices, n_box_indices) =
       lmhuv::create_box_buffers(init.renderer);
 
     recreate(init.registry, *init.renderer);
+}
+
+void visual::update(
+  entt::registry &registry,
+  lmgl::irenderer *renderer,
+  lmtk::resource_sink &resource_sink)
+{
+    for (auto entity : box_render_observer)
+    {
+        add_box(renderer, entity);
+        registry.assign<box_mesh_tag>(entity);
+    }
+    box_render_observer.clear();
+
+    for (auto entity : box_collider_observer)
+    {
+        add_box_wireframe(renderer, entity);
+        registry.assign<box_collider_mesh_tag>(entity);
+    }
+    box_collider_observer.clear();
+
+    for (auto entity : destroyed_box_meshes)
+    {
+        destroy_box(renderer, entity, resource_sink);
+    }
+    destroyed_box_meshes.clear();
+
+    for (auto entity : destroyed_box_collider_meshes)
+    {
+        destroy_box_collider_mesh(renderer, entity, resource_sink);
+    }
+    destroyed_box_collider_meshes.clear();
 }
 
 void visual::add_box_meshes(
@@ -203,7 +260,7 @@ void visual::recreate(entt::registry const &registry, lmgl::irenderer &renderer)
         add_box_collider_meshes(registry, renderer);
 }
 
-void visual::destroy_box_wireframe(
+void visual::destroy_box_collider_mesh(
   lmgl::irenderer *renderer,
   entt::entity entity,
   lmtk::resource_sink &resource_sink)
@@ -212,6 +269,20 @@ void visual::destroy_box_wireframe(
     resource_sink.add(renderer, mesh.ubuffer);
     resource_sink.add(renderer, mesh.geometry);
     box_collider_meshes.erase(entity);
+}
+
+void visual::handle_box_mesh_tag_destroyed(
+  entt::registry &registry,
+  entt::entity entity)
+{
+    destroyed_box_meshes.emplace_back(entity);
+}
+
+void visual::handle_box_collider_mesh_tag_destroyed(
+  entt::registry &registry,
+  entt::entity entity)
+{
+    destroyed_box_collider_meshes.emplace_back(entity);
 }
 } // namespace lmhuv::internal
 
@@ -222,58 +293,4 @@ pvisual_view create_visual_view(visual_view_init const &init)
     return std::make_unique<internal::visual>(init);
 }
 
-visual_view_connections::visual_view_connections(
-  ivisual_view &visual_view,
-  entt::registry &registry,
-  lmgl::irenderer &renderer,
-  lmtk::resource_sink &resource_sink)
-    : visual_view{visual_view},
-      renderer{renderer},
-      resource_sink{resource_sink},
-      box_construct{
-        registry.on_construct<lmng::box_render>()
-          .connect<&visual_view_connections::add_box>(this),
-      },
-      box_remove{
-        registry.on_destroy<lmng::box_render>()
-          .connect<&visual_view_connections::remove_box>(this),
-      },
-      box_collider_construct{
-        registry.on_construct<lmng::box_collider>()
-          .connect<&visual_view_connections::add_box_collider>(this),
-      },
-      box_collider_remove{
-        registry.on_destroy<lmng::box_collider>()
-          .connect<&visual_view_connections::remove_box_collider>(this),
-      }
-{
-}
-
-void visual_view_connections::add_box(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    visual_view.add_box(&renderer, entity);
-}
-
-void visual_view_connections::remove_box(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    visual_view.destroy_box(&renderer, entity, resource_sink);
-}
-
-void visual_view_connections::add_box_collider(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    visual_view.add_box_wireframe(&renderer, entity);
-}
-
-void visual_view_connections::remove_box_collider(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    visual_view.destroy_box_wireframe(&renderer, entity, resource_sink);
-}
 } // namespace lmhuv

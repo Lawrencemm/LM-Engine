@@ -57,8 +57,6 @@ class map_editor_view
     lmgl::geometry
       create_box_geometry(lmgl::material box_material, lmgl::ibuffer *ubuffer);
 
-    void add_box(entt::entity entity, entt::registry &entities);
-
     lmgl::buffer create_selection_ubuffer();
     lmgl::material create_outline_material();
 
@@ -86,7 +84,7 @@ class map_editor_view
 
 struct map_editor_view::init : public map_editor_init
 {
-    entt::registry const &map;
+    entt::registry &map;
     std::string initial_state_text;
 };
 } // namespace lmeditor

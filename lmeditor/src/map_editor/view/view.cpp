@@ -63,11 +63,6 @@ void map_editor_view::render(
     render_state_text(frame);
 }
 
-void map_editor_view::add_box(entt::entity entity, entt::registry &entities)
-{
-    visual_view->add_box(renderer, entity);
-}
-
 lmgl::geometry map_editor_view::create_box_geometry(
   lmgl::material box_material,
   lmgl::ibuffer *ubuffer)

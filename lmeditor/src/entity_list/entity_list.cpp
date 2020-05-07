@@ -49,8 +49,7 @@ bool entity_list::move_selection(int movement)
     return true;
 }
 
-entity_list &
-  entity_list::add_to_frame(lmgl::iframe *frame, editor_app const &app)
+entity_list &entity_list::add_to_frame(lmgl::iframe *frame, editor_app &app)
 {
     view.update_selection_background(*this);
     view.add_to_frame(frame, *this);

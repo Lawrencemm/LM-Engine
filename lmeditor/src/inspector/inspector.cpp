@@ -200,7 +200,7 @@ bool inspector::handle(
            }};
 }
 
-inspector &inspector::add_to_frame(lmgl::iframe *frame, editor_app const &app)
+inspector &inspector::add_to_frame(lmgl::iframe *frame, editor_app &app)
 {
     render_base(frame);
 

@@ -20,7 +20,7 @@ using pmap_editor = lm::reference<imap_editor>;
 
 struct map_editor_init
 {
-    entt::registry const &map;
+    entt::registry &map;
     lmgl::irenderer *renderer;
     lm::point2i position;
     lm::size2i size;

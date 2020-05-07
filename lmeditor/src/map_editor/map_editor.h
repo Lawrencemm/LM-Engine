@@ -20,8 +20,7 @@ class map_editor : public imap_editor
       lmtk::resource_sink &resource_sink,
       map_editor_event_handler const &event_handler) override;
 
-    map_editor &
-      add_to_frame(lmgl::iframe *frame, editor_app const &app) override;
+    map_editor &add_to_frame(lmgl::iframe *frame, editor_app &app) override;
 
     imap_editor &set_rect(lm::point2i position, lm::size2i size) override;
 

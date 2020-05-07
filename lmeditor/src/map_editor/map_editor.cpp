@@ -35,9 +35,6 @@ bool map_editor::handle(
   lmtk::resource_sink &resource_sink,
   map_editor_event_handler const &event_handler)
 {
-    lmhuv::visual_view_connections view_connections{
-      *view.visual_view, map, *view.renderer, resource_sink};
-
     return model.handle(map, event, event_handler, [&](auto &model) {
         view.set_state_text(model.state_text, resource_sink);
     });
@@ -48,9 +45,6 @@ void map_editor::remove_component_from_selected(
   entt::meta_type const &type,
   lmtk::resource_sink &resource_sink)
 {
-    lmhuv::visual_view_connections view_connections{
-      *view.visual_view, map, *view.renderer, resource_sink};
-
     lmng::remove_from_entity(type, map, model.selected_box);
 }
 
@@ -71,9 +65,6 @@ void map_editor::add_component_to_selected(
   entt::meta_type const &type,
   lmtk::resource_sink &resource_sink)
 {
-    lmhuv::visual_view_connections view_connections{
-      *view.visual_view, map, *view.renderer, resource_sink};
-
     auto component = type.ctor().invoke();
     lmng::assign_to_entity(component, map, model.selected_box);
 };

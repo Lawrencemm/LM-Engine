@@ -18,7 +18,7 @@ class entity_list : public itool_panel
   public:
     explicit entity_list(entity_list_init const &init);
 
-    entity_list &add_to_frame(lmgl::iframe *frame, editor_app const &app);
+    entity_list &add_to_frame(lmgl::iframe *frame, editor_app &app);
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     iwidget &set_rect(lm::point2i position, lm::size2i size) override;

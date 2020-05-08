@@ -1,3 +1,5 @@
+import os
+
 from conans import ConanFile, CMake
 
 
@@ -25,6 +27,8 @@ class LmhuvConan(ConanFile):
         self.copy('embed-resource.cmake', dst='scripts', src='cmake')
         self.copy('glslangValidator*', src='bin')
         self.copy('*.dll', src='bin')
+        if not self.in_local_cache and self.settings.os == "Windows":
+            self.copy("*.dll", dst=os.getenv("WORKSPACE_DIR"))
 
     def source(self):
         self.run("git clone https://gitlab.com/lm-engine/lmhuv.git")

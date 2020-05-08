@@ -128,10 +128,10 @@ lmtk::char_field editor_app_resources::create_char_field(
     return lmtk::char_field(lmtk::char_field_init{
       .renderer = *renderer,
       .material = text_material,
-      font,
-      text_colour,
-      position,
-      initial,
+      .font = font,
+      .text_colour = text_colour,
+      .position = position,
+      .initial = initial,
     });
 }
 

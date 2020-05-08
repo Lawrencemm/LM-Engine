@@ -2,4 +2,4 @@
 .
 
 [build_folder]
-../cmake-build-{{ settings.get_safe("build_type").lower() }}/{{ reference }}/{{ settings.get_safe("compiler") }}
+../cmake-build-{{ settings.get_safe("build_type").lower() }}/{{ reference.name }}/{{ settings.get_safe("compiler") }}

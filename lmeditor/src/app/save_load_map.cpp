@@ -16,8 +16,8 @@ void editor_app::save_map(std::filesystem::path const &absolute_path)
 
 void editor_app::load_map(std::filesystem::path const &project_path)
 {
-    auto map_yaml =
-      YAML::LoadFile(project_dir / (project_path.string() + ".lmap"));
+    auto map_yaml = YAML::LoadFile(
+      (project_dir / (project_path.string() + ".lmap")).string());
     map.clear();
     lmng::deserialise(map_yaml, map);
     map_editor->set_map(map, resources.renderer.get(), resources.resource_sink);

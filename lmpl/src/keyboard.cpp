@@ -2,7 +2,7 @@
 
 namespace lmpl
 {
-std::map<key_code, std::string> const key_code_name_map{
+static std::map<key_code, std::string> const key_code_name_map{
   {key_code::A, "A"},
   {key_code::B, "B"},
   {key_code::C, "C"},
@@ -41,7 +41,12 @@ std::map<key_code, std::string> const key_code_name_map{
   {key_code::KEY_0, "0"},
   {key_code::LeftShift, "Shift"},
 };
+
+std::string get_keycode_string(key_code code)
+{
+    return key_code_name_map.at(code);
 }
+} // namespace lmpl
 
 std::ostream &std::operator<<(std::ostream &os, lmpl::key_code key_code)
 {

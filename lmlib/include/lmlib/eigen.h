@@ -13,7 +13,7 @@ inline Eigen::Vector3f snap_to_axis(Eigen::Vector3f const &vec)
 {
     auto arr = to_array_abs(vec);
     auto max = std::max_element(arr.begin(), arr.end());
-    auto max_index = max - &arr[0];
+    auto max_index = max - arr.begin();
     Eigen::Vector3f ret{0.f, 0.f, 0.f};
     ret[max_index] = std::copysign(1.f, vec[max_index]);
     return ret;

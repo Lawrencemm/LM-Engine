@@ -1,3 +1,5 @@
+import os
+
 from conans import ConanFile, CMake, tools
 
 
@@ -22,6 +24,8 @@ class LmengineConan(ConanFile):
 
     def imports(self):
         self.copy('*.dll', src='bin')
+        if not self.in_local_cache and self.settings.os == "Windows":
+            self.copy("*.dll", src="bin", dst=os.getenv("WORKSPACE_DIR"))
 
     def package_info(self):
         self.cpp_info.libs = ['lmengine']

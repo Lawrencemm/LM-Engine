@@ -16,7 +16,7 @@ set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURR
 
 include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 add_library(
   lmhuv

@@ -190,6 +190,6 @@ Eigen::Vector3f
     if (maybe_box_collider)
         return maybe_box_collider->extents;
 
-    return Eigen::Vector3f{1.f, 1.f, 1.f};
+    return Eigen::Vector3f{0.f, 0.f, 0.f};
 }
 } // namespace lmeditor

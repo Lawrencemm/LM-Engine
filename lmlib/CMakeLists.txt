@@ -10,8 +10,6 @@ include(cmake/cpp_standard.cmake)
 
 include(cmake/dependencies.cmake)
 
-set_cpp_standard(17)
-
 if (MSVC)
   set(
     COMPILER_DEFINITIONS

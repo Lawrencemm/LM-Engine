@@ -2,8 +2,6 @@ project(lmtk)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_CXX_STANDARD 20)
-
 find_package(lmgl REQUIRED)
 find_package(lmlib REQUIRED)
 find_package(lmpl REQUIRED)

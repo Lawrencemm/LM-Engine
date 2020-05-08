@@ -2,8 +2,6 @@ project(editor)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_MODULE_PATH})
 
-set(CMAKE_CXX_STANDARD 20)
-
 find_package(lmengine REQUIRED)
 find_package(lmgl REQUIRED)
 find_package(lmlib REQUIRED)

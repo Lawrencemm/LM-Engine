@@ -29,8 +29,6 @@ set(
   src/vulkan/vulkan_texture_stage.cpp
   src/vulkan/stage_helpers.cpp)
 
-set(CMAKE_CXX_STANDARD 20)
-
 add_library(
   lmgl
   SHARED

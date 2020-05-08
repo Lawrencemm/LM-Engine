@@ -2,6 +2,7 @@
 
 #include "app.h"
 #include <lmengine/name.h>
+#include <lmengine/reflection.h>
 
 namespace lmeditor
 {
@@ -9,12 +10,15 @@ bool editor_app::inspector_handle(lmtk::input_event const &input_event)
 {
     inspector_event_handler event_handler{
       [&](inspector_updated_data const &updated_data_event) {
-          map_editor->update_selection(
-            map, updated_data_event.data, updated_data_event.string_repr);
+          auto component = lmng::any_component{
+            map, map_editor->get_selection(), updated_data_event.data.parent()};
+          component.set(
+            updated_data_event.data, updated_data_event.string_repr, map);
+          component.replace(map, map_editor->get_selection());
       },
       [&](inspector_added_component const &added_component_event) {
-          map_editor->add_component_to_selected(
-            map, added_component_event.type, resources.resource_sink);
+          auto component = added_component_event.type.ctor().invoke();
+          lmng::assign_to_entity(component, map, map_editor->get_selection());
           inspector->update(map, resources.resource_sink);
       },
       [&](inspector_changed_name const &changed_name_event) {
@@ -24,11 +28,10 @@ bool editor_app::inspector_handle(lmtk::input_event const &input_event)
           sync_entity_list();
       },
       [&](inspector_removed_component const &removed_component_event) {
-          map_editor->remove_component_from_selected(
-            map,
+          lmng::remove_from_entity(
             removed_component_event.component_type,
-            resources.resource_sink);
-
+            map,
+            map_editor->get_selection());
           inspector->display(
             map, map_editor->get_selection(), resources.resource_sink);
       }};

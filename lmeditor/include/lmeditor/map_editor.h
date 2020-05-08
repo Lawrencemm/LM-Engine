@@ -40,18 +40,6 @@ struct imap_editor : public itool_panel
       lmtk::input_event const &input_event,
       lmtk::resource_sink &resource_sink,
       map_editor_event_handler const &event_handler) = 0;
-    virtual bool update_selection(
-      entt::registry &map,
-      entt::meta_data const &data,
-      std::string const &string_repr) = 0;
-    virtual void add_component_to_selected(
-      entt::registry &map,
-      entt::meta_type const &type,
-      lmtk::resource_sink &resource_sink) = 0;
-    virtual void remove_component_from_selected(
-      entt::registry &map,
-      entt::meta_type const &type,
-      lmtk::resource_sink &resource_sink) = 0;
     virtual void set_map(
       entt::registry const &map,
       lmgl::irenderer *renderer,

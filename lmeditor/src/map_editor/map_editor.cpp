@@ -40,35 +40,6 @@ bool map_editor::handle(
     });
 }
 
-void map_editor::remove_component_from_selected(
-  entt::registry &map,
-  entt::meta_type const &type,
-  lmtk::resource_sink &resource_sink)
-{
-    lmng::remove_from_entity(type, map, model.selected_box);
-}
-
-bool map_editor::update_selection(
-  entt::registry &map,
-  entt::meta_data const &data,
-  std::string const &string_repr)
-{
-    auto component =
-      lmng::any_component{map, model.selected_box, data.parent()};
-    component.set(data, string_repr, map);
-    component.replace(map, model.selected_box);
-    return true;
-};
-
-void map_editor::add_component_to_selected(
-  entt::registry &map,
-  entt::meta_type const &type,
-  lmtk::resource_sink &resource_sink)
-{
-    auto component = type.ctor().invoke();
-    lmng::assign_to_entity(component, map, model.selected_box);
-};
-
 imap_editor &map_editor::set_rect(lm::point2i position, lm::size2i size)
 {
     view.set_rect(position, size);

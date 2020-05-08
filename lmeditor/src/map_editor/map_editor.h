@@ -26,21 +26,6 @@ class map_editor : public imap_editor
 
     entt::entity get_selection() override;
 
-    void remove_component_from_selected(
-      entt::registry &map,
-      entt::meta_type const &type,
-      lmtk::resource_sink &resource_sink) override;
-
-    bool update_selection(
-      entt::registry &map,
-      entt::meta_data const &data,
-      std::string const &string_repr) override;
-
-    void add_component_to_selected(
-      entt::registry &map,
-      entt::meta_type const &type,
-      lmtk::resource_sink &resource_sink) override;
-
     map_editor &
       move_resources(lmgl::irenderer *, lmtk::resource_sink &sink) override;
 

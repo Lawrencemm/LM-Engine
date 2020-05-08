@@ -13,7 +13,7 @@ class LmtkConan(ConanFile):
         ('scope_guard/0.2.3@lawrencem/stable', 'private'),
         ('embed-resource/0.1@lawrencem/stable', 'private'),
         ('freetype/2.10.1', 'private'),
-        'boost/1.70.0',
+        'boost/1.73.0',
         'readerwriterqueue/1.0.1@lawrencem/stable',
     )
 

@@ -27,7 +27,7 @@ class LmeditorConan(ConanFile):
         'embed-resource/0.2@lawrencem/stable',
         'fmt/5.3.0@bincrafters/stable',
         'clara/1.1.5@bincrafters/stable',
-        'boost/1.70.0',
+        'boost/1.73.0',
     )
     default_options = {
         "OpenMesh:shared": True,

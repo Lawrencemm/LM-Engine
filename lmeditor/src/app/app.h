@@ -1,123 +1,110 @@
 #pragma once
 
+#include "resources.h"
 #include <filesystem>
+#include <lmeditor/component/inspector.h>
+#include <lmeditor/component/map_editor.h>
+#include <lmeditor/model/trimesh.h>
+#include <lmeditor/simulation_plugin.h>
+#include <lmhuv.h>
+#include <lmlib/application.h>
+#include <lmlib/realtime_clock.h>
+#include <lmlib/variant_visitor.h>
+#include <lmtk/app_flow_graph.h>
+#include <lmtk/component.h>
+#include <lmtk/rect_border.h>
+#include <lmtk/text_layout.h>
 #include <set>
 #include <tbb/flow_graph.h>
 #include <tbb/task_scheduler_init.h>
 
-#include <lmeditor/map_editor.h>
-#include <lmlib/application.h>
-
-#include "resources.h"
-#include <lmeditor/inspector.h>
-#include <lmeditor/map_selector.h>
-#include <lmeditor/simulation.h>
-#include <lmeditor/trimesh.h>
-#include <lmhuv.h>
-#include <lmlib/realtime_clock.h>
-#include <lmtk/app_flow_graph.h>
-#include <lmtk/rect_border.h>
-#include <lmtk/text_layout.h>
-
 namespace lmeditor
 {
-class editor_app;
-
-struct state_handle_args
-{
-    lmtk::input_event const &input_event;
-    lmtk::resource_sink &resource_sink;
-    editor_app &app;
-};
-
-struct gui_state
-{
-    explicit gui_state(editor_app &app);
-    void add_to_frame(editor_app &app, lmgl::iframe *frame);
-    bool handle_input_event(state_handle_args const &args);
-    void move_resources(editor_app &app);
-};
-struct modal_state
-{
-    bool handle_input_event(state_handle_args const &args);
-    void add_to_frame(editor_app &app, lmgl::iframe *frame);
-    void move_resources(editor_app &app);
-
-    std::unique_ptr<lmtk::iwidget> modal;
-
-    std::function<
-      bool(editor_app &, lmtk::iwidget *, lmtk::input_event const &)>
-      input_handler{[](auto &, auto, auto &) { return false; }};
-
-    std::function<void(lmtk::iwidget *, lmgl::iframe *)> renderer;
-};
-struct player_state
-{
-    entt::registry registry;
-    psimulation simulation;
-    lmhuv::pvisual_view visual_view;
-
-    lm::realtime_clock clock;
-
-    bool handle_input_event(state_handle_args const &args);
-
-    void update_simulation(lmtk::input_state const &input_state);
-
-    void move_resources(editor_app &app);
-    void add_to_frame(editor_app &app, lmgl::iframe *frame);
-};
-
 class editor_app
 {
   public:
-    friend class gui_state;
-    friend class modal_state;
-    friend class player_state;
+    explicit editor_app(const std::filesystem::path &project_dir);
+    editor_app(editor_app const &) = delete;
+    editor_app(editor_app &&) = delete;
+    void main() { flow_graph.enter(); }
+    ~editor_app() = default;
+
+  private:
+    struct gui_state
+    {
+        explicit gui_state(editor_app &app);
+        bool handle(editor_app &app, lmtk::input_event const &input_event);
+        void add_to_frame(editor_app &app, lmgl::iframe *frame);
+        void move_resources(
+          lmgl::irenderer *renderer,
+          lmtk::resource_sink &resource_sink);
+    };
+    struct modal_state
+    {
+        lmtk::component modal;
+
+        bool handle(editor_app &app, lmtk::input_event const &input_event);
+        void add_to_frame(editor_app &app, lmgl::iframe *frame);
+        void move_resources(
+          lmgl::irenderer *renderer,
+          lmtk::resource_sink &resource_sink);
+
+        std::function<void(lmtk::widget_interface *, lmgl::iframe *)> renderer;
+    };
+    struct player_state
+    {
+        entt::registry registry;
+        psimulation simulation;
+        lmhuv::pvisual_view visual_view;
+
+        lm::realtime_clock clock;
+
+        void update_simulation(lmtk::input_state const &input_state);
+
+        bool handle(editor_app &app, lmtk::input_event const &input_event);
+        void move_resources(
+          lmgl::irenderer *renderer,
+          lmtk::resource_sink &resource_sink);
+        void add_to_frame(editor_app &app, lmgl::iframe *frame);
+    };
 
     using state_variant_type =
       std::variant<gui_state, modal_state, player_state>;
 
+    state_variant_type state;
+
     editor_app_resources resources;
     lmtk::app_flow_graph flow_graph;
 
+    std::vector<lmtk::component> components;
+    std::vector<component_interface *> visible_components;
+    std::vector<lmtk::component_interface *> component_order;
+    lmtk::component_interface *main_component;
+    std::unique_ptr<lmtk::rect_border> active_component_border;
+
     entt::registry map;
 
-    pinspector inspector;
-    pmap_editor map_editor;
-    pentity_list entity_list;
-    std::unique_ptr<lmtk::rect_border> active_panel_border;
+    std::map<lmpl::key_code, component_interface *> key_code_view_map;
+
     std::filesystem::path project_dir;
+    std::string map_file_project_relative_path{};
 
-    state_variant_type state;
-    std::vector<itool_panel *> panel_order_horizontal;
-    std::vector<itool_panel *> visible_panels;
-    std::map<
-      lmtk::iwidget *,
-      std::function<bool(editor_app &, lmtk::input_event const &)>>
-      input_handlers;
-    std::filesystem::path map_file_project_relative_path{};
+    lmtk::component create_map_selector();
+    lmtk::component create_simulation_selector();
+    lmtk::component create_map_saver();
+    lmtk::component create_command_help();
+    lmtk::component create_pose_loader();
+    lmtk::component create_pose_saver(std::string initial_project_path);
 
-    player_state create_player_state();
-    modal_state create_simulation_select_state();
+    bool on_map_selected(unsigned _unused_, const std::string &project_path);
+    bool on_simulation_selected(unsigned selection_index);
+    bool on_pose_selected(
+      unsigned selection_index,
+      std::string const &project_path);
+    bool on_map_saved(const std::string &project_path);
+    bool on_pose_saved(const std::string &project_path);
 
-    void init_map_saver();
-    void init_map_selector();
-    void init_command_help();
-    void init_pose_saver();
-    void init_pose_loader();
-
-    bool map_editor_handle(lmtk::input_event const &input_event);
-    bool inspector_handle(lmtk::input_event const &input_event);
-    bool entity_list_handle(lmtk::input_event const &input_event);
-
-    void focus_tool_panel(itool_panel *tool_panel);
-    void toggle_tool_panel(itool_panel *tool_panel);
-
-    map_selector create_map_selector();
-
-    void sync_entity_list();
-
-    void load_map(std::filesystem::path const &project_path);
+    void load_map(const std::string &project_path);
     void save_map(std::filesystem::path const &absolute_path);
 
   protected:
@@ -125,12 +112,27 @@ class editor_app
     bool on_new_frame(lmgl::iframe *frame);
     void on_quit();
 
-  public:
-    editor_app(const std::filesystem::path &project_dir);
-    editor_app(editor_app const &) = delete;
-    void main() { flow_graph.enter(); }
-    ~editor_app();
-    void fit_inspector();
-    void refit_visible_panels();
+    void refit_visible_components();
+    player_state create_player_state();
+    void assign_view_key(lmpl::key_code code, component_interface *pview);
+    void toggle_component(component_interface *pview);
+    void focus_component(lmtk::component_interface *tool_panel);
+
+    void move_current_state_resources();
+
+    template <typename new_state_type> void change_state()
+    {
+        move_current_state_resources();
+
+        state.emplace<new_state_type>(*this);
+    }
+
+    template <typename new_state_type>
+    void change_state(new_state_type new_state)
+    {
+        move_current_state_resources();
+
+        state.emplace<new_state_type>(std::move(new_state));
+    }
 };
 } // namespace lmeditor

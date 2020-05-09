@@ -1,6 +1,6 @@
-#include <utility>
-
+#include <lmlib/variant_visitor.h>
 #include <lmtk/text_editor.h>
+#include <utility>
 
 namespace lmtk
 {

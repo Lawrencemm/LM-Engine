@@ -1,9 +1,10 @@
 #include "../app.h"
 #include <lmlib/camera.h>
+#include <lmlib/variant_visitor.h>
 
 namespace lmeditor
 {
-player_state editor_app::create_player_state()
+editor_app::player_state editor_app::create_player_state()
 {
     auto play_registry = map.clone();
     auto simulation = resources.create_simulation(
@@ -22,43 +23,47 @@ player_state editor_app::create_player_state()
     };
 }
 
-bool player_state::handle_input_event(state_handle_args const &args)
+bool editor_app::player_state::handle(
+  editor_app &app,
+  lmtk::input_event const &input_event)
 {
-    auto &app = args.app;
     if (
-      args.input_event >> lm::variant_visitor{
-                            [&](lmtk::key_down_event const &key_down_event) {
-                                switch (key_down_event.key)
-                                {
-                                case lmpl::key_code::Escape:
-                                    move_resources(app);
-                                    app.state.emplace<gui_state>(app);
-                                    return true;
+      input_event >> lm::variant_visitor{
+                       [&](lmtk::key_down_event const &key_down_event) {
+                           switch (key_down_event.key)
+                           {
+                           case lmpl::key_code::Escape:
+                               app.change_state<gui_state>();
+                               return true;
 
-                                default:
-                                    return false;
-                                }
-                            },
-                            [](auto) { return false; },
-                          })
+                           default:
+                               return false;
+                           }
+                       },
+                       [](auto) { return false; },
+                     })
         return true;
 
-    simulation->handle_input_event(args.input_event, registry);
+    simulation->handle_input_event(input_event, registry);
     return true;
 }
 
-void player_state::update_simulation(lmtk::input_state const &input_state)
+void editor_app::player_state::update_simulation(
+  lmtk::input_state const &input_state)
 {
     simulation->update(registry, clock.tick(), input_state);
 }
 
-void player_state::move_resources(editor_app &app)
+void editor_app::player_state::move_resources(
+  lmgl::irenderer *renderer,
+  lmtk::resource_sink &resource_sink)
 {
-    visual_view->move_resources(
-      app.resources.resource_sink, app.resources.renderer.get());
+    visual_view->move_resources(resource_sink, renderer);
 }
 
-void player_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
+void editor_app::player_state::add_to_frame(
+  editor_app &app,
+  lmgl::iframe *frame)
 {
     update_simulation(app.resources.input_state);
     visual_view->add_to_frame(

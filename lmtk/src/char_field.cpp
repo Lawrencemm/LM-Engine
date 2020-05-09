@@ -4,7 +4,8 @@ namespace lmtk
 {
 
 char_field::char_field(char_field_init const &init)
-    : layout{text_layout_init{
+    : font{init.font},
+      layout{text_layout_init{
         .renderer = init.renderer,
         .material = init.material,
         .font = init.font,
@@ -16,21 +17,17 @@ char_field::char_field(char_field_init const &init)
 {
 }
 
-bool char_field::handle(
-  input_event const &event,
-  lmgl::irenderer *renderer,
-  ifont const *font,
-  resource_sink &resource_sink)
+bool char_field::handle(input_event const &event)
 {
     if (editor.handle(event))
     {
-        layout.set_text(*renderer, font, editor.text, resource_sink);
+        dirty = true;
         return true;
     }
     return false;
 }
 
-iwidget &char_field::add_to_frame(lmgl::iframe *frame)
+widget_interface &char_field::add_to_frame(lmgl::iframe *frame)
 {
     layout.render(frame);
     return *this;
@@ -40,13 +37,13 @@ lm::size2i char_field::get_size() { return layout.get_size(); }
 
 lm::point2i char_field::get_position() { return layout.position; }
 
-iwidget &char_field::set_rect(lm::point2i position, lm::size2i size)
+widget_interface &char_field::set_rect(lm::point2i position, lm::size2i size)
 {
     layout.set_position(position);
     return *this;
 }
 
-iwidget &char_field::move_resources(
+widget_interface &char_field::move_resources(
   lmgl::irenderer *renderer,
   resource_sink &resource_sink)
 {
@@ -54,9 +51,14 @@ iwidget &char_field::move_resources(
     return *this;
 }
 
-char_field &char_field::set_position(lm::point2i new_position)
+component_interface &
+  char_field::update(lmgl::irenderer *renderer, resource_sink &resource_sink)
 {
-    layout.position = new_position;
+    if (dirty)
+    {
+        layout.set_text(*renderer, font, editor.text, resource_sink);
+        dirty = false;
+    }
     return *this;
 }
 } // namespace lmtk

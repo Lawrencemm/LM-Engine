@@ -5,7 +5,7 @@
 #include <entt/entt.hpp>
 #include <range/v3/view.hpp>
 
-#include <lmeditor/simulation.h>
+#include <lmeditor/simulation_plugin.h>
 
 #include "reflection.h"
 #include "simulations/character_movement.h"

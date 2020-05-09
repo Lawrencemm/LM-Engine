@@ -7,7 +7,7 @@
 #include <lmlib/camera.h>
 #include <lmlib/geometry.h>
 #include <lmlib/reference.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 #include <lmtk/resource_sink.h>
 
 namespace lmhuv

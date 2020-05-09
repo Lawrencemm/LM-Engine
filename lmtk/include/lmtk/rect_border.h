@@ -1,13 +1,13 @@
 #pragma once
-#include "lmtk.h"
+#include "input_event.h"
 #include "resource_sink.h"
 #include <lmgl/lmgl.h>
 
-#include "iwidget.h"
+#include "widget.h"
 
 namespace lmtk
 {
-class rect_border : public iwidget
+class rect_border : public widget_interface
 {
   public:
     lm::point2i get_position() override;

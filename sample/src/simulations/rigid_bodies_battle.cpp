@@ -1,9 +1,8 @@
 #include "rigid_bodies_battle.h"
-
-#include <lmengine/transform.h>
-
 #include "../components/enemy.h"
 #include "../components/protagonist.h"
+#include <lmengine/transform.h>
+#include <lmlib/variant_visitor.h>
 
 rigid_bodies_battle::rigid_bodies_battle(lmng::simulation_init const &init)
     : physics{lmng::create_physics(init.registry)}

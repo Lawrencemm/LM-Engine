@@ -10,6 +10,7 @@ find_package(Freetype REQUIRED)
 find_package(scope_guard REQUIRED)
 find_package(Boost REQUIRED)
 find_package(readerwriterqueue REQUIRED)
+find_package(EnTT REQUIRED)
 
 add_executable(embed-resource IMPORTED)
 set_target_properties(embed-resource PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/embed-resource)
@@ -21,14 +22,14 @@ include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
 
 if (UNIX)
   set(
-      PLATFORM_SOURCES
-      src/font/linux/font_loader.cpp
-    )
+    PLATFORM_SOURCES
+    src/font/linux/font_loader.cpp
+  )
   set(
     PLATFORM_LIBRARIES
     fontconfig
   )
-elseif(WIN32)
+elseif (WIN32)
   set(
     PLATFORM_SOURCES
     src/font/windows.cpp
@@ -45,15 +46,15 @@ add_library(
 
   ${PLATFORM_SOURCES}
   src/text_layout.cpp
-  src/lmtk.cpp
+  src/input_event.cpp
   src/shapes.cpp
   src/text_editor.cpp
   src/rect_border.cpp
   src/app_flow_graph.cpp
   src/resource_sink.cpp
-  src/text_line_selector.cpp
+  src/choice_list.cpp
   src/char_field.cpp
-        src/font/font.cpp
+  src/font/font.cpp
 )
 
 target_include_directories(
@@ -73,6 +74,7 @@ target_link_libraries(
   scope_guard::scope_guard
   Boost::Boost
   readerwriterqueue::readerwriterqueue
+  EnTT::EnTT
 )
 
 # In-built shaders

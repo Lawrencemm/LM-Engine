@@ -1,13 +1,13 @@
-#include "model_test_case.h"
+#include "map_editor_controller_test_case.h"
 #include <catch2/catch.hpp>
 #include <lmlib/math_constants.h>
 
-TEST_CASE_METHOD(model_test_case, "Move selection")
+TEST_CASE_METHOD(map_editor_controller_test_case, "Move selection")
 {
     std::array cubes{
-      model.add_cube(map, {0.f, 0.f, 0.f}, 1.f),
-      model.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
-      model.add_cube(map, {4.f, 4.f, 4.f}, 1.f),
+      controller.add_cube(map, {0.f, 0.f, 0.f}, 1.f),
+      controller.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
+      controller.add_cube(map, {4.f, 4.f, 4.f}, 1.f),
     };
 
     auto [camera_rotation, key_code, initial_selection, expected_selection] =
@@ -86,22 +86,20 @@ TEST_CASE_METHOD(model_test_case, "Move selection")
         {lm::pi + lm::pi / 2, lmpl::key_code::O, 2, 1},
       }));
 
-    model.select_box(cubes[initial_selection]);
+    controller.select(cubes[initial_selection]);
 
-    model.camera.rotate({0.f, camera_rotation});
+    controller.camera.rotate({0.f, camera_rotation});
 
     lmtk::input_state input_state{};
 
-    model.handle(
-      map,
-      lmtk::key_down_event{
-        .input_state = input_state,
-        .key = key_code,
-      });
+    controller.handle(lmtk::key_down_event{
+      .input_state = input_state,
+      .key = key_code,
+    });
 
     float pi = lm::pi;
     Eigen::Vector3f camera_dir =
-      model.camera.rotation * Eigen::Vector3f::UnitZ();
+      controller.camera.rotation * Eigen::Vector3f::UnitZ();
     CAPTURE(
       camera_rotation / pi,
       key_code,
@@ -109,65 +107,69 @@ TEST_CASE_METHOD(model_test_case, "Move selection")
       expected_selection,
       camera_dir.transpose());
 
-    REQUIRE(model.selected_box == cubes[expected_selection]);
+    REQUIRE(controller.get_selection() == cubes[expected_selection]);
 }
 
 TEST_CASE("Move selection snaps to world axes")
 {
     entt::registry map;
-    lmeditor::map_editor_model model{lmeditor::map_editor_model::init{
-      .camera_init = lmeditor::orbital_camera_init{
+    lmeditor::map_editor_controller controller{
+      map,
+      lmeditor::orbital_camera_init{
         .fov = (float)M_PI / 3,
         .aspect = (float)16.f / 9.f,
         .near_clip = 0.1f,
         .far_clip = 1000.f,
         .position = Eigen::Vector3f{0.f, 10.f, -25.f},
         .target = Eigen::Vector3f{0.f, 0.f, 0.f},
-      }}};
+      },
+    };
 
-    // In view space the second cube is "higher", but it shouldn't
+    // In map_editor_view space the second cube is "higher", but it shouldn't
     // be selected with the "up" button while the camera's pitch is
     // closer to horizontal.
     std::array cubes{
-      model.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
-      model.add_cube(map, {2.f, 0.f, 16.f}, 1.f),
+      controller.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
+      controller.add_cube(map, {2.f, 0.f, 16.f}, 1.f),
     };
 
-    model.select_box(cubes[1]);
+    controller.select(cubes[1]);
 
     lmtk::input_state input_state{};
 
-    model.handle(
-      map,
-      lmtk::key_down_event{
-        .input_state = input_state,
-        .key = lmpl::key_code::I,
-      });
+    controller.handle(lmtk::key_down_event{
+      .input_state = input_state,
+      .key = lmpl::key_code::I,
+    });
 
-    REQUIRE(model.selected_box == cubes[0]);
+    REQUIRE(controller.get_selection() == cubes[0]);
 }
 
-TEST_CASE_METHOD(model_test_case, "Move selection minimum distance")
+TEST_CASE_METHOD(
+  map_editor_controller_test_case,
+  "Move selection minimum distance")
 {
     std::array cubes{
-      model.add_cube(map, {-2.f, 0.f, 0.f}, 1.f),
-      model.add_cube(map, {2.f, 0.01f, 0.f}, 1.f),
-      model.add_cube(map, {0.f, -2.f, 0.f}, 1.f),
+      controller.add_cube(map, {-2.f, 0.f, 0.f}, 1.f),
+      controller.add_cube(map, {2.f, 0.01f, 0.f}, 1.f),
+      controller.add_cube(map, {0.f, -2.f, 0.f}, 1.f),
     };
 
-    model.select_box(cubes[0]);
+    controller.select(cubes[0]);
 
-    model.move_selection(map, {0.f, -1.f, 0.f});
+    controller.move_selection(map, {0.f, -1.f, 0.f});
 
-    REQUIRE(model.selected_box == cubes[2]);
+    REQUIRE(controller.get_selection() == cubes[2]);
 }
 
-TEST_CASE_METHOD(model_test_case, "Move selection with no selection")
+TEST_CASE_METHOD(
+  map_editor_controller_test_case,
+  "Move selection with no selection")
 {
     std::array cubes{
-      model.add_cube(map, {0.f, 0.f, 0.f}, 1.f),
-      model.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
-      model.add_cube(map, {4.f, 4.f, 4.f}, 1.f),
+      controller.add_cube(map, {0.f, 0.f, 0.f}, 1.f),
+      controller.add_cube(map, {2.f, 2.f, 2.f}, 1.f),
+      controller.add_cube(map, {4.f, 4.f, 4.f}, 1.f),
     };
 
     auto [camera_rotation, key_code, expected_selection] =
@@ -198,42 +200,38 @@ TEST_CASE_METHOD(model_test_case, "Move selection with no selection")
         {lm::pi + lm::pi / 2, lmpl::key_code::O, 0},
       }));
 
-    model.camera.rotate({0.f, camera_rotation});
+    controller.camera.rotate({0.f, camera_rotation});
 
     lmtk::input_state input_state{};
 
-    model.handle(
-      map,
-      lmtk::key_down_event{
-        .input_state = input_state,
-        .key = key_code,
-      });
+    controller.handle(lmtk::key_down_event{
+      .input_state = input_state,
+      .key = key_code,
+    });
 
     float pi = lm::pi;
 
-    CAPTURE(camera_rotation / pi, model.camera.dir().transpose());
+    CAPTURE(camera_rotation / pi, controller.camera.dir().transpose());
 
-    REQUIRE(model.selected_box == cubes[expected_selection]);
+    REQUIRE(controller.get_selection() == cubes[expected_selection]);
 }
 
-TEST_CASE_METHOD(model_test_case, "Lone entity selection")
+TEST_CASE_METHOD(map_editor_controller_test_case, "Lone entity selection")
 {
     lmtk::input_state input_state{};
 
-    auto cube_id = model.add_cube(map, {0.f, 0.f, 0.f}, 1.f);
+    auto cube_id = controller.add_cube(map, {0.f, 0.f, 0.f}, 1.f);
 
-    model.handle(
-      map,
-      lmtk::key_down_event{
-        .input_state = input_state,
-        .key = GENERATE(
-          lmpl::key_code::J,
-          lmpl::key_code::L,
-          lmpl::key_code::I,
-          lmpl::key_code::K,
-          lmpl::key_code::U,
-          lmpl::key_code::O),
-      });
+    controller.handle(lmtk::key_down_event{
+      .input_state = input_state,
+      .key = GENERATE(
+        lmpl::key_code::J,
+        lmpl::key_code::L,
+        lmpl::key_code::I,
+        lmpl::key_code::K,
+        lmpl::key_code::U,
+        lmpl::key_code::O),
+    });
 
-    REQUIRE(model.selected_box == cube_id);
+    REQUIRE(controller.get_selection() == cube_id);
 }

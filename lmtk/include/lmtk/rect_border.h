@@ -1,6 +1,6 @@
 #pragma once
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 #include <lmgl/lmgl.h>
 
 #include "widget.h"
@@ -35,7 +35,8 @@ class rect_border : public widget_interface
         return *this;
     }
 
-    rect_border &move_resources(lmgl::irenderer *renderer, resource_sink &sink)
+    rect_border &
+      move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink)
     {
         sink.add(renderer, ubuffer, geometry);
         return *this;

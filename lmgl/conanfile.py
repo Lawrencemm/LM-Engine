@@ -10,6 +10,7 @@ class LmglConan(ConanFile):
         "lmlib/0.0.1",
         ("lmpl/0.0.1", 'private'),
         'Vulkan/1.1.92.1@lawrencem/stable',
+        'boost/1.73.0',
     )
     build_requires = (
         'Catch2/2.5.0@catchorg/stable',

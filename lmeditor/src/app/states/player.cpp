@@ -56,7 +56,7 @@ void editor_app::player_state::update_simulation(
 
 void editor_app::player_state::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     visual_view->move_resources(resource_sink, renderer);
 }

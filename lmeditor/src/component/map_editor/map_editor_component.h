@@ -29,13 +29,13 @@ class map_editor_component : public component_interface
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
     widget_interface &add_to_frame(lmgl::iframe *frame) override;
 
     widget_interface &move_resources(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
     map_editor_component &set_rect(lm::point2i pos, lm::size2i size) override;
     lm::size2i get_size() override;
@@ -49,7 +49,7 @@ class map_editor_component : public component_interface
     void set_state_text(
       lmgl::irenderer *renderer,
       std::string new_text,
-      lmtk::resource_sink &resource_sink);
+      lmgl::resource_sink &resource_sink);
 
     void render_state_text(lmgl::iframe *frame);
 

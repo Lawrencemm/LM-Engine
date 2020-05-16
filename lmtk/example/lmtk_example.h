@@ -2,11 +2,11 @@
 
 #include <lmgl/frame.h>
 #include <lmgl/renderer.h>
+#include <lmgl/resource_sink.h>
 #include <lmgl/stage.h>
 #include <lmlib/variant_visitor.h>
 #include <lmpl/lmpl.h>
 #include <lmtk/input_event.h>
-#include <lmtk/resource_sink.h>
 
 class lmtk_example
 {
@@ -67,5 +67,5 @@ class lmtk_example
     lmgl::stage stage;
 
     lmtk::input_state input_state;
-    lmtk::resource_sink resource_sink;
+    lmgl::resource_sink resource_sink;
 };

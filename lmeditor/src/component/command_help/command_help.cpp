@@ -57,7 +57,7 @@ command_help::command_help(command_help_init const &init)
 
 lmtk::component_interface &command_help::update(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     return *this;
 }
@@ -107,7 +107,7 @@ command_help &command_help::set_rect(lm::point2i position, lm::size2i size)
 
 command_help &command_help::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     for (auto &row : rows)
         for (auto &layout : row)

@@ -110,7 +110,7 @@ void editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 
 void editor_app::gui_state::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
 }
 } // namespace lmeditor

@@ -36,7 +36,7 @@ void inspector_component::display(
   entt::registry const &registry,
   entt::entity entity,
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     clear(renderer, resource_sink);
 
@@ -114,21 +114,21 @@ void inspector_component::create_text(lmgl::irenderer *renderer)
 void inspector_component::update(
   entt::registry &registry,
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     display(registry, controller.entity, renderer, resource_sink);
 }
 
 void inspector_component::clear(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     clear_text(renderer, resource_sink);
 }
 
 void inspector_component::clear_text(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     for (auto &line : lines)
         line.move_resources(renderer, resource_sink);
@@ -145,7 +145,7 @@ std::string inspector_component::format_component_data(
 
 lmtk::component_interface &inspector_component::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &sink)
+  lmgl::resource_sink &sink)
 {
     sink.add(renderer, background_material);
     selection_background.move_resources(renderer, sink);
@@ -178,7 +178,7 @@ void inspector_component::update_selection_background()
 
 component_interface &inspector_component::update(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     clear(renderer, resource_sink);
 

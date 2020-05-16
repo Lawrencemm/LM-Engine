@@ -45,14 +45,15 @@ widget_interface &char_field::set_rect(lm::point2i position, lm::size2i size)
 
 widget_interface &char_field::move_resources(
   lmgl::irenderer *renderer,
-  resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     layout.move_resources(renderer, resource_sink);
     return *this;
 }
 
-component_interface &
-  char_field::update(lmgl::irenderer *renderer, resource_sink &resource_sink)
+component_interface &char_field::update(
+  lmgl::irenderer *renderer,
+  lmgl::resource_sink &resource_sink)
 {
     if (dirty)
     {

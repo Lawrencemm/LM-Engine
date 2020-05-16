@@ -1,11 +1,10 @@
-#include <lmtk/resource_sink.h>
+#include <lmgl/resource_sink.h>
 
-namespace lmtk
+namespace lmgl
 {
 template <>
-resource_sink &resource_sink::add<lmgl::material>(
-  lmgl::irenderer *renderer,
-  lmgl::material &resource)
+resource_sink &
+  resource_sink::add<material>(irenderer *renderer, material &resource)
 {
     if (resource_map.empty())
     {
@@ -15,4 +14,4 @@ resource_sink &resource_sink::add<lmgl::material>(
     resource_map.rbegin()->second.add(resource);
     return *this;
 }
-} // namespace lmtk
+} // namespace lmgl

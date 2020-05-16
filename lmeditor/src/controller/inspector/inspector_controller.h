@@ -17,7 +17,7 @@ class inspector_controller
 
     bool handle(lmtk::input_event const &event);
 
-    void update(entt::registry &registry, lmtk::resource_sink &resource_sink);
+    void update(entt::registry &registry, lmgl::resource_sink &resource_sink);
 
     void inspect_entity(entt::registry const &registry, entt::entity entity);
 

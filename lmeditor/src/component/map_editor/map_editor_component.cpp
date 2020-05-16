@@ -80,14 +80,14 @@ lmgl::geometry map_editor_component::create_box_geometry(
 void map_editor_component::set_state_text(
   lmgl::irenderer *renderer,
   std::string new_text,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     state_text_layout.set_text(*renderer, font, new_text, resource_sink);
 }
 
 component_interface &map_editor_component::update(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     set_state_text(renderer, controller.state_text, resource_sink);
     visual_view->set_camera_override(controller.camera);
@@ -106,7 +106,7 @@ lmtk::widget_interface &map_editor_component::add_to_frame(lmgl::iframe *frame)
 
 lmtk::widget_interface &map_editor_component::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     resource_sink.add(
       renderer,

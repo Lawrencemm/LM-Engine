@@ -23,10 +23,10 @@ class command_help : public lmtk::component_interface
 
     command_help &move_resources(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
   private:
     lmtk::char_field filter;

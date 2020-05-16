@@ -37,7 +37,7 @@ class editor_app
         void add_to_frame(editor_app &app, lmgl::iframe *frame);
         void move_resources(
           lmgl::irenderer *renderer,
-          lmtk::resource_sink &resource_sink);
+          lmgl::resource_sink &resource_sink);
     };
     struct modal_state
     {
@@ -47,7 +47,7 @@ class editor_app
         void add_to_frame(editor_app &app, lmgl::iframe *frame);
         void move_resources(
           lmgl::irenderer *renderer,
-          lmtk::resource_sink &resource_sink);
+          lmgl::resource_sink &resource_sink);
 
         std::function<void(lmtk::widget_interface *, lmgl::iframe *)> renderer;
     };
@@ -64,7 +64,7 @@ class editor_app
         bool handle(editor_app &app, lmtk::input_event const &input_event);
         void move_resources(
           lmgl::irenderer *renderer,
-          lmtk::resource_sink &resource_sink);
+          lmgl::resource_sink &resource_sink);
         void add_to_frame(editor_app &app, lmgl::iframe *frame);
     };
 

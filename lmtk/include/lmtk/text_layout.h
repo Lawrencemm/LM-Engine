@@ -7,7 +7,7 @@
 
 #include "font.h"
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 
 namespace lm
 {
@@ -36,7 +36,7 @@ class text_layout
       lmgl::irenderer &renderer,
       ifont const *font,
       std::string const &text,
-      resource_sink &sink);
+      lmgl::resource_sink &sink);
 
     void recreate(
       lmgl::irenderer &renderer,
@@ -59,8 +59,9 @@ class text_layout
     text_alignment alignment;
     float pixel_width{0.f};
     unsigned max_glyph_height;
-    void move_text_resources(resource_sink &sink, lmgl::irenderer *renderer);
-    void move_resources(lmgl::irenderer *renderer, resource_sink &sink);
+    void
+      move_text_resources(lmgl::resource_sink &sink, lmgl::irenderer *renderer);
+    void move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink);
 };
 
 struct text_layout_init

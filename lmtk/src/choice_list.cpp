@@ -76,7 +76,7 @@ widget_interface &choice_list::set_rect(lm::point2i position, lm::size2i size)
 
 widget_interface &choice_list::move_resources(
   lmgl::irenderer *renderer,
-  resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     for (auto &layout : line_layouts)
         layout.move_resources(renderer, resource_sink);
@@ -85,8 +85,9 @@ widget_interface &choice_list::move_resources(
     return *this;
 }
 
-component_interface &
-  choice_list::update(lmgl::irenderer *renderer, resource_sink &resource_sink)
+component_interface &choice_list::update(
+  lmgl::irenderer *renderer,
+  lmgl::resource_sink &resource_sink)
 {
     return *this;
 }

@@ -11,11 +11,14 @@ find_package(fmt REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(lmlib REQUIRED)
 find_package(lmpl REQUIRED)
+find_package(Boost REQUIRED)
 
 set(
   SOURCES
 
   src/create_renderer.cpp
+
+  src/resource_sink.cpp
 
   src/vulkan/buffer/vulkan_buffer.cpp
   src/vulkan/vulkan_window_stage.cpp
@@ -27,7 +30,8 @@ set(
   src/vulkan/vulkan_texture.cpp
   src/vulkan/material.cpp
   src/vulkan/vulkan_texture_stage.cpp
-  src/vulkan/stage_helpers.cpp)
+  src/vulkan/stage_helpers.cpp
+)
 
 add_library(
   lmgl
@@ -56,6 +60,7 @@ target_link_libraries(
   Vulkan::Vulkan
   lmpl::lmpl
   ${fmt_LIBRARIES}
+  Boost::Boost
 )
 
 if (WIN32)

@@ -32,7 +32,7 @@ bool editor_app::modal_state::handle(
 
 void editor_app::modal_state::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     modal->move_resources(renderer, resource_sink);
 }

@@ -27,13 +27,13 @@ struct saver : public saver_interface
 
     saver &move_resources(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
     bool handle(const lmtk::input_event &input_event) override;
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
     entt::sink<bool(const std::string &)> on_save() override;
 };

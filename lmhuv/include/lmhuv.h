@@ -4,11 +4,11 @@
 
 #include <entt/entity/registry.hpp>
 
+#include <lmgl/resource_sink.h>
 #include <lmlib/camera.h>
 #include <lmlib/geometry.h>
 #include <lmlib/reference.h>
 #include <lmtk/input_event.h>
-#include <lmtk/resource_sink.h>
 
 namespace lmhuv
 {
@@ -20,7 +20,7 @@ class ivisual_view
     virtual void update(
       entt::registry &registry,
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) = 0;
+      lmgl::resource_sink &resource_sink) = 0;
 
     virtual void add_to_frame(
       entt::registry const &registry,
@@ -28,11 +28,11 @@ class ivisual_view
       lmgl::viewport const &viewport) = 0;
 
     virtual void move_resources(
-      lmtk::resource_sink &resource_sink,
+      lmgl::resource_sink &resource_sink,
       lmgl::irenderer *renderer) = 0;
 
     virtual ivisual_view &
-      clear(lmgl::irenderer *renderer, lmtk::resource_sink &resource_sink) = 0;
+      clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink) = 0;
 
     virtual void
       recreate(entt::registry const &registry, lmgl::irenderer &renderer) = 0;

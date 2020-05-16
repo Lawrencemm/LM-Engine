@@ -23,10 +23,11 @@ class char_field : public component_interface
 
     widget_interface &move_resources(
       lmgl::irenderer *renderer,
-      resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
-    component_interface &
-      update(lmgl::irenderer *renderer, resource_sink &resource_sink) override;
+    component_interface &update(
+      lmgl::irenderer *renderer,
+      lmgl::resource_sink &resource_sink) override;
 
     [[nodiscard]] std::string get_value() const { return editor.text; }
 

@@ -71,7 +71,7 @@ widget_interface &rect::set_rect(lm::point2i position, lm::size2i size)
     return *this;
 }
 
-rect &rect::move_resources(lmgl::irenderer *renderer, resource_sink &sink)
+rect &rect::move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink)
 {
     sink.add(renderer, ubuffer, geometry);
     return *this;

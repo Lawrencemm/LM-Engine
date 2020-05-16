@@ -2,7 +2,7 @@
 
 #include "font.h"
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 
 #include <future>
 
@@ -131,7 +131,7 @@ class app_resources
     lm::size2i window_size;
 
     lmtk::input_state input_state;
-    lmtk::resource_sink resource_sink;
+    lmgl::resource_sink resource_sink;
 
     moodycamel::ReaderWriterQueue<lmgl::frame> frames;
 

@@ -1,6 +1,5 @@
 #include "visual.h"
 #include "rendering/shapes.h"
-
 #include <lmengine/camera.h>
 #include <lmengine/physics.h>
 #include <lmhuv.h>
@@ -52,7 +51,7 @@ visual::visual(visual_view_init const &init)
 void visual::update(
   entt::registry &registry,
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     for (auto entity : box_render_observer)
     {
@@ -149,7 +148,7 @@ void visual::add_to_frame(
 }
 
 void visual::move_resources(
-  lmtk::resource_sink &resource_sink,
+  lmgl::resource_sink &resource_sink,
   lmgl::irenderer *renderer)
 {
     resource_sink.add(
@@ -171,7 +170,7 @@ void visual::add_box_wireframe(lmgl::irenderer *renderer, entt::entity entity)
 void visual::destroy_box(
   lmgl::irenderer *renderer,
   entt::entity entity,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     auto &mesh = box_meshes.at(entity);
     resource_sink.add(renderer, mesh.ubuffer);
@@ -180,7 +179,7 @@ void visual::destroy_box(
 }
 
 visual &
-  visual::clear(lmgl::irenderer *renderer, lmtk::resource_sink &resource_sink)
+  visual::clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink)
 {
     for (auto &key_val : box_meshes)
         resource_sink.add(
@@ -263,7 +262,7 @@ void visual::recreate(entt::registry const &registry, lmgl::irenderer &renderer)
 void visual::destroy_box_collider_mesh(
   lmgl::irenderer *renderer,
   entt::entity entity,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     auto &mesh = box_collider_meshes.at(entity);
     resource_sink.add(renderer, mesh.ubuffer);

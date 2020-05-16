@@ -29,7 +29,7 @@ class font_internal : public ifont
     glyph_metrics const &get_metrics(char c) const override;
     ifont &move_resources(
       lmgl::irenderer *renderer,
-      resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
     font_atlas atlas;
 };

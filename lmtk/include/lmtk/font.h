@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 
 #include <string>
 
@@ -30,7 +30,7 @@ class ifont
     virtual glyph_metrics const &get_metrics(char c) const = 0;
     virtual ifont &move_resources(
       lmgl::irenderer *renderer,
-      resource_sink &resource_sink) = 0;
+      lmgl::resource_sink &resource_sink) = 0;
     virtual ~ifont() = default;
 };
 

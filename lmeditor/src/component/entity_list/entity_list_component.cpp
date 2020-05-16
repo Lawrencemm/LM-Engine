@@ -45,7 +45,7 @@ lmtk::text_layout &entity_list_component::selected_line()
 
 entity_list_component &entity_list_component::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     selection_background.move_resources(renderer, resource_sink);
     for (auto &layout : line_layouts)
@@ -66,7 +66,7 @@ entity_list_component &entity_list_component::add_to_frame(lmgl::iframe *frame)
 
 void entity_list_component::reset(
   lmgl::irenderer &renderer,
-  lmtk::resource_sink &resource_sink,
+  lmgl::resource_sink &resource_sink,
   entt::registry const &registry)
 {
     for (auto &layout : line_layouts)
@@ -105,7 +105,7 @@ bool entity_list_component::handle(const lmtk::input_event &input_event)
 
 component_interface &entity_list_component::update(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     if (controller.dirty)
     {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 
 #include <lmgl/frame.h>
 #include <lmgl/renderer.h>
@@ -31,8 +31,8 @@ class rect : public widget_interface
 
     rect &add_to_frame(lmgl::iframe *frame);
 
-    rect &
-      move_resources(lmgl::irenderer *renderer, resource_sink &sink) override;
+    rect &move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink)
+      override;
 
   private:
     lm::point2i position;

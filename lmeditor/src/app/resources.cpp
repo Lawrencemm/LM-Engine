@@ -3,8 +3,8 @@
 #include <tbb/flow_graph.h>
 #include <tbb/task_scheduler_init.h>
 
-#include <lmeditor/map_editor.h>
-#include <lmeditor/trimesh.h>
+#include <lmeditor/component/map_editor.h>
+#include <lmeditor/model/trimesh.h>
 #include <lmgl/renderer.h>
 #include <lmlib/flow_graph.h>
 #include <lmtk/app_flow_graph.h>
@@ -94,20 +94,6 @@ editor_app_resources::editor_app_resources(
 }
 
 editor_app_resources::~editor_app_resources() {}
-
-lmtk::rect_border editor_app_resources::create_active_panel_border(
-  lm::point2i const &position,
-  lm::size2i const &size)
-{
-    return lmtk::rect_border{
-      renderer.get(),
-      border_material,
-      position,
-      size,
-      active_panel_border_colour,
-      1.f,
-    };
-}
 
 void editor_app_resources::free()
 {

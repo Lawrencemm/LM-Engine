@@ -1,8 +1,6 @@
 #include <Resource.h>
-
 #include <lmgl/geometry.h>
 #include <lmgl/material.h>
-
 #include <lmtk/shapes.h>
 
 LOAD_RESOURCE(quad_vshader_data, shaders_rect_vert_spv);
@@ -66,10 +64,16 @@ lm::size2i rect::get_size() { return size; }
 
 lm::point2i rect::get_position() { return position; }
 
-iwidget &rect::set_rect(lm::point2i position, lm::size2i size)
+widget_interface &rect::set_rect(lm::point2i position, lm::size2i size)
 {
     this->position = position;
     this->size = size;
+    return *this;
+}
+
+rect &rect::move_resources(lmgl::irenderer *renderer, resource_sink &sink)
+{
+    sink.add(renderer, ubuffer, geometry);
     return *this;
 }
 } // namespace lmtk

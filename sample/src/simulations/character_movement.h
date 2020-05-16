@@ -7,7 +7,7 @@
 #include <lmengine/physics.h>
 #include <lmengine/simulation.h>
 #include <lmengine/transform.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 #include <yaml-cpp/node/node.h>
 
 #include "../components/character_input.h"

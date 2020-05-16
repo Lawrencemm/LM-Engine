@@ -7,40 +7,21 @@
 #include <lmlib/camera.h>
 #include <lmlib/geometry.h>
 #include <lmlib/reference.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 #include <lmtk/resource_sink.h>
 
 namespace lmhuv
 {
 class ivisual_view;
 
-struct visual_view_connections
-{
-  private:
-    ivisual_view &visual_view;
-    lmgl::irenderer &renderer;
-    lmtk::resource_sink &resource_sink;
-
-    entt::scoped_connection box_construct, box_remove, box_collider_construct,
-      box_collider_remove;
-
-  public:
-    visual_view_connections(
-      ivisual_view &visual_view,
-      entt::registry &registry,
-      lmgl::irenderer &renderer,
-      lmtk::resource_sink &resource_sink);
-
-    void add_box(entt::registry &registry, entt::entity entity);
-    void remove_box(entt::registry &registry, entt::entity entity);
-
-    void add_box_collider(entt::registry &registry, entt::entity entity);
-    void remove_box_collider(entt::registry &registry, entt::entity entity);
-};
-
 class ivisual_view
 {
   public:
+    virtual void update(
+      entt::registry &registry,
+      lmgl::irenderer *renderer,
+      lmtk::resource_sink &resource_sink) = 0;
+
     virtual void add_to_frame(
       entt::registry const &registry,
       lmgl::iframe *frame,
@@ -53,20 +34,6 @@ class ivisual_view
     virtual ivisual_view &
       clear(lmgl::irenderer *renderer, lmtk::resource_sink &resource_sink) = 0;
 
-    virtual void add_box(lmgl::irenderer *renderer, entt::entity entity) = 0;
-    virtual void
-      add_box_wireframe(lmgl::irenderer *renderer, entt::entity entity) = 0;
-
-    virtual void destroy_box(
-      lmgl::irenderer *renderer,
-      entt::entity entity,
-      lmtk::resource_sink &resource_sink) = 0;
-
-    virtual void destroy_box_wireframe(
-      lmgl::irenderer *renderer,
-      entt::entity entity,
-      lmtk::resource_sink &resource_sink) = 0;
-
     virtual void
       recreate(entt::registry const &registry, lmgl::irenderer &renderer) = 0;
 
@@ -77,7 +44,7 @@ using pvisual_view = lm::reference<ivisual_view>;
 
 struct visual_view_init
 {
-    entt::registry const &registry;
+    entt::registry &registry;
     lmgl::irenderer *renderer;
     float aspect_ratio;
     bool render_box_colliders{false};

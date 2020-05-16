@@ -1,50 +1,48 @@
 #include "../app.h"
-#include "../saver.h"
-#include <lmeditor/map_selector.h>
+#include <lmeditor/model/selection.h>
+#include <lmengine/name.h>
+#include <lmlib/variant_visitor.h>
 #include <lmtk/char_field.h>
 
 namespace lmeditor
 {
-bool gui_state::handle_input_event(state_handle_args const &args)
+bool editor_app::gui_state::handle(
+  editor_app &app,
+  lmtk::input_event const &input_event)
 {
     if (
-      args.input_event >>
+      input_event >>
       lm::variant_visitor{
         [&](lmtk::key_down_event const &key_down_event) {
+            if (key_down_event.input_state.key_state.alt())
+            {
+                auto found_mapping =
+                  app.key_code_view_map.find(key_down_event.key);
+                if (found_mapping != app.key_code_view_map.end())
+                {
+                    app.toggle_component(found_mapping->second);
+                    return true;
+                }
+            }
+
             switch (key_down_event.key)
             {
-            case lmpl::key_code::I:
-                if (key_down_event.input_state.key_state.alt())
-                {
-                    args.app.toggle_tool_panel(args.app.inspector.get());
-                    return true;
-                }
-                return false;
-
-            case lmpl::key_code::M:
-                if (key_down_event.input_state.key_state.alt())
-                {
-                    args.app.toggle_tool_panel(args.app.map_editor.get());
-                    return true;
-                }
-                return false;
-
             case lmpl::key_code::F1:
-                args.app.init_command_help();
+                app.change_state(modal_state{app.create_command_help()});
                 return true;
 
             case lmpl::key_code::P:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    args.app.state = args.app.create_simulation_select_state();
+                    app.change_state(
+                      modal_state{app.create_simulation_selector()});
                     return true;
                 }
                 return false;
-
             case lmpl::key_code::R:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    args.app.state = args.app.create_player_state();
+                    app.change_state(app.create_player_state());
                     return true;
                 }
                 return false;
@@ -52,12 +50,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::L:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    args.app.init_map_selector();
-                    return true;
-                }
-                if (key_down_event.input_state.key_state.alt())
-                {
-                    args.app.toggle_tool_panel(args.app.entity_list.get());
+                    app.change_state(modal_state{app.create_map_selector()});
                     return true;
                 }
                 return false;
@@ -65,7 +58,7 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::S:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    args.app.init_map_saver();
+                    app.change_state(modal_state{app.create_map_saver()});
                     return true;
                 }
                 return false;
@@ -73,12 +66,19 @@ bool gui_state::handle_input_event(state_handle_args const &args)
             case lmpl::key_code::B:
                 if (key_down_event.input_state.key_state.control())
                 {
+                    auto selected_entity = get_selection(app.map);
+
+                    if (selected_entity == entt::null)
+                        return false;
+
                     if (key_down_event.input_state.key_state.shift())
                     {
-                        args.app.init_pose_loader();
+                        app.change_state(modal_state{app.create_pose_loader()});
                         return true;
                     }
-                    args.app.init_pose_saver();
+
+                    app.change_state(modal_state{app.create_pose_saver(
+                      lmng::get_name(app.map, selected_entity))});
                     return true;
                 }
                 return false;
@@ -91,19 +91,26 @@ bool gui_state::handle_input_event(state_handle_args const &args)
       })
         return true;
 
-    return args.app.input_handlers[args.app.visible_panels.front()](
-      args.app, args.input_event);
+    return app.visible_components.front()->handle(input_event);
 }
 
-gui_state::gui_state(editor_app &app) {}
+editor_app::gui_state::gui_state(editor_app &app) {}
 
-void gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
+void editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
-    for (auto &ppanel : app.visible_panels)
-        ppanel->add_to_frame(frame, app);
+    for (auto &ppanel : app.visible_components)
+    {
+        ppanel->update(
+          app.resources.renderer.get(), app.resources.resource_sink);
+        ppanel->add_to_frame(frame);
+    }
 
-    app.active_panel_border->add_to_frame(frame);
+    app.active_component_border->add_to_frame(frame);
 }
 
-void gui_state::move_resources(editor_app &app) {}
+void editor_app::gui_state::move_resources(
+  lmgl::irenderer *renderer,
+  lmtk::resource_sink &resource_sink)
+{
+}
 } // namespace lmeditor

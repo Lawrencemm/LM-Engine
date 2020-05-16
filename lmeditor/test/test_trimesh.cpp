@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <lmeditor/trimesh.h>
+#include <model/trimesh.h>
 
 TEST_CASE("Geometry mesh extrude edge")
 {

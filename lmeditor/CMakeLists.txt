@@ -27,46 +27,49 @@ add_library(
 
   src/app/resources.cpp
   src/app/app.cpp
+  src/app/save_load_map.cpp
+
   src/app/states/gui.cpp
   src/app/states/player.cpp
   src/app/states/modal.cpp
-  src/app/inspector_handler.cpp
-  src/app/map_editor_handler.cpp
-  src/app/save_load_map.cpp
 
-  src/viewport/orbital_camera.cpp
-  src/trimesh/trimesh.cpp
+  src/model/selection.cpp
 
-  src/map_editor/map_editor.cpp
-  src/map_editor/add_to_frame.cpp
-  src/map_editor/model/model.cpp
-  src/map_editor/model/move_selection.cpp
-  src/map_editor/model/states/add_adjacent.cpp
-  src/map_editor/model/states/translate.cpp
-  src/map_editor/model/states/select.cpp
-  src/map_editor/model/states/copy_object.cpp
-  src/map_editor/model/viewport_commands.cpp
-  src/map_editor/model/states/scale.cpp
-  src/map_editor/model/states/rotate.cpp
-  src/map_editor/view/rendering.cpp
-  src/map_editor/view/view.cpp
-  src/map_editor/model/move_selection_commands.cpp
-  src/map_editor/model/states/reparent.cpp
+  src/model/trimesh/trimesh.cpp
 
-  src/axes3d/axes3d.cpp
+  src/model/orbital_camera.cpp
 
-  src/viewport/viewport.cpp
+  src/controller/viewport/viewport.cpp
 
-  src/inspector/inspector.cpp
-  src/inspector/add_state.cpp
-  src/command_help/command_help.cpp
+  src/controller/map_editor/map_editor_controller.cpp
+  src/controller/map_editor/move_selection.cpp
+  src/controller/map_editor/viewport_commands.cpp
+  src/controller/map_editor/move_selection_commands.cpp
 
-  src/map_selector.cpp
-  src/app/saver.cpp
+  src/controller/map_editor/states/add_adjacent.cpp
+  src/controller/map_editor/states/translate.cpp
+  src/controller/map_editor/states/select.cpp
+  src/controller/map_editor/states/copy_object.cpp
+  src/controller/map_editor/states/scale.cpp
+  src/controller/map_editor/states/rotate.cpp
+  src/controller/map_editor/states/reparent.cpp
 
-  src/entity_list/entity_list.cpp
-  src/entity_list/view.cpp
-  src/app/entity_list_handle.cpp
+  src/controller/entity_list/entity_list_controller.cpp
+
+  src/controller/inspector/inspector_controller.cpp
+
+  src/component/map_editor/rendering.cpp
+  src/component/map_editor/map_editor_component.cpp
+
+  src/component/inspector/inspector_component.cpp
+
+  src/component/axes3d/axes3d.cpp
+
+  src/component/command_help/command_help.cpp
+
+  src/component/saver_modal/saver.cpp
+
+  src/component/entity_list/entity_list_component.cpp
 )
 
 target_link_libraries(

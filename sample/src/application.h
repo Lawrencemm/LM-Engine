@@ -5,7 +5,7 @@
 #include <lmhuv.h>
 #include <lmlib/realtime_clock.h>
 #include <lmtk/app_flow_graph.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 
 class sample_app
 {

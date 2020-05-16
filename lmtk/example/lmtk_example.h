@@ -5,7 +5,7 @@
 #include <lmgl/stage.h>
 #include <lmlib/variant_visitor.h>
 #include <lmpl/lmpl.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 #include <lmtk/resource_sink.h>
 
 class lmtk_example

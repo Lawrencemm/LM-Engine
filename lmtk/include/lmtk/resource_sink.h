@@ -1,10 +1,10 @@
 #pragma once
 
-#include <map>
-#include <vector>
-
+#include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <lmgl/lmgl.h>
+#include <map>
+#include <vector>
 
 namespace lmtk
 {

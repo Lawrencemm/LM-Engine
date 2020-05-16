@@ -3,7 +3,7 @@
 
 #include <lmengine/physics.h>
 #include <lmengine/simulation.h>
-#include <lmtk/lmtk.h>
+#include <lmtk/input_event.h>
 
 class rigid_bodies_battle
 {

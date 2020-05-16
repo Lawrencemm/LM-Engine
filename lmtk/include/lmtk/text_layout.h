@@ -6,7 +6,7 @@
 #include <lmlib/reference.h>
 
 #include "font.h"
-#include "lmtk.h"
+#include "input_event.h"
 #include "resource_sink.h"
 
 namespace lm

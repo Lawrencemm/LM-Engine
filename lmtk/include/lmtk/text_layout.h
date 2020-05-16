@@ -59,9 +59,8 @@ class text_layout
     text_alignment alignment;
     float pixel_width{0.f};
     unsigned max_glyph_height;
-    void
-      move_text_resources(lmgl::resource_sink &sink, lmgl::irenderer *renderer);
-    void move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink);
+    void move_text_resources(lmgl::resource_sink &sink);
+    void move_resources(lmgl::resource_sink &sink);
 };
 
 struct text_layout_init

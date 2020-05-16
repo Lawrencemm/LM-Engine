@@ -21,9 +21,8 @@ class entity_list_component : public component_interface
     entity_list_component &
       set_rect(lm::point2i position, lm::size2i size) override;
 
-    entity_list_component &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    entity_list_component &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
     void reset(
       lmgl::irenderer &renderer,

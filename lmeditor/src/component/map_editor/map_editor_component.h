@@ -33,9 +33,8 @@ class map_editor_component : public component_interface
 
     widget_interface &add_to_frame(lmgl::iframe *frame) override;
 
-    widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
     map_editor_component &set_rect(lm::point2i pos, lm::size2i size) override;
     lm::size2i get_size() override;

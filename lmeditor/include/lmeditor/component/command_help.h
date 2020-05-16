@@ -21,9 +21,8 @@ class command_help : public lmtk::component_interface
     lm::point2i get_position() override;
     command_help &set_rect(lm::point2i position, lm::size2i size) override;
 
-    command_help &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    command_help &move_resources(lmgl::resource_sink &resource_sink) override;
+
     component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink) override;

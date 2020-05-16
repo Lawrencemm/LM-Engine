@@ -97,8 +97,7 @@ editor_app_resources::~editor_app_resources() {}
 
 void editor_app_resources::free()
 {
-    resource_sink.add(
-      renderer.get(), text_material, border_material, rect_material);
+    resource_sink.add(text_material);
     font->move_resources(renderer.get(), resource_sink);
 }
 

@@ -49,6 +49,5 @@ bool sample_app::on_new_frame(lmgl::iframe *pIframe)
 
 void sample_app::on_quit()
 {
-    visual_view->move_resources(
-      resources.resource_sink, resources.renderer.get());
+    visual_view->move_resources(resources.resource_sink);
 }

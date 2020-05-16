@@ -14,7 +14,6 @@ bool editor_app::modal_state::handle(
                            {
                            case lmpl::key_code::Escape:
                                modal->move_resources(
-                                 app.resources.renderer.get(),
                                  app.resources.resource_sink);
                                app.change_state<gui_state>();
                                return true;
@@ -34,7 +33,7 @@ void editor_app::modal_state::move_resources(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink)
 {
-    modal->move_resources(renderer, resource_sink);
+    modal->move_resources(resource_sink);
 }
 
 void editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)

@@ -25,9 +25,7 @@ struct saver : public saver_interface
 
     saver &set_rect(lm::point2i position, lm::size2i size) override;
 
-    saver &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    saver &move_resources(lmgl::resource_sink &resource_sink) override;
 
     bool handle(const lmtk::input_event &input_event) override;
 

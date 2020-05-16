@@ -27,12 +27,9 @@ class ivisual_view
       lmgl::iframe *frame,
       lmgl::viewport const &viewport) = 0;
 
-    virtual void move_resources(
-      lmgl::resource_sink &resource_sink,
-      lmgl::irenderer *renderer) = 0;
+    virtual void move_resources(lmgl::resource_sink &resource_sink) = 0;
 
-    virtual ivisual_view &
-      clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink) = 0;
+    virtual ivisual_view &clear(lmgl::resource_sink &resource_sink) = 0;
 
     virtual void
       recreate(entt::registry const &registry, lmgl::irenderer &renderer) = 0;

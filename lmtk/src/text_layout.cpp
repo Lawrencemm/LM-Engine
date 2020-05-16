@@ -95,19 +95,15 @@ text_layout &text_layout::render(lmgl::iframe *frame)
     return *this;
 }
 
-void text_layout::move_text_resources(
-  lmgl::resource_sink &sink,
-  lmgl::irenderer *renderer)
+void text_layout::move_text_resources(lmgl::resource_sink &sink)
 {
-    sink.add(renderer, vposbuffer, tcoordbuffer, ibuffer, geometry_);
+    sink.add(vposbuffer);
 }
 
-void text_layout::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &sink)
+void text_layout::move_resources(lmgl::resource_sink &sink)
 {
-    move_text_resources(sink, renderer);
-    sink.add(renderer, ubuffer);
+    move_text_resources(sink);
+    sink.add(ubuffer);
 }
 
 void text_layout::recreate(
@@ -198,7 +194,7 @@ void text_layout::set_text(
   std::string const &text,
   lmgl::resource_sink &sink)
 {
-    move_text_resources(sink, &renderer);
+    move_text_resources(sink);
 
     if (text.empty())
         return;

@@ -100,7 +100,7 @@ ifont &font_internal::move_resources(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink)
 {
-    resource_sink.add(renderer, atlas.texture);
+    resource_sink.add(atlas.texture);
     return *this;
 }
 

@@ -105,13 +105,11 @@ command_help &command_help::set_rect(lm::point2i position, lm::size2i size)
     throw std::runtime_error{"Not implemented."};
 }
 
-command_help &command_help::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+command_help &command_help::move_resources(lmgl::resource_sink &resource_sink)
 {
     for (auto &row : rows)
         for (auto &layout : row)
-            layout.move_resources(renderer, resource_sink);
+            layout.move_resources(resource_sink);
 
     return *this;
 }

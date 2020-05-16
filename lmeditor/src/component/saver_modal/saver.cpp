@@ -37,12 +37,10 @@ saver &saver::add_to_frame(lmgl::iframe *frame)
     return *this;
 }
 
-saver &saver::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+saver &saver::move_resources(lmgl::resource_sink &resource_sink)
 {
-    header.move_resources(renderer, resource_sink);
-    field.move_resources(renderer, resource_sink);
+    header.move_resources(resource_sink);
+    field.move_resources(resource_sink);
     return *this;
 }
 

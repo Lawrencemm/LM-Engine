@@ -11,7 +11,6 @@ find_package(fmt REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(lmlib REQUIRED)
 find_package(lmpl REQUIRED)
-find_package(Boost REQUIRED)
 
 set(
   SOURCES
@@ -60,7 +59,6 @@ target_link_libraries(
   Vulkan::Vulkan
   lmpl::lmpl
   ${fmt_LIBRARIES}
-  Boost::Boost
 )
 
 if (WIN32)

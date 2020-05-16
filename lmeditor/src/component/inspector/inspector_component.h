@@ -34,7 +34,7 @@ class inspector_component : public inspector_interface
     void clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink);
 
     lmtk::component_interface &
-      move_resources(lmgl::irenderer *, lmgl::resource_sink &sink) override;
+      move_resources(lmgl::resource_sink &sink) override;
 
     void create_text(lmgl::irenderer *renderer);
     void

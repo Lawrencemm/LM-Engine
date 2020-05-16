@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 #include <lmgl/fwd_decl.h>
@@ -15,12 +17,9 @@ class visual : public ivisual_view
     visual(visual &&) = delete;
     visual(visual const &) = delete;
 
-    void move_resources(
-      lmgl::resource_sink &resource_sink,
-      lmgl::irenderer *renderer) override;
+    void move_resources(lmgl::resource_sink &resource_sink) override;
 
-    visual &clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink)
-      override;
+    visual &clear(lmgl::resource_sink &resource_sink) override;
 
   public:
     void add_to_frame(

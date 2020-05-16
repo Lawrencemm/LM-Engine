@@ -21,9 +21,8 @@ class char_field : public component_interface
 
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
     component_interface &update(
       lmgl::irenderer *renderer,

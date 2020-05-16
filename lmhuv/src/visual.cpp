@@ -147,13 +147,10 @@ void visual::add_to_frame(
       });
 }
 
-void visual::move_resources(
-  lmgl::resource_sink &resource_sink,
-  lmgl::irenderer *renderer)
+void visual::move_resources(lmgl::resource_sink &resource_sink)
 {
-    resource_sink.add(
-      renderer, box_vpositions, box_vnormals, box_indices, box_material);
-    clear(renderer, resource_sink);
+    resource_sink.add(box_vpositions);
+    clear(resource_sink);
 }
 
 void visual::add_box(lmgl::irenderer *renderer, entt::entity entity)
@@ -173,17 +170,15 @@ void visual::destroy_box(
   lmgl::resource_sink &resource_sink)
 {
     auto &mesh = box_meshes.at(entity);
-    resource_sink.add(renderer, mesh.ubuffer);
-    resource_sink.add(renderer, mesh.geometry);
+    resource_sink.add(mesh.ubuffer);
+    resource_sink.add(mesh.geometry);
     box_meshes.erase(entity);
 }
 
-visual &
-  visual::clear(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink)
+visual &visual::clear(lmgl::resource_sink &resource_sink)
 {
     for (auto &key_val : box_meshes)
-        resource_sink.add(
-          renderer, key_val.second.ubuffer, key_val.second.geometry);
+        resource_sink.add(key_val.second.ubuffer);
     return *this;
 }
 
@@ -265,8 +260,8 @@ void visual::destroy_box_collider_mesh(
   lmgl::resource_sink &resource_sink)
 {
     auto &mesh = box_collider_meshes.at(entity);
-    resource_sink.add(renderer, mesh.ubuffer);
-    resource_sink.add(renderer, mesh.geometry);
+    resource_sink.add(mesh.ubuffer);
+    resource_sink.add(mesh.geometry);
     box_collider_meshes.erase(entity);
 }
 

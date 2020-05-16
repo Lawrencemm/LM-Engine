@@ -35,10 +35,9 @@ class rect_border : public widget_interface
         return *this;
     }
 
-    rect_border &
-      move_resources(lmgl::irenderer *renderer, lmgl::resource_sink &sink)
+    rect_border &move_resources(lmgl::resource_sink &sink) override
     {
-        sink.add(renderer, ubuffer, geometry);
+        sink.add(ubuffer);
         return *this;
     }
 

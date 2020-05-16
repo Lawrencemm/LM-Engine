@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/fusion/adapted/std_tuple.hpp>
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <lmgl/lmgl.h>
 #include <map>
 #include <vector>
@@ -35,7 +33,10 @@ struct resource_store
         textures.emplace_back(std::move(texture));
         return *this;
     }
+
+    void free(irenderer *renderer);
 };
+
 class resource_sink
 {
   public:
@@ -46,22 +47,22 @@ class resource_sink
 
     void free_frame(iframe *frame, irenderer *renderer)
     {
+        orphaned_resources.free(renderer);
+
         auto foundit = resource_map.find(frame);
         if (foundit == resource_map.end())
             return;
 
-        auto &store = foundit->second;
-        for (auto material : store.materials)
-            renderer->destroy_material(material);
+        foundit->second.free(renderer);
         resource_map.erase(frame);
     }
 
     template <typename resource_type>
-    resource_sink &add(irenderer *renderer, resource_type &resource)
+    resource_sink &add(resource_type &resource)
     {
         if (resource_map.empty())
         {
-            resource.reset();
+            orphaned_resources.add(resource);
             return *this;
         }
         resource_map.rbegin()->second.add(resource);
@@ -69,19 +70,14 @@ class resource_sink
     }
 
     template <typename... resource_types>
-    resource_sink &add(irenderer *renderer, resource_types &&... resources)
+    resource_sink &add(resource_types &&... resources)
     {
-        auto tup = std::tie(resources...);
-        boost::fusion::for_each(
-          tup, [&](auto &resource) { add(renderer, resource); });
+        (add(resources), ...);
         return *this;
     }
 
   private:
+    resource_store orphaned_resources;
     std::map<iframe *, resource_store> resource_map;
 };
-
-template <>
-resource_sink &
-  resource_sink::add<material>(irenderer *renderer, material &resource);
 } // namespace lmgl

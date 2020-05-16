@@ -43,13 +43,12 @@ lmtk::text_layout &entity_list_component::selected_line()
     return line_layouts[controller.selected_entity_index];
 }
 
-entity_list_component &entity_list_component::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+entity_list_component &
+  entity_list_component::move_resources(lmgl::resource_sink &resource_sink)
 {
-    selection_background.move_resources(renderer, resource_sink);
+    selection_background.move_resources(resource_sink);
     for (auto &layout : line_layouts)
-        layout.move_resources(renderer, resource_sink);
+        layout.move_resources(resource_sink);
 
     return *this;
 }
@@ -70,7 +69,7 @@ void entity_list_component::reset(
   entt::registry const &registry)
 {
     for (auto &layout : line_layouts)
-        layout.move_resources(&renderer, resource_sink);
+        layout.move_resources(resource_sink);
 
     line_layouts.clear();
 

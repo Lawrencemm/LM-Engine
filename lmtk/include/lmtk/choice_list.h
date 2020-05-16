@@ -25,9 +25,8 @@ class choice_list : public component_interface
     lm::point2i get_position() override;
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+    widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
     bool handle(lmtk::input_event const &input_event) override;
 

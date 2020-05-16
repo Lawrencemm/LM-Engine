@@ -131,7 +131,7 @@ void inspector_component::clear_text(
   lmgl::resource_sink &resource_sink)
 {
     for (auto &line : lines)
-        line.move_resources(renderer, resource_sink);
+        line.move_resources(resource_sink);
 
     lines.clear();
 }
@@ -143,12 +143,11 @@ std::string inspector_component::format_component_data(
     return fmt::format("{}: {}", name, repr);
 }
 
-lmtk::component_interface &inspector_component::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &sink)
+lmtk::component_interface &
+  inspector_component::move_resources(lmgl::resource_sink &sink)
 {
-    sink.add(renderer, background_material);
-    selection_background.move_resources(renderer, sink);
+    sink.add(background_material);
+    selection_background.move_resources(sink);
     return *this;
 }
 

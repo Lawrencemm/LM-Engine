@@ -58,7 +58,7 @@ void editor_app::player_state::move_resources(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink)
 {
-    visual_view->move_resources(resource_sink, renderer);
+    visual_view->move_resources(resource_sink);
 }
 
 void editor_app::player_state::add_to_frame(

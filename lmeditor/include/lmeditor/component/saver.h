@@ -2,6 +2,7 @@
 
 #include <lmtk/component.h>
 #include <lmtk/font.h>
+#include <lmtk/resource_cache.h>
 
 namespace lmeditor
 {
@@ -14,8 +15,7 @@ class saver_interface : public lmtk::component_interface
 struct saver_init
 {
     lmgl::irenderer *renderer;
-    lmgl::material text_material;
-    lmtk::ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::string header_text;
     std::string initial_text;
 

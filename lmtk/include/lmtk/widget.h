@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 #include <lmgl/lmgl.h>
 #include <lmlib/geometry.h>
 
@@ -16,9 +16,8 @@ class widget_interface
     virtual widget_interface &
       set_rect(lm::point2i position, lm::size2i size) = 0;
 
-    virtual widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      resource_sink &resource_sink) = 0;
+    virtual widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) = 0;
 
     virtual ~widget_interface() = default;
 };

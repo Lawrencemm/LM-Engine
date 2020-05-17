@@ -12,8 +12,7 @@ static auto create_layouts(lmtk::choice_list_init const &init)
     {
         line_layouts.emplace_back(lmtk::text_layout_init{
           .renderer = *init.renderer,
-          .material = init.font_material,
-          .font = init.font,
+          .resource_cache = init.resource_cache,
           .colour = {1.f, 1.f, 1.f},
           .text = line_text,
         });
@@ -38,7 +37,7 @@ choice_list::choice_list(choice_list_init const &init)
       line_layouts{create_layouts(init)},
       selection_background{
         *init.renderer,
-        init.rect_material,
+        init.resource_cache,
         line_layouts[selection_index].position,
         line_layouts[selection_index].get_size(),
         {0.f, 0.f, 0.f, 1.f},
@@ -74,19 +73,20 @@ widget_interface &choice_list::set_rect(lm::point2i position, lm::size2i size)
     throw std::runtime_error{"Not implemented."};
 }
 
-widget_interface &choice_list::move_resources(
-  lmgl::irenderer *renderer,
-  resource_sink &resource_sink)
+widget_interface &
+  choice_list::move_resources(lmgl::resource_sink &resource_sink)
 {
     for (auto &layout : line_layouts)
-        layout.move_resources(renderer, resource_sink);
+        layout.move_resources(resource_sink);
 
-    selection_background.move_resources(renderer, resource_sink);
+    selection_background.move_resources(resource_sink);
     return *this;
 }
 
-component_interface &
-  choice_list::update(lmgl::irenderer *renderer, resource_sink &resource_sink)
+component_interface &choice_list::update(
+  lmgl::irenderer *renderer,
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     return *this;
 }

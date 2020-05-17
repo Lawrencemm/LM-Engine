@@ -28,7 +28,7 @@ lmgl::material rect_border::create_material(lmgl::irenderer *renderer)
 
 rect_border::rect_border(
   lmgl::irenderer *renderer,
-  lmgl::material material,
+  resource_cache const &resource_cache,
   lm::point2i position,
   lm::size2i size,
   std::array<float, 4> colour,
@@ -43,7 +43,7 @@ rect_border::rect_border(
           lm::array_proxy<char const>(nullptr, sizeof(rect_uniform_buffer)),
       })},
       geometry{renderer->create_geometry(lmgl::geometry_init{
-        .material = material,
+        .material = resource_cache.border_material,
         .uniform_buffer = ubuffer.get(),
         .line_width = border_thickness,
       })}

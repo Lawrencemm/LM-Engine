@@ -45,7 +45,7 @@ lmgl::material text_layout::create_material(lmgl::irenderer &renderer)
 }
 
 text_layout::text_layout(text_layout_init const &init)
-    : material{init.material},
+    : material{init.resource_cache.text_material},
       alignment{init.alignment},
       position{init.position},
       colour{init.colour},
@@ -54,11 +54,11 @@ text_layout::text_layout(text_layout_init const &init)
         .data =
           lm::array_proxy<char const>{nullptr, sizeof(text_render_uniform)},
       })},
-      max_glyph_height{init.font->get_max_glyph_height()}
+      max_glyph_height{init.resource_cache.body_font->get_max_glyph_height()}
 {
-    if (!init.text.empty() && init.font->get_texture())
+    if (!init.text.empty() && init.resource_cache.body_font->get_texture())
     {
-        recreate(init.renderer, init.font, init.text);
+        recreate(init.renderer, init.resource_cache.body_font.get(), init.text);
     }
 }
 
@@ -95,17 +95,15 @@ text_layout &text_layout::render(lmgl::iframe *frame)
     return *this;
 }
 
-void text_layout::move_text_resources(
-  resource_sink &sink,
-  lmgl::irenderer *renderer)
+void text_layout::move_text_resources(lmgl::resource_sink &sink)
 {
-    sink.add(renderer, vposbuffer, tcoordbuffer, ibuffer, geometry_);
+    sink.add(vposbuffer);
 }
 
-void text_layout::move_resources(lmgl::irenderer *renderer, resource_sink &sink)
+void text_layout::move_resources(lmgl::resource_sink &sink)
 {
-    move_text_resources(sink, renderer);
-    sink.add(renderer, ubuffer);
+    move_text_resources(sink);
+    sink.add(ubuffer);
 }
 
 void text_layout::recreate(
@@ -194,9 +192,9 @@ void text_layout::set_text(
   lmgl::irenderer &renderer,
   ifont const *font,
   std::string const &text,
-  resource_sink &sink)
+  lmgl::resource_sink &sink)
 {
-    move_text_resources(sink, &renderer);
+    move_text_resources(sink);
 
     if (text.empty())
         return;

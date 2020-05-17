@@ -25,9 +25,8 @@ include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
 add_library(
   lmeditor
 
-  src/app/resources.cpp
   src/app/app.cpp
-  src/app/save_load_map.cpp
+  src/app/save_load.cpp
 
   src/app/states/gui.cpp
   src/app/states/player.cpp

@@ -19,12 +19,9 @@ inspector inspector_init::operator()()
 inspector_component::inspector_component(inspector_init const &init)
     : controller{init.registry},
       size{init.size},
-      text_material{init.text_material},
-      font{init.font},
-      background_material{lmtk::rect::create_material(&init.renderer)},
       selection_background{
         init.renderer,
-        background_material,
+        init.resource_cache,
         {0, 0},
         {0, 0},
         std::array{0.f, 0.f, 0.f, 1.f},
@@ -36,15 +33,18 @@ void inspector_component::display(
   entt::registry const &registry,
   entt::entity entity,
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     clear(renderer, resource_sink);
 
-    create_text(renderer);
+    create_text(renderer, resource_cache);
     update_selection_background();
 }
 
-void inspector_component::create_text(lmgl::irenderer *renderer)
+void inspector_component::create_text(
+  lmgl::irenderer *renderer,
+  lmtk::resource_cache const &resource_cache)
 {
     int name_xpos = position.x + 5;
 
@@ -57,8 +57,7 @@ void inspector_component::create_text(lmgl::irenderer *renderer)
 
     lines.emplace_back(lmtk::text_layout{lmtk::text_layout_init{
       .renderer = *renderer,
-      .material = text_material,
-      .font = font,
+      .resource_cache = resource_cache,
       .colour = {1.f, 1.f, 1.f},
       .position = {name_xpos, position.y},
       .text = "Name: " + name_text,
@@ -86,8 +85,7 @@ void inspector_component::create_text(lmgl::irenderer *renderer)
 
             lines.emplace_back(lmtk::text_layout{lmtk::text_layout_init{
               .renderer = *renderer,
-              .material = text_material,
-              .font = font,
+              .resource_cache = resource_cache,
               .colour = {1.f, 1.f, 1.f},
               .position = {name_xpos + data_indent_pix, position.y},
               .text = fmt::format(
@@ -98,8 +96,7 @@ void inspector_component::create_text(lmgl::irenderer *renderer)
         {
             lines.emplace_back(lmtk::text_layout{lmtk::text_layout_init{
               .renderer = *renderer,
-              .material = text_material,
-              .font = font,
+              .resource_cache = resource_cache,
               .colour = {1.f, 1.f, 1.f},
               .position = {name_xpos, position.y},
               .text = lmng::get_type_name(meta_type),
@@ -111,27 +108,19 @@ void inspector_component::create_text(lmgl::irenderer *renderer)
       lmtk::vertical_layout{.start = position.y, .spacing = 15}, lines);
 }
 
-void inspector_component::update(
-  entt::registry &registry,
-  lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
-{
-    display(registry, controller.entity, renderer, resource_sink);
-}
-
 void inspector_component::clear(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     clear_text(renderer, resource_sink);
 }
 
 void inspector_component::clear_text(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     for (auto &line : lines)
-        line.move_resources(renderer, resource_sink);
+        line.move_resources(resource_sink);
 
     lines.clear();
 }
@@ -143,12 +132,10 @@ std::string inspector_component::format_component_data(
     return fmt::format("{}: {}", name, repr);
 }
 
-lmtk::component_interface &inspector_component::move_resources(
-  lmgl::irenderer *renderer,
-  lmtk::resource_sink &sink)
+lmtk::component_interface &
+  inspector_component::move_resources(lmgl::resource_sink &sink)
 {
-    sink.add(renderer, background_material);
-    selection_background.move_resources(renderer, sink);
+    selection_background.move_resources(sink);
     return *this;
 }
 
@@ -178,13 +165,14 @@ void inspector_component::update_selection_background()
 
 component_interface &inspector_component::update(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     clear(renderer, resource_sink);
 
     if (controller.entity != entt::null)
     {
-        create_text(renderer);
+        create_text(renderer, resource_cache);
         update_selection_background();
     }
 

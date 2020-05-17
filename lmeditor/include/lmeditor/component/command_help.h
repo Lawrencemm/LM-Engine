@@ -21,12 +21,12 @@ class command_help : public lmtk::component_interface
     lm::point2i get_position() override;
     command_help &set_rect(lm::point2i position, lm::size2i size) override;
 
-    command_help &move_resources(
-      lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+    command_help &move_resources(lmgl::resource_sink &resource_sink) override;
+
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
   private:
     lmtk::char_field filter;
@@ -39,8 +39,7 @@ class command_help : public lmtk::component_interface
 struct command_help_init
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    lmtk::ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::vector<command_description> commands;
 
     lmtk::component unique();

@@ -2,16 +2,13 @@
 
 #include "font.h"
 #include "input_event.h"
-#include "resource_sink.h"
-
+#include "lmgl/resource_sink.h"
 #include <future>
-
-#include <readerwriterqueue.h>
-#include <tbb/task_scheduler_init.h>
-
 #include <lmgl/fwd_decl.h>
 #include <lmlib/flow_graph.h>
 #include <lmpl/lmpl.h>
+#include <readerwriterqueue.h>
+#include <tbb/task_scheduler_init.h>
 
 namespace lmtk
 {
@@ -131,7 +128,7 @@ class app_resources
     lm::size2i window_size;
 
     lmtk::input_state input_state;
-    lmtk::resource_sink resource_sink;
+    lmgl::resource_sink resource_sink;
 
     moodycamel::ReaderWriterQueue<lmgl::frame> frames;
 

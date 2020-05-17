@@ -101,7 +101,9 @@ void editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
     for (auto &ppanel : app.visible_components)
     {
         ppanel->update(
-          app.resources.renderer.get(), app.resources.resource_sink);
+          app.resources.renderer.get(),
+          app.resources.resource_sink,
+          app.resource_cache);
         ppanel->add_to_frame(frame);
     }
 
@@ -110,7 +112,7 @@ void editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 
 void editor_app::gui_state::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
 }
 } // namespace lmeditor

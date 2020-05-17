@@ -1,43 +1,64 @@
 #include "app.h"
-#include <boost/rational.hpp>
 #include <fmt/format.h>
 #include <lmeditor/component/command_help.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/component/saver.h>
 #include <lmeditor/model/orbital_camera.h>
-#include <lmeditor/model/selection.h>
 #include <lmengine/name.h>
-#include <lmengine/pose.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/choice_list.h>
 #include <random>
 #include <range/v3/algorithm/find.hpp>
-#include <range/v3/view.hpp>
+#include <tbb/task_group.h>
 
 using namespace tbb::flow;
 
 namespace lmeditor
 {
 editor_app::editor_app(const std::filesystem::path &project_dir)
-    : project_dir{project_dir},
-      resources{project_dir},
+    : state{gui_state{*this}},
+      project_dir{project_dir},
+      resources{},
+      resource_cache{lmtk::resource_cache_init{
+        .renderer = resources.renderer.get(),
+        .font_loader = resources.font_loader.get(),
+        .body_font =
+          lmtk::font_description{
+            .typeface_name = "Arial",
+            .pixel_size = 32,
+          }}},
       flow_graph(
         resources,
         [&](auto &ev) { return on_input_event(ev); },
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); }),
-      state{gui_state{*this}},
       active_component_border{
         std::make_unique<lmtk::rect_border>(lmtk::rect_border{
           resources.renderer.get(),
-          resources.border_material,
+          resource_cache,
           {0, 0},
           {0, 0},
           {1.f, 0.f, 0.f, 1.f},
           1.f,
         })}
 {
+    tbb::task_group task_group;
+
+    task_group.run([&]() {
+        game_library = boost::dll::shared_library{
+          (project_dir / "game").c_str(),
+          boost::dll::load_mode::append_decorations,
+        };
+        game_library.get<set_meta_context_fn>("set_meta_context")(
+          entt::meta_ctx{});
+        game_library.get<reflect_types_fn>("reflect_types")();
+        simulation_names =
+          game_library.get<list_simulations_fn>("list_simulations")();
+        create_simulation =
+          game_library.get<create_simulation_fn>("create_simulation");
+    });
+
     auto inspector_size = lm::size2i{
       resources.window_size.width / 5,
       resources.window_size.height,
@@ -59,27 +80,23 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
           .target = Eigen::Vector3f{0.f, 0.f, 0.f},
         },
       .renderer = resources.renderer.get(),
+      .resource_cache = resource_cache,
       .position = {0, 0},
       .size = map_editor_size,
       .selection_outline_colour = std::array{1.f, 0.f, 0.f},
-      .text_material = resources.text_material,
-      .font = resources.font.get(),
     }();
 
     auto inspector = inspector_init{
       .registry = map,
       .renderer = *resources.renderer,
-      .text_material = resources.text_material,
-      .font = resources.font.get(),
+      .resource_cache = resource_cache,
       .size = inspector_size,
     }();
 
     auto entity_list = entity_list_init{
       .registry = map,
       .renderer = *resources.renderer,
-      .text_material = resources.text_material,
-      .rect_material = resources.rect_material,
-      .font = resources.font.get(),
+      .resource_cache = resource_cache,
       .position =
         lm::point2i{
           inspector->get_size().width + map_editor->get_size().width,
@@ -108,6 +125,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 
     refit_visible_components();
     focus_component(visible_components.front());
+
+    task_group.wait();
 }
 
 void editor_app::assign_view_key(
@@ -149,7 +168,8 @@ void editor_app::on_quit()
                      resources.renderer.get(), resources.resource_sink);
                },
              };
-    resources.free();
+
+    resource_cache.move_resources(resources.resource_sink);
 }
 
 void editor_app::focus_component(lmtk::component_interface *component)
@@ -210,19 +230,9 @@ void editor_app::refit_visible_components()
     }
 }
 
-bool editor_app::on_map_selected(
-  unsigned _unused_,
-  const std::string &project_path)
-{
-    load_map(project_path);
-    change_state<gui_state>();
-
-    return true;
-}
-
 bool editor_app::on_simulation_selected(unsigned selection_index)
 {
-    resources.selected_simulation_index = selection_index;
+    selected_simulation_index = selection_index;
     change_state<gui_state>();
 
     return true;
@@ -246,9 +256,8 @@ lmtk::component editor_app::create_map_selector()
       lmtk::choice_list_init{
         .choices = output,
         .renderer = resources.renderer.get(),
-        .font_material = resources.text_material,
-        .font = resources.font.get(),
-        .rect_material = resources.rect_material}
+        .resource_cache = resource_cache,
+      }
         .unique();
 
     selector->on_selected().connect<&editor_app::on_map_selected>(this);
@@ -260,11 +269,10 @@ lmtk::component editor_app::create_simulation_selector()
 {
     auto selector =
       lmtk::choice_list_init{
-        .choices = resources.simulation_names,
+        .choices = simulation_names,
         .renderer = resources.renderer.get(),
-        .font_material = resources.text_material,
-        .font = resources.font.get(),
-        .rect_material = resources.rect_material}
+        .resource_cache = resource_cache,
+      }
         .unique();
 
     selector->on_selected().connect<&editor_app::on_simulation_selected>(this);
@@ -279,8 +287,7 @@ lmtk::component editor_app::create_map_saver()
     auto saver =
       saver_init{
         .renderer = resources.renderer.get(),
-        .text_material = resources.text_material,
-        .font = resources.font.get(),
+        .resource_cache = resource_cache,
         .header_text = "Save Map",
         .initial_text = path,
       }
@@ -291,25 +298,11 @@ lmtk::component editor_app::create_map_saver()
     return std::move(saver);
 }
 
-bool editor_app::on_map_saved(const std::string &project_path)
-{
-    auto absolute = project_dir / (project_path + ".lmap");
-
-    save_map(absolute);
-
-    map_file_project_relative_path = project_path;
-
-    change_state<gui_state>();
-
-    return !visible_components.empty();
-}
-
 lmtk::component editor_app::create_command_help()
 {
     return command_help_init{
       .renderer = *resources.renderer,
-      .material = resources.text_material,
-      .font = resources.font.get(),
+      .resource_cache = resource_cache,
       .commands = visible_components.front()->get_command_descriptions(),
     }
       .unique();
@@ -320,8 +313,7 @@ lmtk::component editor_app::create_pose_saver(std::string initial_project_path)
     auto saver =
       saver_init{
         .renderer = resources.renderer.get(),
-        .text_material = resources.text_material,
-        .font = resources.font.get(),
+        .resource_cache = resource_cache,
         .header_text = "Save Pose",
         .initial_text = initial_project_path,
       }
@@ -358,9 +350,7 @@ lmtk::component editor_app::create_pose_loader()
       lmtk::choice_list_init{
         .choices = pose_paths,
         .renderer = resources.renderer.get(),
-        .font_material = resources.text_material,
-        .font = resources.font.get(),
-        .rect_material = resources.rect_material,
+        .resource_cache = resource_cache,
       }
         .unique();
 
@@ -369,36 +359,11 @@ lmtk::component editor_app::create_pose_loader()
     return std::move(selector);
 }
 
-bool editor_app::on_pose_selected(
-  unsigned int selection_index,
-  std::string const &project_path)
-{
-    auto pose_path = project_dir / (project_path + ".lpose");
-
-    lmng::load_pose(
-      map, get_selection(map), YAML::LoadFile(pose_path.string()));
-
-    change_state<gui_state>();
-
-    return true;
-}
-
 void editor_app::move_current_state_resources()
 {
     state >> lm::variant_visitor{[&](auto &old_state) {
         old_state.move_resources(
           resources.renderer.get(), resources.resource_sink);
     }};
-}
-
-bool editor_app::on_pose_saved(const std::string &project_path)
-{
-    auto absolute = project_dir / (project_path + ".lpose");
-
-    std::ofstream output{absolute};
-    output << lmng::save_pose(map, get_selection(map));
-
-    change_state<gui_state>();
-    return true;
 }
 } // namespace lmeditor

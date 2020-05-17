@@ -12,11 +12,10 @@ struct map_editor_init
     entt::registry &registry;
     orbital_camera_init camera_init;
     lmgl::irenderer *renderer;
+    lmtk::resource_cache const &resource_cache;
     lm::point2i position;
     lm::size2i size;
     std::array<float, 3> selection_outline_colour;
-    lmgl::material text_material;
-    lmtk::ifont const *font;
 
     component operator()();
 };

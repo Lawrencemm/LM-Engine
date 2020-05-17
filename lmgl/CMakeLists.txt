@@ -17,6 +17,8 @@ set(
 
   src/create_renderer.cpp
 
+  src/resource_sink.cpp
+
   src/vulkan/buffer/vulkan_buffer.cpp
   src/vulkan/vulkan_window_stage.cpp
   src/vulkan/vulkan_renderer.cpp
@@ -27,7 +29,8 @@ set(
   src/vulkan/vulkan_texture.cpp
   src/vulkan/material.cpp
   src/vulkan/vulkan_texture_stage.cpp
-  src/vulkan/stage_helpers.cpp)
+  src/vulkan/stage_helpers.cpp
+)
 
 add_library(
   lmgl

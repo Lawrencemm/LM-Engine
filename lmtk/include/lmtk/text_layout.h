@@ -7,7 +7,8 @@
 
 #include "font.h"
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
+#include "resource_cache.h"
 
 namespace lm
 {
@@ -36,7 +37,7 @@ class text_layout
       lmgl::irenderer &renderer,
       ifont const *font,
       std::string const &text,
-      resource_sink &sink);
+      lmgl::resource_sink &sink);
 
     void recreate(
       lmgl::irenderer &renderer,
@@ -59,15 +60,14 @@ class text_layout
     text_alignment alignment;
     float pixel_width{0.f};
     unsigned max_glyph_height;
-    void move_text_resources(resource_sink &sink, lmgl::irenderer *renderer);
-    void move_resources(lmgl::irenderer *renderer, resource_sink &sink);
+    void move_text_resources(lmgl::resource_sink &sink);
+    void move_resources(lmgl::resource_sink &sink);
 };
 
 struct text_layout_init
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::array<float, 3> colour{0.f, 0.f, 0.f};
     lm::point2i position{0, 0};
     std::string const &text;
@@ -77,8 +77,7 @@ struct text_layout_init
 struct text_layout_factory
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::array<float, 3> colour{0.f, 0.f, 0.f};
     lm::point2i position{0, 0};
 
@@ -87,8 +86,7 @@ struct text_layout_factory
         return text_layout{
           text_layout_init{
             .renderer = renderer,
-            .material = material,
-            .font = font,
+            .resource_cache = resource_cache,
             .colour = colour,
             .position = position,
             .text = text,

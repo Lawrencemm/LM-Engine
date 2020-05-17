@@ -1,6 +1,9 @@
+#pragma once
+
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 #include <lmgl/fwd_decl.h>
+#include <lmgl/resource_sink.h>
 #include <lmhuv.h>
 #include <lmlib/camera.h>
 
@@ -14,12 +17,9 @@ class visual : public ivisual_view
     visual(visual &&) = delete;
     visual(visual const &) = delete;
 
-    void move_resources(
-      lmtk::resource_sink &resource_sink,
-      lmgl::irenderer *renderer) override;
+    void move_resources(lmgl::resource_sink &resource_sink) override;
 
-    visual &clear(lmgl::irenderer *renderer, lmtk::resource_sink &resource_sink)
-      override;
+    visual &clear(lmgl::resource_sink &resource_sink) override;
 
   public:
     void add_to_frame(
@@ -33,18 +33,18 @@ class visual : public ivisual_view
     void destroy_box(
       lmgl::irenderer *renderer,
       entt::entity entity,
-      lmtk::resource_sink &resource_sink);
+      lmgl::resource_sink &resource_sink);
     ivisual_view &set_camera_override(lm::camera const &camera) override;
     void recreate(entt::registry const &registry, lmgl::irenderer &renderer)
       override;
     void destroy_box_collider_mesh(
       lmgl::irenderer *renderer,
       entt::entity entity,
-      lmtk::resource_sink &resource_sink);
+      lmgl::resource_sink &resource_sink);
     void update(
       entt::registry &registry,
       lmgl::irenderer *renderer,
-      lmtk::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink) override;
 
   private:
     lmgl::material box_material, box_wireframe_material;

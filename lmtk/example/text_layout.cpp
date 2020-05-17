@@ -19,8 +19,7 @@ class lmtk_text_layout_example : public lmtk_example
           text_layout{
             (lmtk::text_layout_init{
               .renderer = *renderer,
-              .material = font_material,
-              .font = font.get(),
+              .resource_cache = resource_cache,
               .position = {window_size.width / 2, window_size.height / 2},
               .text = "Hello.",
             }),

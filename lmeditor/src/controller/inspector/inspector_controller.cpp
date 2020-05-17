@@ -52,7 +52,7 @@ void inspector_controller::create_entries(const entt::registry &registry)
 
 void inspector_controller::update(
   entt::registry &registry,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
     inspect_entity(registry, entity);
 }

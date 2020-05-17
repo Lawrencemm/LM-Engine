@@ -7,8 +7,8 @@ namespace lmeditor
 editor_app::player_state editor_app::create_player_state()
 {
     auto play_registry = map.clone();
-    auto simulation = resources.create_simulation(
-      resources.simulation_names[resources.selected_simulation_index],
+    auto simulation = create_simulation(
+      simulation_names[selected_simulation_index],
       lmng::simulation_init{play_registry, project_dir});
     auto player = lmhuv::create_visual_view(lmhuv::visual_view_init{
       .registry = play_registry,
@@ -56,9 +56,9 @@ void editor_app::player_state::update_simulation(
 
 void editor_app::player_state::move_resources(
   lmgl::irenderer *renderer,
-  lmtk::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink)
 {
-    visual_view->move_resources(resource_sink, renderer);
+    visual_view->move_resources(resource_sink);
 }
 
 void editor_app::player_state::add_to_frame(

@@ -21,12 +21,13 @@ class char_field : public component_interface
 
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      resource_sink &resource_sink) override;
+    widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
-    component_interface &
-      update(lmgl::irenderer *renderer, resource_sink &resource_sink) override;
+    component_interface &update(
+      lmgl::irenderer *renderer,
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
     [[nodiscard]] std::string get_value() const { return editor.text; }
 
@@ -39,8 +40,7 @@ class char_field : public component_interface
 struct char_field_init
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::array<float, 3> text_colour;
     lm::point2i position;
     std::string const &initial;

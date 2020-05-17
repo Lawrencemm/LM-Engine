@@ -2,11 +2,12 @@
 
 #include <lmgl/frame.h>
 #include <lmgl/renderer.h>
+#include <lmgl/resource_sink.h>
 #include <lmgl/stage.h>
 #include <lmlib/variant_visitor.h>
 #include <lmpl/lmpl.h>
 #include <lmtk/input_event.h>
-#include <lmtk/resource_sink.h>
+#include <lmtk/resource_cache.h>
 
 class lmtk_example
 {
@@ -17,7 +18,13 @@ class lmtk_example
           window_size{
             display->get_primary_screen()->get_size().proportion({1, 2})},
           window{display->create_window(lmpl::window_init{window_size})},
-          stage{renderer->create_stage(lmgl::stage_init{window.get()})}
+          stage{renderer->create_stage(lmgl::stage_init{window.get()})},
+          resource_cache{lmtk::resource_cache_init{
+            .renderer = renderer.get(),
+            .body_font = {
+              .typeface_name = "Arial",
+              .pixel_size = 32,
+            }}}
     {
     }
 
@@ -67,5 +74,6 @@ class lmtk_example
     lmgl::stage stage;
 
     lmtk::input_state input_state;
-    lmtk::resource_sink resource_sink;
+    lmtk::resource_cache resource_cache;
+    lmgl::resource_sink resource_sink;
 };

@@ -1,8 +1,9 @@
 #pragma once
 #include "input_event.h"
-#include "resource_sink.h"
+#include "lmgl/resource_sink.h"
 #include <lmgl/lmgl.h>
 
+#include "resource_cache.h"
 #include "widget.h"
 
 namespace lmtk
@@ -15,7 +16,7 @@ class rect_border : public widget_interface
     lm::size2i get_size() override;
     rect_border(
       lmgl::irenderer *renderer,
-      lmgl::material material,
+      resource_cache const &resource_cache,
       lm::point2i position,
       lm::size2i size,
       std::array<float, 4> colour,
@@ -35,9 +36,9 @@ class rect_border : public widget_interface
         return *this;
     }
 
-    rect_border &move_resources(lmgl::irenderer *renderer, resource_sink &sink)
+    rect_border &move_resources(lmgl::resource_sink &sink) override
     {
-        sink.add(renderer, ubuffer, geometry);
+        sink.add(ubuffer);
         return *this;
     }
 

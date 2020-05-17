@@ -25,14 +25,15 @@ class choice_list : public component_interface
     lm::point2i get_position() override;
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &move_resources(
-      lmgl::irenderer *renderer,
-      resource_sink &resource_sink) override;
+    widget_interface &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
     bool handle(lmtk::input_event const &input_event) override;
 
-    component_interface &
-      update(lmgl::irenderer *renderer, resource_sink &resource_sink) override;
+    component_interface &update(
+      lmgl::irenderer *renderer,
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
     entt::sink<bool(unsigned, std::string const &)> on_selected();
 
@@ -48,8 +49,7 @@ struct choice_list_init
 {
     std::vector<std::string> const &choices;
     lmgl::irenderer *renderer;
-    lmgl::material font_material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     lmgl::material rect_material;
 
     choice_list operator()();

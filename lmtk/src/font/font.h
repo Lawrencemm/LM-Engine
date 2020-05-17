@@ -27,9 +27,7 @@ class font_internal : public ifont
     lmgl::itexture *get_texture() const override;
 
     glyph_metrics const &get_metrics(char c) const override;
-    ifont &move_resources(
-      lmgl::irenderer *renderer,
-      resource_sink &resource_sink) override;
+    ifont &move_resources(lmgl::resource_sink &resource_sink) override;
 
     font_atlas atlas;
 };

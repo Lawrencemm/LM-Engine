@@ -51,10 +51,10 @@ add_library(
   src/text_editor.cpp
   src/rect_border.cpp
   src/app_flow_graph.cpp
-  src/resource_sink.cpp
   src/choice_list.cpp
   src/char_field.cpp
   src/font/font.cpp
+  src/resource_cache.cpp
 )
 
 target_include_directories(

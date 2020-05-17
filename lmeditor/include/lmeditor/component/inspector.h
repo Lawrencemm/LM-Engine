@@ -26,8 +26,7 @@ struct inspector_init
 {
     entt::registry &registry;
     lmgl::irenderer &renderer;
-    lmgl::material text_material;
-    lmtk::ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     lm::size2i const &size;
 
     inspector operator()();

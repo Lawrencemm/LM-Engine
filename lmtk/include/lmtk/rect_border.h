@@ -3,6 +3,7 @@
 #include "lmgl/resource_sink.h"
 #include <lmgl/lmgl.h>
 
+#include "resource_cache.h"
 #include "widget.h"
 
 namespace lmtk
@@ -15,7 +16,7 @@ class rect_border : public widget_interface
     lm::size2i get_size() override;
     rect_border(
       lmgl::irenderer *renderer,
-      lmgl::material material,
+      resource_cache const &resource_cache,
       lm::point2i position,
       lm::size2i size,
       std::array<float, 4> colour,

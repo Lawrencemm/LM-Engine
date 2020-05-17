@@ -4,11 +4,10 @@ namespace lmtk
 {
 
 char_field::char_field(char_field_init const &init)
-    : font{init.font},
+    : font{init.resource_cache.body_font.get()},
       layout{text_layout_init{
         .renderer = init.renderer,
-        .material = init.material,
-        .font = init.font,
+        .resource_cache = init.resource_cache,
         .colour = init.text_colour,
         .position = init.position,
         .text = init.initial,
@@ -51,7 +50,8 @@ widget_interface &char_field::move_resources(lmgl::resource_sink &resource_sink)
 
 component_interface &char_field::update(
   lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     if (dirty)
     {

@@ -26,7 +26,7 @@ lmgl::material rect::create_material(lmgl::irenderer *renderer)
 
 rect::rect(
   lmgl::irenderer &renderer,
-  lmgl::material material,
+  lmtk::resource_cache const &resource_cache,
   lm::point2i position,
   lm::size2i size,
   std::array<float, 4> colour)
@@ -38,7 +38,7 @@ rect::rect(
         .data = lm::array_proxy<char const>(nullptr, sizeof(uniform_buffer)),
       })},
       geometry{renderer.create_geometry(lmgl::geometry_init{
-        .material = material,
+        .material = resource_cache.rect_material,
         .uniform_buffer = ubuffer.get(),
       })}
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "input_event.h"
+#include "resource_cache.h"
 #include "widget.h"
 #include <entt/signal/sigh.hpp>
 #include <lmlib/reference.h>
@@ -11,8 +12,10 @@ class component_interface : public widget_interface
 {
   public:
     virtual bool handle(lmtk::input_event const &input_event) = 0;
-    virtual component_interface &
-      update(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink) = 0;
+    virtual component_interface &update(
+      lmgl::irenderer *renderer,
+      lmgl::resource_sink &resource_sink,
+      const lmtk::resource_cache &resource_cache) = 0;
 };
 
 using component = lm::reference<component_interface>;

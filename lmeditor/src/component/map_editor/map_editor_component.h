@@ -29,7 +29,8 @@ class map_editor_component : public component_interface
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
     widget_interface &add_to_frame(lmgl::iframe *frame) override;
 
@@ -48,7 +49,8 @@ class map_editor_component : public component_interface
     void set_state_text(
       lmgl::irenderer *renderer,
       std::string new_text,
-      lmgl::resource_sink &resource_sink);
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache);
 
     void render_state_text(lmgl::iframe *frame);
 
@@ -67,13 +69,11 @@ class map_editor_component : public component_interface
 
     map_editor_controller controller;
     lmhuv::pvisual_view visual_view;
-    lmgl::material text_material, selection_stencil_material,
-      selection_outline_material;
+    lmgl::material selection_stencil_material, selection_outline_material;
     lmgl::buffer box_vpositions, box_vnormals, box_indices;
     lmgl::buffer selection_outline_ubuffer;
     lmgl::geometry selection_stencil_geometry, selection_outline_geometry;
     size_t n_box_indices;
-    lmtk::ifont const *font;
     lm::point2i position;
     lm::size2i size;
 

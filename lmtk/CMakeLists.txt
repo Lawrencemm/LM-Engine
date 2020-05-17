@@ -54,6 +54,7 @@ add_library(
   src/choice_list.cpp
   src/char_field.cpp
   src/font/font.cpp
+  src/resource_cache.cpp
 )
 
 target_include_directories(

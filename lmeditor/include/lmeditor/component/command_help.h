@@ -25,7 +25,8 @@ class command_help : public lmtk::component_interface
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
   private:
     lmtk::char_field filter;
@@ -38,8 +39,7 @@ class command_help : public lmtk::component_interface
 struct command_help_init
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    lmtk::ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::vector<command_description> commands;
 
     lmtk::component unique();

@@ -7,8 +7,8 @@ namespace lmeditor
 editor_app::player_state editor_app::create_player_state()
 {
     auto play_registry = map.clone();
-    auto simulation = resources.create_simulation(
-      resources.simulation_names[resources.selected_simulation_index],
+    auto simulation = create_simulation(
+      simulation_names[selected_simulation_index],
       lmng::simulation_init{play_registry, project_dir});
     auto player = lmhuv::create_visual_view(lmhuv::visual_view_init{
       .registry = play_registry,

@@ -23,8 +23,7 @@ std::vector<std::array<lmtk::text_layout, 3>>
     std::vector<std::array<lmtk::text_layout, 3>> rows;
     lmtk::text_layout_factory layout_factory{
       .renderer = init.renderer,
-      .material = init.material,
-      .font = init.font,
+      .resource_cache = init.resource_cache,
       .colour = {1.f, 1.f, 1.f}};
     rows.emplace_back(std::array{
       layout_factory.create("Command"),
@@ -43,8 +42,7 @@ std::vector<std::array<lmtk::text_layout, 3>>
 command_help::command_help(command_help_init const &init)
     : filter{lmtk::char_field_init{
         .renderer = init.renderer,
-        .material = init.material,
-        .font = init.font,
+        .resource_cache = init.resource_cache,
         .text_colour = {1.f, 1.f, 1.f},
         .position = {0, 0},
         .initial = "",
@@ -57,7 +55,8 @@ command_help::command_help(command_help_init const &init)
 
 lmtk::component_interface &command_help::update(
   lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     return *this;
 }

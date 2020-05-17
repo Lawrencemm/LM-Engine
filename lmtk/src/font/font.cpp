@@ -96,9 +96,7 @@ lm::size2i font_internal::get_texture_size() const
     return {static_cast<int>(atlas.width), static_cast<int>(atlas.height)};
 }
 
-ifont &font_internal::move_resources(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+ifont &font_internal::move_resources(lmgl::resource_sink &resource_sink)
 {
     resource_sink.add(atlas.texture);
     return *this;

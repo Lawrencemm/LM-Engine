@@ -32,7 +32,8 @@ class choice_list : public component_interface
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
     entt::sink<bool(unsigned, std::string const &)> on_selected();
 
@@ -48,8 +49,7 @@ struct choice_list_init
 {
     std::vector<std::string> const &choices;
     lmgl::irenderer *renderer;
-    lmgl::material font_material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     lmgl::material rect_material;
 
     choice_list operator()();

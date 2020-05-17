@@ -12,14 +12,11 @@ component entity_list_init::operator()()
 
 entity_list_component::entity_list_component(entity_list_init const &init)
     : controller{init.registry},
-      text_material{init.text_material},
-      rect_material{init.rect_material},
-      font{init.font},
       position{init.position},
       size{init.size},
       selection_background{
         init.renderer,
-        init.rect_material,
+        init.resource_cache,
         init.position,
         {0, 0},
         {0.f, 0.f, 0.f, 1.f},
@@ -66,6 +63,7 @@ entity_list_component &entity_list_component::add_to_frame(lmgl::iframe *frame)
 void entity_list_component::reset(
   lmgl::irenderer &renderer,
   lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache,
   entt::registry const &registry)
 {
     for (auto &layout : line_layouts)
@@ -74,7 +72,7 @@ void entity_list_component::reset(
     line_layouts.clear();
 
     auto layout_factory = lmtk::text_layout_factory{
-      renderer, text_material, font, {1.f, 1.f, 1.f}, position};
+      renderer, resource_cache, {1.f, 1.f, 1.f}, position};
 
     registry.view<lmng::name const>().each(
       [&](auto entity, auto &name_component) {
@@ -104,11 +102,12 @@ bool entity_list_component::handle(const lmtk::input_event &input_event)
 
 component_interface &entity_list_component::update(
   lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
     if (controller.dirty)
     {
-        reset(*renderer, resource_sink, *controller.registry);
+        reset(*renderer, resource_sink, resource_cache, *controller.registry);
         controller.dirty = false;
     }
     return *this;

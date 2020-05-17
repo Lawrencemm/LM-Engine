@@ -45,7 +45,7 @@ lmgl::material text_layout::create_material(lmgl::irenderer &renderer)
 }
 
 text_layout::text_layout(text_layout_init const &init)
-    : material{init.material},
+    : material{init.resource_cache.text_material},
       alignment{init.alignment},
       position{init.position},
       colour{init.colour},
@@ -54,11 +54,11 @@ text_layout::text_layout(text_layout_init const &init)
         .data =
           lm::array_proxy<char const>{nullptr, sizeof(text_render_uniform)},
       })},
-      max_glyph_height{init.font->get_max_glyph_height()}
+      max_glyph_height{init.resource_cache.body_font->get_max_glyph_height()}
 {
-    if (!init.text.empty() && init.font->get_texture())
+    if (!init.text.empty() && init.resource_cache.body_font->get_texture())
     {
-        recreate(init.renderer, init.font, init.text);
+        recreate(init.renderer, init.resource_cache.body_font.get(), init.text);
     }
 }
 

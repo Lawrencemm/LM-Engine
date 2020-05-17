@@ -28,9 +28,7 @@ class ifont
     virtual lmgl::itexture *get_texture() const = 0;
     virtual lm::size2i get_texture_size() const = 0;
     virtual glyph_metrics const &get_metrics(char c) const = 0;
-    virtual ifont &move_resources(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) = 0;
+    virtual ifont &move_resources(lmgl::resource_sink &resource_sink) = 0;
     virtual ~ifont() = default;
 };
 

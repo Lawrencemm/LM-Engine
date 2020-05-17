@@ -13,16 +13,14 @@ lm::reference<saver_interface> saver_init::unique()
 saver::saver(saver_init const &init)
     : header{lmtk::text_layout_init{
         .renderer = *init.renderer,
-        .material = init.text_material,
-        .font = init.font,
+        .resource_cache = init.resource_cache,
         .colour = {1.f, 1.f, 1.f},
         .position = {0, 0},
         .text = init.header_text,
       }},
       field{lmtk::char_field_init{
         .renderer = *init.renderer,
-        .material = init.text_material,
-        .font = init.font,
+        .resource_cache = init.resource_cache,
         .text_colour = {1.f, 1.f, 1.f},
         .position = {0, header.get_size().height + 15},
         .initial = init.initial_text,
@@ -74,10 +72,12 @@ bool saver::handle(const lmtk::input_event &input_event)
     return field.handle(input_event);
 }
 
-lmtk::component_interface &
-  saver::update(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink)
+lmtk::component_interface &saver::update(
+  lmgl::irenderer *renderer,
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
-    field.update(renderer, resource_sink);
+    field.update(renderer, resource_sink, resource_cache);
     return *this;
 }
 

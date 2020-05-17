@@ -27,6 +27,7 @@ class entity_list_component : public component_interface
     void reset(
       lmgl::irenderer &renderer,
       lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache,
       entt::registry const &registry);
 
     lmtk::text_layout &selected_line();
@@ -34,12 +35,11 @@ class entity_list_component : public component_interface
     bool handle(const lmtk::input_event &input_event) override;
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
     std::vector<command_description> get_command_descriptions() override;
 
     entity_list_controller controller;
-    lmgl::material text_material, rect_material;
-    lmtk::ifont const *font;
     lm::point2i position;
     lm::size2i size;
     lmtk::rect selection_background;

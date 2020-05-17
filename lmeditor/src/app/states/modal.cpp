@@ -8,22 +8,22 @@ bool editor_app::modal_state::handle(
   lmtk::input_event const &input_event)
 {
     if (
-      input_event >> lm::variant_visitor{
-                       [&](lmtk::key_down_event const &key_down_event) {
-                           switch (key_down_event.key)
-                           {
-                           case lmpl::key_code::Escape:
-                               modal->move_resources(
-                                 app.resources.resource_sink);
-                               app.change_state<gui_state>();
-                               return true;
+      input_event >>
+      lm::variant_visitor{
+        [&](lmtk::key_down_event const &key_down_event) {
+            switch (key_down_event.key)
+            {
+            case lmpl::key_code::Escape:
+                modal->move_resources(app.resources.resource_sink);
+                app.change_state<gui_state>();
+                return true;
 
-                           default:
-                               return false;
-                           }
-                       },
-                       [](auto) { return false; },
-                     })
+            default:
+                return false;
+            }
+        },
+        [](auto) { return false; },
+      })
         return true;
 
     return modal->handle(input_event);
@@ -38,7 +38,10 @@ void editor_app::modal_state::move_resources(
 
 void editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
-    modal->update(app.resources.renderer.get(), app.resources.resource_sink);
+    modal->update(
+      app.resources.renderer.get(),
+      app.resources.resource_sink,
+      app.resource_cache);
     modal->add_to_frame(frame);
 }
 } // namespace lmeditor

@@ -3,15 +3,12 @@
 #include "font.h"
 #include "input_event.h"
 #include "lmgl/resource_sink.h"
-
 #include <future>
-
-#include <readerwriterqueue.h>
-#include <tbb/task_scheduler_init.h>
-
 #include <lmgl/fwd_decl.h>
 #include <lmlib/flow_graph.h>
 #include <lmpl/lmpl.h>
+#include <readerwriterqueue.h>
+#include <tbb/task_scheduler_init.h>
 
 namespace lmtk
 {

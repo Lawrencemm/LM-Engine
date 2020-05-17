@@ -8,6 +8,7 @@
 #include "font.h"
 #include "input_event.h"
 #include "lmgl/resource_sink.h"
+#include "resource_cache.h"
 
 namespace lm
 {
@@ -66,8 +67,7 @@ class text_layout
 struct text_layout_init
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::array<float, 3> colour{0.f, 0.f, 0.f};
     lm::point2i position{0, 0};
     std::string const &text;
@@ -77,8 +77,7 @@ struct text_layout_init
 struct text_layout_factory
 {
     lmgl::irenderer &renderer;
-    lmgl::material material;
-    ifont const *font;
+    lmtk::resource_cache const &resource_cache;
     std::array<float, 3> colour{0.f, 0.f, 0.f};
     lm::point2i position{0, 0};
 
@@ -87,8 +86,7 @@ struct text_layout_factory
         return text_layout{
           text_layout_init{
             .renderer = renderer,
-            .material = material,
-            .font = font,
+            .resource_cache = resource_cache,
             .colour = colour,
             .position = position,
             .text = text,

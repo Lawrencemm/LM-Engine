@@ -22,17 +22,14 @@ map_editor_component::map_editor_component(map_editor_init const &init)
           .render_box_colliders = true,
         }),
       },
-      text_material{init.text_material},
       selection_stencil_material{
         create_selection_stencil_material(init.renderer)},
       selection_outline_material{create_outline_material(init.renderer)},
       selection_outline_ubuffer{create_selection_ubuffer(init.renderer)},
-      font{init.font},
       light_direction{Eigen::Vector3f{0.2f, 0.6f, -0.75f}.normalized()},
       state_text_layout{lmtk::text_layout_init{
         .renderer = *init.renderer,
-        .material = text_material,
-        .font = init.font,
+        .resource_cache = init.resource_cache,
         .colour = state_text_colour,
         .position = init.position + state_text_position,
         .text = map_editor_controller::select_state::label,
@@ -80,16 +77,20 @@ lmgl::geometry map_editor_component::create_box_geometry(
 void map_editor_component::set_state_text(
   lmgl::irenderer *renderer,
   std::string new_text,
-  lmgl::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
-    state_text_layout.set_text(*renderer, font, new_text, resource_sink);
+    state_text_layout.set_text(
+      *renderer, resource_cache.body_font.get(), new_text, resource_sink);
 }
 
 component_interface &map_editor_component::update(
   lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink)
+  lmgl::resource_sink &resource_sink,
+  lmtk::resource_cache const &resource_cache)
 {
-    set_state_text(renderer, controller.state_text, resource_sink);
+    set_state_text(
+      renderer, controller.state_text, resource_sink, resource_cache);
     visual_view->set_camera_override(controller.camera);
     visual_view->update(*controller.map, renderer, resource_sink);
     return *this;

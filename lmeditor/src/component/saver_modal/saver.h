@@ -31,7 +31,8 @@ struct saver : public saver_interface
 
     component_interface &update(
       lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink) override;
+      lmgl::resource_sink &resource_sink,
+      lmtk::resource_cache const &resource_cache) override;
 
     entt::sink<bool(const std::string &)> on_save() override;
 };

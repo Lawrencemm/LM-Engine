@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resources.h"
+#include <boost/dll/shared_library.hpp>
 #include <filesystem>
 #include <lmeditor/component/inspector.h>
 #include <lmeditor/component/map_editor.h>
@@ -72,21 +72,27 @@ class editor_app
       std::variant<gui_state, modal_state, player_state>;
 
     state_variant_type state;
+    std::filesystem::path project_dir;
 
-    editor_app_resources resources;
+    lmtk::app_resources resources;
+    lmtk::resource_cache resource_cache;
     lmtk::app_flow_graph flow_graph;
 
+    boost::dll::shared_library game_library;
+    std::vector<std::string> simulation_names;
+    size_t selected_simulation_index{0};
+    create_simulation_fn create_simulation;
+
+    std::unique_ptr<lmtk::rect_border> active_component_border;
     std::vector<lmtk::component> components;
     std::vector<component_interface *> visible_components;
     std::vector<lmtk::component_interface *> component_order;
     lmtk::component_interface *main_component;
-    std::unique_ptr<lmtk::rect_border> active_component_border;
 
     entt::registry map;
 
     std::map<lmpl::key_code, component_interface *> key_code_view_map;
 
-    std::filesystem::path project_dir;
     std::string map_file_project_relative_path{};
 
     lmtk::component create_map_selector();

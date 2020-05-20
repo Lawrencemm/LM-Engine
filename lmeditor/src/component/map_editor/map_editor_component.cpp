@@ -108,8 +108,17 @@ lmtk::widget_interface &map_editor_component::add_to_frame(lmgl::iframe *frame)
 lmtk::widget_interface &
   map_editor_component::move_resources(lmgl::resource_sink &resource_sink)
 {
-    resource_sink.add(selection_stencil_material);
+    resource_sink.add(
+      selection_stencil_material,
+      selection_outline_material,
+      box_vpositions,
+      box_vnormals,
+      box_indices,
+      selection_outline_ubuffer,
+      selection_stencil_geometry,
+      selection_outline_geometry);
     visual_view->move_resources(resource_sink);
+    state_text_layout.move_resources(resource_sink);
     return *this;
 }
 

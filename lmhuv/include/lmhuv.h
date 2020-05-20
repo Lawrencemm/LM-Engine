@@ -29,8 +29,6 @@ class ivisual_view
 
     virtual void move_resources(lmgl::resource_sink &resource_sink) = 0;
 
-    virtual ivisual_view &clear(lmgl::resource_sink &resource_sink) = 0;
-
     virtual void
       recreate(entt::registry const &registry, lmgl::irenderer &renderer) = 0;
 

@@ -71,7 +71,6 @@ class editor_app
     using state_variant_type =
       std::variant<gui_state, modal_state, player_state>;
 
-    state_variant_type state;
     std::filesystem::path project_dir;
 
     lmtk::app_resources resources;
@@ -79,9 +78,12 @@ class editor_app
     lmtk::app_flow_graph flow_graph;
 
     boost::dll::shared_library game_library;
+
     std::vector<std::string> simulation_names;
     size_t selected_simulation_index{0};
     create_simulation_fn create_simulation;
+
+    entt::registry map;
 
     std::unique_ptr<lmtk::rect_border> active_component_border;
     std::vector<lmtk::component> components;
@@ -89,11 +91,11 @@ class editor_app
     std::vector<lmtk::component_interface *> component_order;
     lmtk::component_interface *main_component;
 
-    entt::registry map;
-
     std::map<lmpl::key_code, component_interface *> key_code_view_map;
 
     std::string map_file_project_relative_path{};
+
+    state_variant_type state;
 
     lmtk::component create_map_selector();
     lmtk::component create_simulation_selector();

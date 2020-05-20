@@ -57,6 +57,11 @@ class resource_sink
         resource_map.erase(frame);
     }
 
+    void free_orphans(irenderer *renderer)
+    {
+        orphaned_resources.free(renderer);
+    }
+
     template <typename resource_type>
     resource_sink &add(resource_type &resource)
     {

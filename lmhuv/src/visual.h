@@ -19,8 +19,6 @@ class visual : public ivisual_view
 
     void move_resources(lmgl::resource_sink &resource_sink) override;
 
-    visual &clear(lmgl::resource_sink &resource_sink) override;
-
   public:
     void add_to_frame(
       entt::registry const &registry,

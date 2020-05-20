@@ -17,8 +17,7 @@ using namespace tbb::flow;
 namespace lmeditor
 {
 editor_app::editor_app(const std::filesystem::path &project_dir)
-    : state{gui_state{*this}},
-      project_dir{project_dir},
+    : project_dir{project_dir},
       resources{},
       resource_cache{lmtk::resource_cache_init{
         .renderer = resources.renderer.get(),
@@ -41,7 +40,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
           {0, 0},
           {1.f, 0.f, 0.f, 1.f},
           1.f,
-        })}
+        })},
+      state{gui_state{*this}}
 {
     tbb::task_group task_group;
 
@@ -169,7 +169,13 @@ void editor_app::on_quit()
                },
              };
 
+    for (auto &component : components)
+    {
+        component->move_resources(resources.resource_sink);
+    }
+
     resource_cache.move_resources(resources.resource_sink);
+    resources.resource_sink.free_orphans(resources.renderer.get());
 }
 
 void editor_app::focus_component(lmtk::component_interface *component)

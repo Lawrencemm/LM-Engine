@@ -149,8 +149,19 @@ void visual::add_to_frame(
 
 void visual::move_resources(lmgl::resource_sink &resource_sink)
 {
-    resource_sink.add(box_vpositions);
-    clear(resource_sink);
+    resource_sink.add(
+      box_vpositions,
+      box_vnormals,
+      box_indices,
+      box_material,
+      box_wireframe_material);
+
+    for (auto &[entity, box_mesh] : box_meshes)
+        resource_sink.add(box_mesh.ubuffer, box_mesh.geometry);
+
+    for (auto &[entity, box_collider_mesh] : box_collider_meshes)
+        resource_sink.add(
+          box_collider_mesh.ubuffer, box_collider_mesh.geometry);
 }
 
 void visual::add_box(lmgl::irenderer *renderer, entt::entity entity)
@@ -173,13 +184,6 @@ void visual::destroy_box(
     resource_sink.add(mesh.ubuffer);
     resource_sink.add(mesh.geometry);
     box_meshes.erase(entity);
-}
-
-visual &visual::clear(lmgl::resource_sink &resource_sink)
-{
-    for (auto &key_val : box_meshes)
-        resource_sink.add(key_val.second.ubuffer);
-    return *this;
 }
 
 void visual::render_box_colliders(

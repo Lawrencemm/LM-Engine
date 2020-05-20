@@ -136,6 +136,8 @@ lmtk::component_interface &
   inspector_component::move_resources(lmgl::resource_sink &sink)
 {
     selection_background.move_resources(sink);
+    for (auto &line : lines)
+        line.move_resources(sink);
     return *this;
 }
 

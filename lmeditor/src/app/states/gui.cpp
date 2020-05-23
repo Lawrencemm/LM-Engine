@@ -42,7 +42,7 @@ bool editor_app::gui_state::handle(
             case lmpl::key_code::R:
                 if (key_down_event.input_state.key_state.control())
                 {
-                    app.change_state(app.create_player_state());
+                    app.change_state(modal_state{app.create_player()});
                     return true;
                 }
                 return false;
@@ -96,18 +96,20 @@ bool editor_app::gui_state::handle(
 
 editor_app::gui_state::gui_state(editor_app &app) {}
 
-void editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
+bool editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
     for (auto &ppanel : app.visible_components)
     {
         ppanel->update(
           app.resources.renderer.get(),
           app.resources.resource_sink,
-          app.resource_cache);
+          app.resource_cache,
+          app.resources.input_state);
         ppanel->add_to_frame(frame);
     }
 
     app.active_component_border->add_to_frame(frame);
+    return false;
 }
 
 void editor_app::gui_state::move_resources(

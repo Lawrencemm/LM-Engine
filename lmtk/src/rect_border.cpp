@@ -51,7 +51,7 @@ rect_border::rect_border(
     geometry->set_n_indices(8);
 }
 
-rect_border &rect_border::add_to_frame(lmgl::iframe *frame)
+bool rect_border::add_to_frame(lmgl::iframe *frame)
 {
     auto [width, height] = frame->size();
     Eigen::Vector4f transform;
@@ -67,7 +67,7 @@ rect_border &rect_border::add_to_frame(lmgl::iframe *frame)
     };
     lmgl::add_buffer_update(frame, ubuffer.get(), buf);
     frame->add({geometry.get()});
-    return *this;
+    return false;
 }
 
 void rect_border::set_thickness(float thickness)

@@ -13,7 +13,7 @@ namespace lmpl
 {
 
 static void
-seat_handle_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
+  seat_handle_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
 {
     if (caps & WL_SEAT_CAPABILITY_POINTER)
     {
@@ -36,7 +36,10 @@ static const struct wl_seat_listener seat_listener = {
 };
 
 static void global_registry_handler(
-  void *data, struct wl_registry *registry, uint32_t id, const char *interface,
+  void *data,
+  struct wl_registry *registry,
+  uint32_t id,
+  const char *interface,
   uint32_t version)
 {
     auto display = (WaylandDisplay *)data;
@@ -60,37 +63,45 @@ static void global_registry_handler(
 }
 
 static void
-global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
+  global_registry_remover(void *data, struct wl_registry *registry, uint32_t id)
 {
     return;
 }
 
-static void
-handle_ping(void *data, struct wl_shell_surface *shell_surface, uint32_t serial)
+static void handle_ping(
+  void *data,
+  struct wl_shell_surface *shell_surface,
+  uint32_t serial)
 {
     wl_shell_surface_pong(shell_surface, serial);
     DEBUG_OUTPUT_LINE("Pinged.");
 }
 
 void WaylandWindow::handle_configure(
-  void *data, struct wl_shell_surface *shell_surface, uint32_t edges,
-  int32_t width, int32_t height)
+  void *data,
+  struct wl_shell_surface *shell_surface,
+  uint32_t edges,
+  int32_t width,
+  int32_t height)
 {
     auto p_window = (WaylandWindow *)data;
     // p_window->resize_handler(*p_window);
 }
 
 static void
-handle_popup_done(void *data, struct wl_shell_surface *shell_surface)
+  handle_popup_done(void *data, struct wl_shell_surface *shell_surface)
 {
 }
 
 static const struct wl_shell_surface_listener shell_surface_listener = {
-  handle_ping, WaylandWindow::handle_configure, handle_popup_done};
+  handle_ping,
+  WaylandWindow::handle_configure,
+  handle_popup_done};
 
 WaylandDisplay::WaylandDisplay()
-    : display{wl_display_connect(nullptr)}, registry{nullptr}, compositor{
-                                                                 nullptr}
+    : display{wl_display_connect(nullptr)},
+      registry{nullptr},
+      compositor{nullptr}
 {
 }
 
@@ -148,6 +159,7 @@ WaylandWindow &WaylandWindow::init(WaylandDisplay &display)
 WaylandWindow &WaylandWindow::show()
 {
     wl_shell_surface_set_toplevel(shell_surface);
+    return *this;
 }
 
 WaylandWindow &WaylandWindow::size(Size new_size)
@@ -198,5 +210,6 @@ window WaylandDisplay::create_window(const window_init &init)
     //  std::unique_ptr<WaylandWindow> p_window{new WaylandWindow};
     //  p_window->init(*this);
     //  return std::move(p_window);
+    return window{};
 }
 } // namespace lmpl

@@ -43,6 +43,8 @@ struct visual_view_init
     lmgl::irenderer *renderer;
     float aspect_ratio;
     bool render_box_colliders{false};
+
+    pvisual_view unique();
 };
 
 pvisual_view create_visual_view(visual_view_init const &init);

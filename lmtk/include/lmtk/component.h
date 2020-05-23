@@ -12,10 +12,11 @@ class component_interface : public widget_interface
 {
   public:
     virtual bool handle(lmtk::input_event const &input_event) = 0;
-    virtual component_interface &update(
+    virtual lmtk::component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      const lmtk::resource_cache &resource_cache) = 0;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state) = 0;
 };
 
 using component = lm::reference<component_interface>;

@@ -56,12 +56,13 @@ command_help::command_help(command_help_init const &init)
 lmtk::component_interface &command_help::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     return *this;
 }
 
-command_help &command_help::add_to_frame(lmgl::iframe *frame)
+bool command_help::add_to_frame(lmgl::iframe *frame)
 {
     filter.add_to_frame(frame);
 
@@ -86,7 +87,7 @@ command_help &command_help::add_to_frame(lmgl::iframe *frame)
     for (auto &row : shown_rows)
         for (auto &text_layout : row)
             text_layout.render(frame);
-    return *this;
+    return false;
 }
 
 lm::size2i command_help::get_size()

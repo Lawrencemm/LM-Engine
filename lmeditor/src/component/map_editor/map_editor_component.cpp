@@ -87,7 +87,8 @@ void map_editor_component::set_state_text(
 component_interface &map_editor_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     set_state_text(
       renderer, controller.state_text, resource_sink, resource_cache);
@@ -96,13 +97,13 @@ component_interface &map_editor_component::update(
     return *this;
 }
 
-lmtk::widget_interface &map_editor_component::add_to_frame(lmgl::iframe *frame)
+bool map_editor_component::add_to_frame(lmgl::iframe *frame)
 {
     visual_view->add_to_frame(
       *controller.map, frame, lmgl::viewport{position, size});
     render_selection_outline(frame, *controller.map);
     render_state_text(frame);
-    return *this;
+    return false;
 }
 
 lmtk::widget_interface &

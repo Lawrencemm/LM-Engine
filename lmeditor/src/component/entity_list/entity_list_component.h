@@ -16,7 +16,7 @@ class entity_list_component : public component_interface
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;
-    entity_list_component &add_to_frame(lmgl::iframe *frame) override;
+    bool add_to_frame(lmgl::iframe *frame) override;
 
     entity_list_component &
       set_rect(lm::point2i position, lm::size2i size) override;
@@ -36,7 +36,8 @@ class entity_list_component : public component_interface
     component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache) override;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state) override;
     std::vector<command_description> get_command_descriptions() override;
 
     entity_list_controller controller;

@@ -45,7 +45,7 @@ rect::rect(
     geometry->set_n_indices(6);
 }
 
-rect &rect::add_to_frame(lmgl::iframe *frame)
+bool rect::add_to_frame(lmgl::iframe *frame)
 {
     auto [width, height] = frame->size();
     const uniform_buffer &buf = uniform_buffer{
@@ -57,7 +57,7 @@ rect &rect::add_to_frame(lmgl::iframe *frame)
     };
     lmgl::add_buffer_update(frame, ubuffer.get(), buf);
     frame->add({geometry.get()});
-    return *this;
+    return false;
 }
 
 lm::size2i rect::get_size() { return size; }

@@ -17,6 +17,7 @@ enable_testing()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_CXX_STANDARD 17)
+  add_compile_options(-Werror=return-type)
 else ()
   set(CMAKE_CXX_STANDARD 20)
 endif ()

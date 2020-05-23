@@ -50,14 +50,14 @@ entity_list_component &
     return *this;
 }
 
-entity_list_component &entity_list_component::add_to_frame(lmgl::iframe *frame)
+bool entity_list_component::add_to_frame(lmgl::iframe *frame)
 {
     update_selection_background();
     selection_background.add_to_frame(frame);
     for (auto &layout : line_layouts)
         layout.render(frame);
 
-    return *this;
+    return false;
 }
 
 void entity_list_component::reset(
@@ -103,7 +103,8 @@ bool entity_list_component::handle(const lmtk::input_event &input_event)
 component_interface &entity_list_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     if (controller.dirty)
     {

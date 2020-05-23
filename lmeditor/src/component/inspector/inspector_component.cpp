@@ -168,7 +168,8 @@ void inspector_component::update_selection_background()
 component_interface &inspector_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     clear(renderer, resource_sink);
 
@@ -181,14 +182,14 @@ component_interface &inspector_component::update(
     return *this;
 }
 
-component_interface &inspector_component::add_to_frame(lmgl::iframe *frame)
+bool inspector_component::add_to_frame(lmgl::iframe *frame)
 {
     selection_background.add_to_frame(frame);
     for (auto &line : lines)
     {
         line.render(frame);
     }
-    return *this;
+    return false;
 }
 
 bool inspector_component::handle(const lmtk::input_event &input_event)

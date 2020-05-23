@@ -25,7 +25,7 @@ class rect_border : public widget_interface
     rect_border(rect_border const &) = delete;
     rect_border(rect_border &&) = default;
 
-    rect_border &add_to_frame(lmgl::iframe *frame);
+    bool add_to_frame(lmgl::iframe *frame) override;
 
     void set_thickness(float thickness);
 

@@ -284,6 +284,12 @@ void visual::handle_box_collider_mesh_tag_destroyed(
 }
 } // namespace lmhuv::internal
 
+lmhuv::pvisual_view lmhuv::visual_view_init::unique()
+{
+    return create_visual_view(*this);
+}
+// namespace lmhuv::internal
+
 namespace lmhuv
 {
 pvisual_view create_visual_view(visual_view_init const &init)

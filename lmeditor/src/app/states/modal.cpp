@@ -36,12 +36,14 @@ void editor_app::modal_state::move_resources(
     modal->move_resources(resource_sink);
 }
 
-void editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
+bool editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
     modal->update(
       app.resources.renderer.get(),
       app.resources.resource_sink,
-      app.resource_cache);
-    modal->add_to_frame(frame);
+      app.resource_cache,
+      app.resources.input_state);
+
+    return modal->add_to_frame(frame);
 }
 } // namespace lmeditor

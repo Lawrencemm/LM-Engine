@@ -14,7 +14,7 @@ class char_field : public component_interface
 
     bool handle(input_event const &event) override;
 
-    widget_interface &add_to_frame(lmgl::iframe *frame) override;
+    bool add_to_frame(lmgl::iframe *frame) override;
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;
@@ -24,10 +24,11 @@ class char_field : public component_interface
     widget_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    component_interface &update(
+    lmtk::component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache) override;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state) override;
 
     [[nodiscard]] std::string get_value() const { return editor.text; }
 

@@ -3,6 +3,7 @@
 #include <lmeditor/component/command_help.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
+#include <lmeditor/component/player.h>
 #include <lmeditor/component/saver.h>
 #include <lmeditor/model/orbital_camera.h>
 #include <lmengine/name.h>
@@ -45,19 +46,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 {
     tbb::task_group task_group;
 
-    task_group.run([&]() {
-        game_library = boost::dll::shared_library{
-          (project_dir / "game").c_str(),
-          boost::dll::load_mode::append_decorations,
-        };
-        game_library.get<set_meta_context_fn>("set_meta_context")(
-          entt::meta_ctx{});
-        game_library.get<reflect_types_fn>("reflect_types")();
-        simulation_names =
-          game_library.get<list_simulations_fn>("list_simulations")();
-        create_simulation =
-          game_library.get<create_simulation_fn>("create_simulation");
-    });
+    task_group.run(
+      [&]() { project_plugin.load(project_dir, entt::meta_ctx{}); });
 
     auto inspector_size = lm::size2i{
       resources.window_size.width / 5,
@@ -142,14 +132,10 @@ void editor_app::assign_view_key(
 
 bool editor_app::on_new_frame(lmgl::iframe *frame)
 {
-    state >> lm::variant_visitor{
-               [&](auto &state) { state.add_to_frame(*this, frame); },
-             };
-
-    return state >> lm::variant_visitor{
-                      [&](player_state &player_state) { return true; },
-                      [&](auto &) { return false; },
-                    };
+    return state >>
+           lm::variant_visitor{
+             [&](auto &state) { return state.add_to_frame(*this, frame); },
+           };
 }
 
 bool editor_app::on_input_event(lmtk::input_event const &input_event)
@@ -275,7 +261,7 @@ lmtk::component editor_app::create_simulation_selector()
 {
     auto selector =
       lmtk::choice_list_init{
-        .choices = simulation_names,
+        .choices = project_plugin.get_simulation_names(),
         .renderer = resources.renderer.get(),
         .resource_cache = resource_cache,
       }
@@ -371,5 +357,18 @@ void editor_app::move_current_state_resources()
         old_state.move_resources(
           resources.renderer.get(), resources.resource_sink);
     }};
+}
+
+lmtk::component editor_app::create_player()
+{
+    return player_init{
+      .renderer = resources.renderer.get(),
+      .map = map,
+      .project_plugin = project_plugin,
+      .simulation_index = selected_simulation_index,
+      .position = {0, 0},
+      .size = resources.window_size,
+    }
+      .unique();
 }
 } // namespace lmeditor

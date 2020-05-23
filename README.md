@@ -28,7 +28,7 @@ Game asset creation application.
 Presentation layer library. Separates core game logic from graphics/sound.
 
 ### sample
-Example first/third person game made with the engine.
+Example 3D game made with the engine.
 
 ## Requirements
 * Python 3

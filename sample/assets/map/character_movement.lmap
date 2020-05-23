@@ -1,9 +1,4 @@
 Character:
-  Character Skeleton:
-    Arm swing height: 0.65
-    Arm swing speed: 0.5
-    Right Shoulder: Right Shoulder
-    Left Shoulder: Left Shoulder
   Character Input:
     Radians per dot: 0.0023
   Character Controller: ~

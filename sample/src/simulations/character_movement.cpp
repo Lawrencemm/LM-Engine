@@ -10,7 +10,6 @@
 #include <lmlib/math_constants.h>
 #include <yaml-cpp/yaml.h>
 
-#include "../components/animation.h"
 #include "../components/character_input.h"
 
 character_movement::character
@@ -28,7 +27,6 @@ character_movement::character
       entity,
       registry.get<lmng::transform>(entity),
       registry.get<lmng::character_controller>(entity),
-      registry.get<character_skeleton>(entity),
     };
 }
 

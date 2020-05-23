@@ -2,7 +2,6 @@
 
 #include <entt/entity/registry.hpp>
 
-#include "../components/animation.h"
 #include <lmengine/animation.h>
 #include <lmengine/physics.h>
 #include <lmengine/simulation.h>
@@ -35,7 +34,6 @@ class character_movement
         entt::entity entity;
         lmng::transform &transform;
         lmng::character_controller &controller;
-        character_skeleton &skeleton;
     };
 
     static character get_character(entt::registry &registry);

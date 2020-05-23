@@ -1,4 +1,3 @@
-#include "components/animation.h"
 #include "components/character_input.h"
 #include "components/enemy.h"
 #include "components/protagonist.h"
@@ -15,10 +14,4 @@ void reflect_types_cpp()
 
     REFLECT_TYPE(character_input, "Character Input")
       .REFLECT_MEMBER(character_input, radians_per_dot, "Radians per dot");
-
-    REFLECT_TYPE(character_skeleton, "Character Skeleton")
-      .REFLECT_MEMBER(character_skeleton, left_shoulder, "Left Shoulder")
-      .REFLECT_MEMBER(character_skeleton, right_shoulder, "Right Shoulder")
-      .REFLECT_MEMBER(character_skeleton, arm_swing_speed, "Arm swing speed")
-      .REFLECT_MEMBER(character_skeleton, arm_swing_height, "Arm swing height");
 }

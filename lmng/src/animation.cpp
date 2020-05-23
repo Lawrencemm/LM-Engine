@@ -1,10 +1,10 @@
 #include <Eigen/Eigen>
 #include <fmt/format.h>
 #include <fstream>
-#include <lmengine/animation.h>
-#include <lmengine/name.h>
-#include <lmengine/serialisation.h>
-#include <lmengine/transform.h>
+#include <lmng/animation.h>
+#include <lmng/name.h>
+#include <lmng/serialisation.h>
+#include <lmng/transform.h>
 #include <range/v3/view/enumerate.hpp>
 #include <range/v3/view/zip.hpp>
 #include <yaml-cpp/yaml.h>

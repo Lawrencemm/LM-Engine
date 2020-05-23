@@ -4,10 +4,10 @@
 #include <entt/entity/entity.hpp>
 #include <entt/entity/fwd.hpp>
 #include <lmeditor/model/command.h>
-#include <lmengine/physics.h>
-#include <lmengine/shapes.h>
-#include <lmengine/transform.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/physics.h>
+#include <lmng/shapes.h>
+#include <lmng/transform.h>
 #include <lmtk/input_event.h>
 #include <variant>
 

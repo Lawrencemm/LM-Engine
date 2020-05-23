@@ -1,7 +1,7 @@
 #include "../app.h"
 #include <lmeditor/model/selection.h>
-#include <lmengine/name.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/name.h>
 #include <lmtk/char_field.h>
 
 namespace lmeditor

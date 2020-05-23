@@ -6,8 +6,8 @@
 #include <lmeditor/component/player.h>
 #include <lmeditor/component/saver.h>
 #include <lmeditor/model/orbital_camera.h>
-#include <lmengine/name.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/name.h>
 #include <lmtk/choice_list.h>
 #include <random>
 #include <range/v3/algorithm/find.hpp>

@@ -7,9 +7,9 @@
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <range/v3/algorithm/copy.hpp>
 
-#include <lmengine/name.h>
-#include <lmengine/physics.h>
-#include <lmengine/transform.h>
+#include <lmng/name.h>
+#include <lmng/physics.h>
+#include <lmng/transform.h>
 
 #include "rigid_body.h"
 

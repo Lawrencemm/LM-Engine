@@ -2,7 +2,7 @@
 #include "components/enemy.h"
 #include "components/protagonist.h"
 
-#include <lmengine/reflection.h>
+#include <lmng/reflection.h>
 
 void reflect_types_cpp()
 {

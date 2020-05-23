@@ -1,10 +1,10 @@
 #include "map_editor_component.h"
 #include <fmt/format.h>
-#include <lmengine/reflection.h>
-#include <lmengine/transform.h>
 #include <lmhuv/box.h>
 #include <lmlib/enumerate.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/reflection.h>
+#include <lmng/transform.h>
 
 namespace lmeditor
 {

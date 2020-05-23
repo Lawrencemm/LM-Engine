@@ -1,11 +1,11 @@
 #include "map_editor_controller.h"
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/model/selection.h>
-#include <lmengine/name.h>
-#include <lmengine/physics.h>
-#include <lmengine/reflection.h>
 #include <lmlib/eigen.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/name.h>
+#include <lmng/physics.h>
+#include <lmng/reflection.h>
 #include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/join.hpp>

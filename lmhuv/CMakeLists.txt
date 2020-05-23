@@ -2,7 +2,7 @@ project(lmhuv)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-find_package(lmengine REQUIRED)
+find_package(lmng REQUIRED)
 find_package(lmgl REQUIRED)
 find_package(lmtk REQUIRED)
 find_package(embed-resource REQUIRED)
@@ -37,7 +37,7 @@ target_link_libraries(
   lmhuv
   PUBLIC
 
-  lmengine::lmengine
+  lmng::lmng
   lmgl::lmgl
   lmtk::lmtk
   OpenMesh::OpenMesh

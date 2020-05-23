@@ -1,8 +1,8 @@
 #pragma once
 #include <entt/entt.hpp>
 
-#include <lmengine/physics.h>
-#include <lmengine/simulation.h>
+#include <lmng/physics.h>
+#include <lmng/simulation.h>
 #include <lmtk/input_event.h>
 
 class rigid_bodies_battle

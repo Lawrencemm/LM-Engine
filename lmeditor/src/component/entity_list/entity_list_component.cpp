@@ -1,6 +1,6 @@
 #include "entity_list_component.h"
 #include <entt/entt.hpp>
-#include <lmengine/name.h>
+#include <lmng/name.h>
 #include <lmtk/vlayout.h>
 
 namespace lmeditor

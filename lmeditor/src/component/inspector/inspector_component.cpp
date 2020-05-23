@@ -1,8 +1,8 @@
 #include "inspector_component.h"
 #include <entt/meta/meta.hpp>
 #include <fmt/format.h>
-#include <lmengine/name.h>
 #include <lmlib/enumerate.h>
+#include <lmng/name.h>
 #include <lmtk/component.h>
 #include <lmtk/shapes.h>
 #include <lmtk/text_layout.h>

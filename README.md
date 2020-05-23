@@ -18,7 +18,7 @@ C++ utility library.
 ### lmtk
 GUI app toolkit built on top of lmpl and lmgl.
 
-### lmengine
+### lmng
 Core game logic and simulation library.
 
 ### lmeditor

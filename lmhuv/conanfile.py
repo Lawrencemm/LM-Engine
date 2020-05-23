@@ -9,7 +9,7 @@ class LmhuvConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake_find_package"
     requires = (
-        "lmengine/0.0.1",
+        "lmng/0.0.1",
         "lmgl/0.0.1",
         "lmtk/0.0.1",
         'OpenMesh/8.0@lawrencem/stable',

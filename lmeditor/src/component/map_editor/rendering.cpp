@@ -3,8 +3,8 @@
 
 #include <Resource.h>
 #include <lmeditor/model/selection.h>
-#include <lmengine/extents.h>
 #include <lmhuv/box.h>
+#include <lmng/extents.h>
 
 LOAD_RESOURCE(stencil_vshader_data, shaders_stencil_vert_spv);
 LOAD_RESOURCE(outline_pshader_data, shaders_selection_outline_frag_spv);

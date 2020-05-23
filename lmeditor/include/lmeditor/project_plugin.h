@@ -11,7 +11,8 @@ class project_plugin
 {
   public:
     void load(
-      const std::filesystem::path &project_dir,
+      std::filesystem::path const &project_dir,
+      std::string const &plugin_name,
       entt::meta_ctx const &meta_context);
 
     psimulation create_simulation(

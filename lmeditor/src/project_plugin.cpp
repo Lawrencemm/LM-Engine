@@ -3,12 +3,13 @@
 namespace lmeditor
 {
 void project_plugin::load(
-  const std::filesystem::path &project_dir,
+  std::filesystem::path const &project_dir,
+  std::string const &plugin_name,
   entt::meta_ctx const &meta_context)
 {
     this->project_dir = project_dir;
     shared_library = boost::dll::shared_library{
-      (project_dir / "game").c_str(),
+      plugin_name,
       boost::dll::load_mode::append_decorations,
     };
     simulation_names =

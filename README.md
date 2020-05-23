@@ -64,6 +64,4 @@ documentation of CMake and Conan for using different configurations/settings.
 
 ## Running the Editor
 Run the `Editor` executable in the build directory with the `--project-dir` 
-argument set to the `sample` directory, or another directory containing a 
-`game` shared library like that built by the `sample_editor_plugin` CMake 
-target.
+argument set to the `sample` project directory eg. `./Editor --project-dir ../sample`.

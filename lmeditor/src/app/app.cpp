@@ -12,6 +12,7 @@
 #include <random>
 #include <range/v3/algorithm/find.hpp>
 #include <tbb/task_group.h>
+#include <yaml-cpp/yaml.h>
 
 using namespace tbb::flow;
 
@@ -46,8 +47,15 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 {
     tbb::task_group task_group;
 
-    task_group.run(
-      [&]() { project_plugin.load(project_dir, entt::meta_ctx{}); });
+    task_group.run([&]() {
+        YAML::Node project_config =
+          YAML::LoadFile((project_dir / "lmproj.yml").string());
+
+        project_plugin.load(
+          project_dir,
+          project_config["editor_plugin_name"].as<std::string>(),
+          entt::meta_ctx{});
+    });
 
     auto inspector_size = lm::size2i{
       resources.window_size.width / 5,

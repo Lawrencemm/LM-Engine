@@ -26,10 +26,10 @@ bool char_field::handle(input_event const &event)
     return false;
 }
 
-widget_interface &char_field::add_to_frame(lmgl::iframe *frame)
+bool char_field::add_to_frame(lmgl::iframe *frame)
 {
     layout.render(frame);
-    return *this;
+    return false;
 }
 
 lm::size2i char_field::get_size() { return layout.get_size(); }
@@ -48,10 +48,11 @@ widget_interface &char_field::move_resources(lmgl::resource_sink &resource_sink)
     return *this;
 }
 
-component_interface &char_field::update(
+lmtk::component_interface &char_field::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     if (dirty)
     {

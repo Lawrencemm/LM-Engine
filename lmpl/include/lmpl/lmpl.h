@@ -33,6 +33,9 @@ namespace lmpl
 class idisplay;
 class iwindow;
 
+struct null_window_message
+{
+};
 struct window_message_base
 {
     iwindow *window;
@@ -73,6 +76,7 @@ struct lose_focus_message : public window_message_base
 };
 
 using window_message = std::variant<
+  null_window_message,
   close_message,
   mouse_button_down_message,
   mouse_button_up_message,

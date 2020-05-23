@@ -25,11 +25,12 @@ include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
 add_library(
   lmeditor
 
+  src/project_plugin.cpp
+
   src/app/app.cpp
   src/app/save_load.cpp
 
   src/app/states/gui.cpp
-  src/app/states/player.cpp
   src/app/states/modal.cpp
 
   src/model/selection.cpp
@@ -69,6 +70,8 @@ add_library(
   src/component/saver_modal/saver.cpp
 
   src/component/entity_list/entity_list_component.cpp
+
+  src/component/player.cpp
 )
 
 target_link_libraries(

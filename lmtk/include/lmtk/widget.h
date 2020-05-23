@@ -9,7 +9,8 @@ namespace lmtk
 class widget_interface
 {
   public:
-    virtual widget_interface &add_to_frame(lmgl::iframe *frame) = 0;
+    /// Return true if you want to render again immediately.
+    virtual bool add_to_frame(lmgl::iframe *frame) = 0;
     virtual lm::size2i get_size() = 0;
     virtual lm::point2i get_position() = 0;
 

@@ -30,7 +30,7 @@ class rect : public widget_interface
 
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
 
-    rect &add_to_frame(lmgl::iframe *frame);
+    bool add_to_frame(lmgl::iframe *frame) override;
 
     rect &move_resources(lmgl::resource_sink &sink) override;
 

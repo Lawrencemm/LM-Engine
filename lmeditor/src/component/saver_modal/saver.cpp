@@ -28,11 +28,11 @@ saver::saver(saver_init const &init)
 {
 }
 
-saver &saver::add_to_frame(lmgl::iframe *frame)
+bool saver::add_to_frame(lmgl::iframe *frame)
 {
     header.render(frame);
     field.add_to_frame(frame);
-    return *this;
+    return false;
 }
 
 saver &saver::move_resources(lmgl::resource_sink &resource_sink)
@@ -75,9 +75,10 @@ bool saver::handle(const lmtk::input_event &input_event)
 lmtk::component_interface &saver::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
-    field.update(renderer, resource_sink, resource_cache);
+    field.update(renderer, resource_sink, resource_cache, input_state);
     return *this;
 }
 

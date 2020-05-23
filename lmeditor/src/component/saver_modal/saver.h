@@ -17,7 +17,7 @@ struct saver : public saver_interface
 
     explicit saver(saver_init const &init);
 
-    saver &add_to_frame(lmgl::iframe *frame) override;
+    bool add_to_frame(lmgl::iframe *frame) override;
 
     lm::size2i get_size() override { return lm::size2i(); }
 
@@ -29,10 +29,11 @@ struct saver : public saver_interface
 
     bool handle(const lmtk::input_event &input_event) override;
 
-    component_interface &update(
+    lmtk::component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache) override;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state) override;
 
     entt::sink<bool(const std::string &)> on_save() override;
 };

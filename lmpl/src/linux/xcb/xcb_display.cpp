@@ -38,11 +38,12 @@ const unsigned char EVDEV_NATIVE_TO_HID[256] = {
   255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
   255};
 
-const lmpl ::mouse_button detail_to_mouse_button[] = {lmpl ::mouse_button::L,
-                                                      lmpl ::mouse_button::M,
-                                                      lmpl ::mouse_button::R,
-                                                      lmpl ::mouse_button::U,
-                                                      lmpl ::mouse_button::D};
+const lmpl ::mouse_button detail_to_mouse_button[] = {
+  lmpl ::mouse_button::L,
+  lmpl ::mouse_button::M,
+  lmpl ::mouse_button::R,
+  lmpl ::mouse_button::U,
+  lmpl ::mouse_button::D};
 
 using namespace std::literals::string_literals;
 namespace lmpl
@@ -364,6 +365,8 @@ window_message XcbDisplay::wait_for_message()
         if (msg)
             return msg.value();
     }
+
+    return window_message{};
 }
 
 idisplay &XcbDisplay::break_wait()

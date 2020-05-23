@@ -20,7 +20,7 @@ class choice_list : public component_interface
   public:
     explicit choice_list(choice_list_init const &init);
 
-    widget_interface &add_to_frame(lmgl::iframe *frame) override;
+    bool add_to_frame(lmgl::iframe *frame) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
@@ -30,10 +30,11 @@ class choice_list : public component_interface
 
     bool handle(lmtk::input_event const &input_event) override;
 
-    component_interface &update(
+    lmtk::component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache) override;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state) override;
 
     entt::sink<bool(unsigned, std::string const &)> on_selected();
 

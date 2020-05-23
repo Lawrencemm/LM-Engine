@@ -5,6 +5,7 @@
 #include <lmeditor/component/inspector.h>
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/model/trimesh.h>
+#include <lmeditor/project_plugin.h>
 #include <lmeditor/simulation_plugin.h>
 #include <lmhuv.h>
 #include <lmlib/application.h>
@@ -34,7 +35,7 @@ class editor_app
     {
         explicit gui_state(editor_app &app);
         bool handle(editor_app &app, lmtk::input_event const &input_event);
-        void add_to_frame(editor_app &app, lmgl::iframe *frame);
+        bool add_to_frame(editor_app &app, lmgl::iframe *frame);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);
@@ -44,32 +45,15 @@ class editor_app
         lmtk::component modal;
 
         bool handle(editor_app &app, lmtk::input_event const &input_event);
-        void add_to_frame(editor_app &app, lmgl::iframe *frame);
+        bool add_to_frame(editor_app &app, lmgl::iframe *frame);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);
 
         std::function<void(lmtk::widget_interface *, lmgl::iframe *)> renderer;
     };
-    struct player_state
-    {
-        entt::registry registry;
-        psimulation simulation;
-        lmhuv::pvisual_view visual_view;
 
-        lm::realtime_clock clock;
-
-        void update_simulation(lmtk::input_state const &input_state);
-
-        bool handle(editor_app &app, lmtk::input_event const &input_event);
-        void move_resources(
-          lmgl::irenderer *renderer,
-          lmgl::resource_sink &resource_sink);
-        void add_to_frame(editor_app &app, lmgl::iframe *frame);
-    };
-
-    using state_variant_type =
-      std::variant<gui_state, modal_state, player_state>;
+    using state_variant_type = std::variant<gui_state, modal_state>;
 
     std::filesystem::path project_dir;
 
@@ -77,11 +61,9 @@ class editor_app
     lmtk::resource_cache resource_cache;
     lmtk::app_flow_graph flow_graph;
 
-    boost::dll::shared_library game_library;
+    lmeditor::project_plugin project_plugin;
 
-    std::vector<std::string> simulation_names;
     size_t selected_simulation_index{0};
-    create_simulation_fn create_simulation;
 
     entt::registry map;
 
@@ -103,6 +85,7 @@ class editor_app
     lmtk::component create_command_help();
     lmtk::component create_pose_loader();
     lmtk::component create_pose_saver(std::string initial_project_path);
+    lmtk::component create_player();
 
     bool on_map_selected(unsigned _unused_, const std::string &project_path);
     bool on_simulation_selected(unsigned selection_index);
@@ -121,7 +104,6 @@ class editor_app
     void on_quit();
 
     void refit_visible_components();
-    player_state create_player_state();
     void assign_view_key(lmpl::key_code code, component_interface *pview);
     void toggle_component(component_interface *pview);
     void focus_component(lmtk::component_interface *tool_panel);

@@ -45,7 +45,7 @@ choice_list::choice_list(choice_list_init const &init)
 {
 }
 
-widget_interface &choice_list::add_to_frame(lmgl::iframe *frame)
+bool choice_list::add_to_frame(lmgl::iframe *frame)
 {
     selection_background.set_rect(
       line_layouts[selection_index].position,
@@ -55,7 +55,7 @@ widget_interface &choice_list::add_to_frame(lmgl::iframe *frame)
     {
         layout.render(frame);
     }
-    return *this;
+    return true;
 }
 
 lm::size2i choice_list::get_size()
@@ -83,10 +83,11 @@ widget_interface &
     return *this;
 }
 
-component_interface &choice_list::update(
+lmtk::component_interface &choice_list::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state)
 {
     return *this;
 }

@@ -22,7 +22,8 @@ add_library(
   src/name.cpp
   src/pose.cpp
   src/animation.cpp
-  src/extents.cpp ../lmeditor/include/lmeditor/component/saver.h)
+  src/extents.cpp
+)
 
 target_include_directories(
   lmengine

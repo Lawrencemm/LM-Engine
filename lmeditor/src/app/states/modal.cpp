@@ -14,7 +14,6 @@ bool editor_app::modal_state::handle(
             switch (key_down_event.key)
             {
             case lmpl::key_code::Escape:
-                modal->move_resources(app.resources.resource_sink);
                 app.change_state<gui_state>();
                 return true;
 

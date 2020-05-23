@@ -1,13 +1,13 @@
 #include <entt/entt.hpp>
 
 #include <fmt/format.h>
-#include <lmengine/camera.h>
-#include <lmengine/kinematic.h>
-#include <lmengine/name.h>
-#include <lmengine/physics.h>
-#include <lmengine/reflection.h>
-#include <lmengine/shapes.h>
-#include <lmengine/transform.h>
+#include <lmng/camera.h>
+#include <lmng/kinematic.h>
+#include <lmng/name.h>
+#include <lmng/physics.h>
+#include <lmng/reflection.h>
+#include <lmng/shapes.h>
+#include <lmng/transform.h>
 
 namespace lmng
 {

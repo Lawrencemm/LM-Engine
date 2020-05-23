@@ -2,7 +2,7 @@
 
 #include <entt/fwd.hpp>
 #include <lmeditor/model/command.h>
-#include <lmengine/name.h>
+#include <lmng/name.h>
 #include <lmtk/input_event.h>
 
 namespace lmeditor

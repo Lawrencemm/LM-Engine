@@ -8,7 +8,7 @@ class SampleConan(ConanFile):
     generators = "cmake_find_package"
     requires = (
         'lmlib/0.0.1',
-        "lmengine/0.0.1",
+        "lmng/0.0.1",
         "lmeditor/0.0.1",
         "lmtk/0.0.1",
         "lmhuv/0.0.1",

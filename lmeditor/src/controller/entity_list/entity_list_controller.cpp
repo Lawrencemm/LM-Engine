@@ -3,7 +3,7 @@
 #include <entt/fwd.hpp>
 #include <lmeditor/model/command.h>
 #include <lmeditor/model/selection.h>
-#include <lmengine/name.h>
+#include <lmng/name.h>
 #include <lmgl/lmgl.h>
 #include <lmlib/variant_visitor.h>
 #include <lmtk/component.h>

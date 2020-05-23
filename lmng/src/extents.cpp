@@ -1,7 +1,7 @@
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
-#include <lmengine/physics.h>
-#include <lmengine/shapes.h>
+#include <lmng/physics.h>
+#include <lmng/shapes.h>
 
 namespace lmng
 {

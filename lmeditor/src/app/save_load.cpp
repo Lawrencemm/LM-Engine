@@ -1,8 +1,8 @@
 #include "app.h"
 #include <fstream>
 #include <lmeditor/model/selection.h>
-#include <lmengine/pose.h>
-#include <lmengine/serialisation.h>
+#include <lmng/pose.h>
+#include <lmng/serialisation.h>
 #include <yaml-cpp/yaml.h>
 
 namespace lmeditor

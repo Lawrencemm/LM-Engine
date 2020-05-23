@@ -2,12 +2,12 @@
 #include <range/v3/algorithm/copy.hpp>
 
 #include <iostream>
-#include <lmengine/animation.h>
-#include <lmengine/camera.h>
-#include <lmengine/kinematic.h>
-#include <lmengine/simulation.h>
-#include <lmengine/transform.h>
 #include <lmlib/math_constants.h>
+#include <lmng/animation.h>
+#include <lmng/camera.h>
+#include <lmng/kinematic.h>
+#include <lmng/simulation.h>
+#include <lmng/transform.h>
 #include <yaml-cpp/yaml.h>
 
 #include "../components/character_input.h"

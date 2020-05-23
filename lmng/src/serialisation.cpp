@@ -1,9 +1,9 @@
 #include <range/v3/action/sort.hpp>
 #include <yaml-cpp/yaml.h>
 
-#include <lmengine/name.h>
-#include <lmengine/reflection.h>
-#include <lmengine/serialisation.h>
+#include <lmng/name.h>
+#include <lmng/reflection.h>
+#include <lmng/serialisation.h>
 
 namespace lmng
 {

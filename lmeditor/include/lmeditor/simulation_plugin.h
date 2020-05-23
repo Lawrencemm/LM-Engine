@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-#include <lmengine/simulation.h>
 #include <lmlib/reference.h>
+#include <lmng/simulation.h>
 #include <lmtk/input_event.h>
 
 namespace lmeditor

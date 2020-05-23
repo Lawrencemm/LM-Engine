@@ -1,4 +1,4 @@
-#include <lmengine/name.h>
+#include <lmng/name.h>
 
 namespace lmng
 {

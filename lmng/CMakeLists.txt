@@ -1,4 +1,4 @@
-project(lmengine)
+project(lmng)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -10,7 +10,7 @@ find_package(yaml-cpp REQUIRED)
 find_package(Catch2 REQUIRED)
 
 add_library(
-  lmengine
+  lmng
   SHARED
 
   src/reflection.cpp
@@ -26,14 +26,14 @@ add_library(
 )
 
 target_include_directories(
-  lmengine
+  lmng
 
   PUBLIC
   include
 )
 
 target_link_libraries(
-  lmengine
+  lmng
 
   PUBLIC
   lmlib::lmlib
@@ -44,26 +44,26 @@ target_link_libraries(
 )
 
 if (MSVC)
-  target_compile_definitions(lmengine PRIVATE _ENABLE_EXTENDED_ALIGNED_STORAGE)
+  target_compile_definitions(lmng PRIVATE _ENABLE_EXTENDED_ALIGNED_STORAGE)
 endif()
 
 add_executable(
-  test_lmengine
-  test/test_lmengine.cpp
+  test_lmng
+  test/test_lmng.cpp
   test/test_transform.cpp
   test/test_transform_hierarchy_visit.cpp
   test/test_pose
 )
 
 target_link_libraries(
-  test_lmengine
+  test_lmng
   PRIVATE
   Catch2::Catch2
-  lmengine
+  lmng
 )
 
-add_test(NAME lmengine COMMAND test_lmengine)
+add_test(NAME lmng COMMAND test_lmng)
 
 if(MINGW)
-  target_compile_options(lmengine PRIVATE "-Wa,-mbig-obj")
+  target_compile_options(lmng PRIVATE "-Wa,-mbig-obj")
 endif()

@@ -2,10 +2,10 @@
 
 #include <entt/entity/registry.hpp>
 
-#include <lmengine/animation.h>
-#include <lmengine/physics.h>
-#include <lmengine/simulation.h>
-#include <lmengine/transform.h>
+#include <lmng/animation.h>
+#include <lmng/physics.h>
+#include <lmng/simulation.h>
+#include <lmng/transform.h>
 #include <lmtk/input_event.h>
 #include <yaml-cpp/node/node.h>
 

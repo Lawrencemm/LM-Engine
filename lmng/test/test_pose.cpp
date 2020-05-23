@@ -1,11 +1,11 @@
 #include <catch2/catch.hpp>
 #include <iostream>
-#include <lmengine/name.h>
-#include <lmengine/pose.h>
-#include <lmengine/reflection.h>
-#include <lmengine/serialisation.h>
-#include <lmengine/transform.h>
 #include <lmlib/range.h>
+#include <lmng/name.h>
+#include <lmng/pose.h>
+#include <lmng/reflection.h>
+#include <lmng/serialisation.h>
+#include <lmng/transform.h>
 #include <range/v3/algorithm/generate.hpp>
 #include <range/v3/view/zip.hpp>
 

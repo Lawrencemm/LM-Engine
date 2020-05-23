@@ -1,8 +1,8 @@
 editables:
   lmlib/0.0.1:
     path: lmlib
-  lmengine/0.0.1:
-    path: lmengine
+  lmng/0.0.1:
+    path: lmng
   lmeditor/0.0.1:
     path: lmeditor
   lmgl/0.0.1:

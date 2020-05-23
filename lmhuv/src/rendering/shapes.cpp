@@ -3,10 +3,10 @@
 
 #include <Resource.h>
 
-#include <lmengine/shapes.h>
 #include <lmgl/lmgl.h>
 #include <lmhuv/box.h>
 #include <lmlib/concat.h>
+#include <lmng/shapes.h>
 
 LOAD_RESOURCE(box_vshader_data, shaders_box_vert_spv);
 LOAD_RESOURCE(box_pshader_data, shaders_box_frag_spv);

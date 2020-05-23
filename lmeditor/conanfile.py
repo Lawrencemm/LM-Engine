@@ -14,7 +14,7 @@ class LmeditorConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake_find_package", "virtualrunenv"
     requires = (
-        'lmengine/0.0.1',
+        'lmng/0.0.1',
         'lmgl/0.0.1',
         'lmlib/0.0.1',
         'lmpl/0.0.1',

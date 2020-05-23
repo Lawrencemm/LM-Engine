@@ -1,10 +1,10 @@
 #pragma once
 
-#include <lmengine/shapes.h>
-#include <lmengine/transform.h>
 #include <lmgl/fwd_decl.h>
 #include <lmgl/lmgl.h>
 #include <lmlib/camera.h>
+#include <lmng/shapes.h>
+#include <lmng/transform.h>
 
 namespace lmhuv
 {

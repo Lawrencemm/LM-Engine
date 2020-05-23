@@ -10,7 +10,6 @@
 #include <lmlib/math_constants.h>
 #include <yaml-cpp/yaml.h>
 
-#include "../components/animation.h"
 #include "../components/character_input.h"
 
 character_movement::character
@@ -28,7 +27,6 @@ character_movement::character
       entity,
       registry.get<lmng::transform>(entity),
       registry.get<lmng::character_controller>(entity),
-      registry.get<character_skeleton>(entity),
     };
 }
 
@@ -39,13 +37,15 @@ character_movement::character_movement(lmng::simulation_init const &init)
       left_forward_pose{animation_system.load_pose(
         init.registry,
         "left_forward",
-        YAML::LoadFile((init.project_dir / "left_forward.lpose").string()))},
+        YAML::LoadFile(
+          (init.project_dir / "assets/pose/left_forward.lpose").string()))},
       right_forward_pose{animation_system.load_pose(
         init.registry,
         "right_forward",
-        YAML::LoadFile((init.project_dir / "right_forward.lpose").string()))},
-      swing_arms_animation{animation_system.load_animation(
-        YAML::LoadFile((init.project_dir / "swing_arms.lmanim").string()))}
+        YAML::LoadFile(
+          (init.project_dir / "assets/pose/right_forward.lpose").string()))},
+      swing_arms_animation{animation_system.load_animation(YAML::LoadFile(
+        (init.project_dir / "assets/animation/swing_arms.lmanim").string()))}
 {
     init.registry.assign<lmng::transform>(camera);
     init.registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);

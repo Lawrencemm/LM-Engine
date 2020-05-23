@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 project(sample)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_SHARED_LIBRARY_PREFIX "")
-
 find_package(lmengine REQUIRED)
 find_package(lmeditor REQUIRED)
 find_package(lmtk REQUIRED)
@@ -57,14 +55,6 @@ target_include_directories(
   PRIVATE
   ${lmeditor_INCLUDES}
   ${CMAKE_CURRENT_BINARY_DIR}
-)
-add_custom_command(
-  TARGET sample_editor_plugin
-  POST_BUILD
-  COMMAND
-  ${CMAKE_COMMAND} -E copy_if_different
-  $<TARGET_FILE:sample_editor_plugin>
-  ${CMAKE_CURRENT_SOURCE_DIR}/libgame${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 
 

@@ -152,6 +152,8 @@ bool inspector_controller::select_state::handle(
                        selected_entry.component_meta_type,
                        *inspector.registry,
                        inspector.entity);
+                     inspector.inspect_entity(
+                       *inspector.registry, inspector.entity);
                      return true;
                  }
 

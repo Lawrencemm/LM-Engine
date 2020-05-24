@@ -83,6 +83,30 @@ app_resources::app_resources()
     init_graph.wait_for_all();
 }
 
+template <typename func_type>
+static auto
+  set_promise_on_exception(func_type const &func, std::promise<void> &promise)
+    -> decltype(func())
+{
+    try
+    {
+        if constexpr (std::is_void_v<decltype(func())>)
+        {
+            func();
+            return;
+        }
+        else
+        {
+            return func();
+        }
+    }
+    catch (...)
+    {
+        promise.set_value();
+        throw;
+    }
+}
+
 using namespace tbb::flow;
 
 app_flow_graph::app_flow_graph(
@@ -97,42 +121,52 @@ app_flow_graph::app_flow_graph(
       wait_for_window_msg_node(
         app_lifetime_graph,
         [&](request_window_msg_msg) {
-            return resources.display->wait_for_message();
+            return set_promise_on_exception(
+              [&]() { return resources.display->wait_for_message(); },
+              done_promise);
         }),
       frame_limiter_node{app_lifetime_graph, 1},
       wait_for_frame_node{
         app_lifetime_graph,
         [&](request_frame_msg) {
-            auto frame = wait_for_frame();
-            return new_frame_msg{frame};
+            return set_promise_on_exception(
+              [&]() {
+                  auto frame = wait_for_frame();
+                  return new_frame_msg{frame};
+              },
+              done_promise);
         },
       },
-      submit_frame_node{
+      render_frame_node{
         app_lifetime_graph,
         1,
         [&](auto &render_frame_msg) {
-            submit_frame(render_frame_msg.frame);
-            return frame_submitted_msg{render_frame_msg.frame};
+            return set_promise_on_exception(
+              [&]() {
+                  render_frame(render_frame_msg.frame);
+                  return frame_submitted_msg{render_frame_msg.frame};
+              },
+              done_promise);
         },
       },
       wait_frame_finish_node{
         app_lifetime_graph,
         [this](auto frame_submitted_msg) {
-            frame_submitted_msg.frame->wait_complete();
-            return frame_complete_msg{frame_submitted_msg.frame};
+            return set_promise_on_exception(
+              [&]() {
+                  frame_submitted_msg.frame->wait_complete();
+                  return frame_complete_msg{frame_submitted_msg.frame};
+              },
+              done_promise);
         },
       },
       handle_app_msg_node{
         app_lifetime_graph,
         1,
         [this](appmsg msg, proc_msg_ports_type &outputs) {
-            handle_app_msg(msg, outputs);
+            return set_promise_on_exception(
+              [&]() { handle_app_msg(msg, outputs); }, done_promise);
         },
-      },
-      quit_app_node{
-        app_lifetime_graph,
-        1,
-        [this](quit_app_msg) { handle_quit_msg(); },
       }
 {
     make_edge(wait_for_window_msg_node, handle_app_msg_node);
@@ -141,11 +175,10 @@ app_flow_graph::app_flow_graph(
 
     lm::make_edge(handle_app_msg_node, wait_for_window_msg_node);
     lm::make_edge(handle_app_msg_node, frame_limiter_node);
-    lm::make_edge(handle_app_msg_node, submit_frame_node);
-    lm::make_edge(handle_app_msg_node, quit_app_node);
+    lm::make_edge(handle_app_msg_node, render_frame_node);
 
     make_edge(frame_limiter_node, wait_for_frame_node);
-    make_edge(submit_frame_node, wait_frame_finish_node);
+    make_edge(render_frame_node, wait_frame_finish_node);
 }
 
 lmgl::iframe *app_flow_graph::wait_for_frame()
@@ -156,7 +189,7 @@ lmgl::iframe *app_flow_graph::wait_for_frame()
     return p_frame;
 }
 
-void app_flow_graph::submit_frame(lmgl::iframe *frame) const
+void app_flow_graph::render_frame(lmgl::iframe *frame) const
 {
     frame->clear_colour({0.05f, 0.05f, 0.05f, 1.f});
     frame->build();
@@ -168,129 +201,79 @@ void app_flow_graph::handle_app_msg(
   app_flow_graph::proc_msg_ports_type &output_ports)
 {
     msg >> lm::variant_visitor{
-             [&](auto &msg) { handle(msg, output_ports); },
-           };
+             [&](new_frame_msg const &new_frame_msg) {
+                 if (quitting)
+                     return;
+
+                 resources.resource_sink.add_frame(new_frame_msg.frame);
+
+                 frame_limiter_node.decrement.try_put(continue_msg{});
+
+                 if (on_new_frame(new_frame_msg.frame))
+                     get_frame_async(output_ports);
+
+                 start_render_async(output_ports, new_frame_msg.frame);
+             },
+             [&](frame_complete_msg const &frame_complete_msg) {
+                 resources.resource_sink.free_frame(
+                   frame_complete_msg.frame, resources.renderer.get());
+                 resources.frames.pop();
+             },
+             [&](lmpl::window_message const &window_message) {
+                 if (quitting)
+                     return;
+
+                 window_message >>
+                   lm::variant_visitor{
+                     [&](lmpl::close_message) {
+                         quitting = true;
+                         done_promise.set_value();
+                         on_quit();
+                         resources.resource_sink.free_orphans(
+                           resources.renderer.get());
+                     },
+                     [&](lmpl::repaint_message) {
+                         get_window_msg_async(output_ports);
+                         get_frame_async(output_ports);
+                     },
+                     [&](auto msg) {
+                         bool dirty{false};
+                         auto input_event =
+                           lmtk::create_input_event(msg, resources.input_state);
+
+                         if (input_event)
+                         {
+                             dirty = on_input_event(input_event.value());
+                         }
+
+                         get_window_msg_async(output_ports);
+
+                         if (dirty)
+                         {
+                             get_frame_async(output_ports);
+                         }
+                     },
+                   };
+             }};
 }
 
-void app_flow_graph::handle(
-  app_flow_graph::frame_complete_msg const &frame_complete_msg,
-  app_flow_graph::proc_msg_ports_type &output_ports)
-{
-    resources.resource_sink.free_frame(
-      frame_complete_msg.frame, resources.renderer.get());
-    resources.frames.pop();
-}
-
-void app_flow_graph::handle(
-  app_flow_graph::new_frame_msg const &new_frame_msg,
-  app_flow_graph::proc_msg_ports_type &output_ports)
-{
-    resources.resource_sink.add_frame(new_frame_msg.frame);
-
-    frame_limiter_node.decrement.try_put(continue_msg{});
-
-    bool dirty;
-
-    try
-    {
-        dirty = on_new_frame(new_frame_msg.frame);
-    }
-    catch (...)
-    {
-        done_promise.set_value();
-        throw;
-    }
-
-    if (dirty)
-        ask_for_frame(output_ports);
-
-    ask_for_render(output_ports, new_frame_msg.frame);
-}
-
-void app_flow_graph::handle(
-  lmpl::window_message &window_message,
-  app_flow_graph::proc_msg_ports_type &output_ports)
-{
-    window_message >>
-      lm::variant_visitor{
-        [&](lmpl::close_message) {
-            remove_edge(wait_for_frame_node, handle_app_msg_node);
-            ask_for_quit(output_ports);
-        },
-        [&](lmpl::repaint_message) {
-            ask_for_window_msg(output_ports);
-            ask_for_frame(output_ports);
-        },
-        [&](auto msg) {
-            bool dirty{false};
-            auto input_event =
-              lmtk::create_input_event(msg, resources.input_state);
-
-            if (input_event)
-            {
-                dirty = handle_input_event(input_event.value());
-            }
-
-            ask_for_window_msg(output_ports);
-
-            if (dirty)
-            {
-                ask_for_frame(output_ports);
-            }
-        },
-      };
-}
-
-bool app_flow_graph::handle_input_event(lmtk::input_event const &input_event)
-{
-    try
-    {
-        return on_input_event(input_event);
-    }
-    catch (...)
-    {
-        done_promise.set_value();
-        throw;
-    }
-}
-
-void app_flow_graph::handle_quit_msg()
-{
-    try
-    {
-        on_quit();
-    }
-    catch (...)
-    {
-        done_promise.set_value();
-        throw;
-    }
-    done_promise.set_value();
-}
-
-void app_flow_graph::ask_for_quit(
-  app_flow_graph::proc_msg_ports_type &output_ports) const
-{
-    lm::try_put<proc_msg_outputs_type>(output_ports, quit_app_msg{});
-}
-
-void app_flow_graph::ask_for_window_msg(
+void app_flow_graph::get_window_msg_async(
   app_flow_graph::proc_msg_ports_type &output_ports) const
 {
     lm::try_put<proc_msg_outputs_type>(output_ports, request_window_msg_msg{});
 }
 
-void app_flow_graph::ask_for_frame(
+void app_flow_graph::get_frame_async(
   app_flow_graph::proc_msg_ports_type &output_ports) const
 {
     lm::try_put<proc_msg_outputs_type>(output_ports, request_frame_msg{});
 }
 
-void app_flow_graph::ask_for_render(
+void app_flow_graph::start_render_async(
   app_flow_graph::proc_msg_ports_type &output_ports,
   lmgl::iframe *frame) const
 {
-    lm::try_put<proc_msg_outputs_type>(output_ports, submit_frame_msg{frame});
+    lm::try_put<proc_msg_outputs_type>(output_ports, render_frame_msg{frame});
 }
 
 void app_flow_graph::enter()

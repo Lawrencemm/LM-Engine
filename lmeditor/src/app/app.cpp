@@ -169,7 +169,6 @@ void editor_app::on_quit()
     }
 
     resource_cache.move_resources(resources.resource_sink);
-    resources.resource_sink.free_orphans(resources.renderer.get());
 }
 
 void editor_app::focus_component(lmtk::component_interface *component)

@@ -40,7 +40,7 @@ class app_flow_graph
     {
         lmgl::iframe *frame;
     };
-    struct submit_frame_msg
+    struct render_frame_msg
     {
         lmgl::iframe *frame;
     };
@@ -59,7 +59,7 @@ class app_flow_graph
     using proc_msg_outputs_type = tbb::flow::tuple<
       request_window_msg_msg,
       request_frame_msg,
-      submit_frame_msg,
+      render_frame_msg,
       quit_app_msg>;
 
     using proc_msg_node_type =
@@ -72,36 +72,24 @@ class app_flow_graph
     lm::wait_node<request_window_msg_msg, appmsg> wait_for_window_msg_node;
     tbb::flow::limiter_node<request_frame_msg> frame_limiter_node;
     lm::wait_node<request_frame_msg, appmsg> wait_for_frame_node;
-    tbb::flow::function_node<submit_frame_msg, frame_submitted_msg>
-      submit_frame_node;
+    tbb::flow::function_node<render_frame_msg, frame_submitted_msg>
+      render_frame_node;
     lm::wait_node<frame_submitted_msg, appmsg> wait_frame_finish_node;
 
     proc_msg_node_type handle_app_msg_node;
 
-    tbb::flow::function_node<quit_app_msg> quit_app_node;
-
     std::promise<void> done_promise;
+    bool quitting{false};
 
     void handle_app_msg(appmsg &msg, proc_msg_ports_type &output_ports);
-    void handle(
-      lmpl::window_message &window_message,
-      app_flow_graph::proc_msg_ports_type &output_ports);
 
-    bool handle_input_event(lmtk::input_event const &input_event);
-    void handle_quit_msg();
-    void ask_for_render(proc_msg_ports_type &output_ports, lmgl::iframe *frame)
-      const;
-    void ask_for_frame(proc_msg_ports_type &output_ports) const;
-    void ask_for_window_msg(proc_msg_ports_type &output_ports) const;
-    void ask_for_quit(proc_msg_ports_type &output_ports) const;
-    void handle(
-      app_flow_graph::new_frame_msg const &new_frame_msg,
-      app_flow_graph::proc_msg_ports_type &output_ports);
-    void handle(
-      app_flow_graph::frame_complete_msg const &frame_complete_msg,
-      app_flow_graph::proc_msg_ports_type &output_ports);
+    void start_render_async(
+      proc_msg_ports_type &output_ports,
+      lmgl::iframe *frame) const;
+    void get_frame_async(proc_msg_ports_type &output_ports) const;
+    void get_window_msg_async(proc_msg_ports_type &output_ports) const;
     lmgl::iframe *wait_for_frame();
-    void submit_frame(lmgl::iframe *frame) const;
+    void render_frame(lmgl::iframe *frame) const;
 
   public:
     app_flow_graph(

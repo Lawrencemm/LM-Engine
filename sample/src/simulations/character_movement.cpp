@@ -1,6 +1,4 @@
 #include "character_movement.h"
-#include <range/v3/algorithm/copy.hpp>
-
 #include <iostream>
 #include <lmlib/math_constants.h>
 #include <lmng/animation.h>
@@ -13,16 +11,15 @@
 #include "../components/character_input.h"
 
 character_movement::character
-  character_movement::get_character(entt::registry &registry)
+  character_movement::get_player_character(entt::registry &registry)
 {
-    auto character_controller_count =
-      registry.size<lmng::character_controller>();
+    auto character_controller_count = registry.size<character_input>();
 
     if (character_controller_count != 1)
         throw std::runtime_error{
-          "One and only one character controller is supported."};
+          "One and only one character input is supported."};
 
-    auto entity = registry.view<lmng::character_controller>()[0];
+    auto entity = registry.view<character_input>()[0];
     return character{
       entity,
       registry.get<lmng::transform>(entity),
@@ -62,9 +59,11 @@ void character_movement::update(
   float dt,
   lmtk::input_state const &input_state)
 {
-    auto character = get_character(registry);
+    auto character = get_player_character(registry);
 
     apply_movement_controls(character, registry, dt, input_state);
+
+    control_animation(registry, 0);
 
     physics->step(registry, dt);
 
@@ -117,8 +116,6 @@ void character_movement::apply_movement_controls(
 
     Eigen::Vector3f const world_velocity = local_to_world * movement_direction;
 
-    control_animation(character, registry, dt, world_velocity);
-
     character.controller.requested_velocity = world_velocity;
 
     if (input_state.key_state[lmpl::key_code::Left])
@@ -146,73 +143,78 @@ void character_movement::apply_movement_controls(
     }
 }
 
-void character_movement::control_animation(
-  character &character,
-  entt::registry &registry,
-  float dt,
-  Eigen::Vector3f const &new_velocity)
+void character_movement::control_animation(entt::registry &registry, float dt)
 {
-    bool was_moving =
-      character.controller.requested_velocity.squaredNorm() > 0.001f;
+    registry.view<lmng::character_controller>().each(
+      [&](auto entity, auto &character_controller) {
+          auto current_velocity =
+            physics->get_character_velocity(registry, entity);
 
-    bool started_moving = !was_moving && new_velocity.squaredNorm() > 0.001f;
+          bool was_moving = current_velocity.squaredNorm() > 0.001f;
 
-    bool stopped_moving = was_moving && new_velocity.squaredNorm() < 0.001f;
+          bool started_moving =
+            !was_moving &&
+            character_controller.requested_velocity.squaredNorm() > 0.001f;
 
-    if (!was_moving)
-    {
-        auto maybe_animation_state =
-          registry.try_get<lmng::animation_state>(character.entity);
+          bool stopped_moving =
+            was_moving &&
+            character_controller.requested_velocity.squaredNorm() < 0.001f;
 
-        if (maybe_animation_state)
-        {
-            auto &animation_state = *maybe_animation_state;
+          if (!was_moving)
+          {
+              auto maybe_animation_state =
+                registry.try_get<lmng::animation_state>(entity);
 
-            bool left_forward = animation_state.progress >= 0.5f;
+              if (maybe_animation_state)
+              {
+                  auto &animation_state = *maybe_animation_state;
 
-            if (
-              (animation_state.rate < 0.f && !left_forward) ||
-              (animation_state.rate > 0.f && left_forward))
-            {
-                registry.remove<lmng::animation_state>(character.entity);
-            }
-        }
-    }
+                  bool left_forward = animation_state.progress >= 0.5f;
 
-    if (started_moving)
-    {
-        auto maybe_animation_state =
-          registry.try_get<lmng::animation_state>(character.entity);
+                  if (
+                    (animation_state.rate < 0.f && !left_forward) ||
+                    (animation_state.rate > 0.f && left_forward))
+                  {
+                      registry.remove<lmng::animation_state>(entity);
+                  }
+              }
+          }
 
-        if (maybe_animation_state)
-        {
-            auto &animation_state = *maybe_animation_state;
+          if (started_moving)
+          {
+              auto maybe_animation_state =
+                registry.try_get<lmng::animation_state>(entity);
 
-            bool left_forward = animation_state.progress >= 0.5f;
+              if (maybe_animation_state)
+              {
+                  auto &animation_state = *maybe_animation_state;
 
-            animation_state.rate =
-              std::abs(animation_state.rate) * (left_forward ? 1.f : -1.f);
-        }
-        else
-        {
-            animation_system.animate(
-              registry,
-              character.entity,
-              swing_arms_animation,
-              0.5f,
-              1.f,
-              lmng::anim_loop_type::pendulum);
-        }
-    }
+                  bool left_forward = animation_state.progress >= 0.5f;
 
-    if (stopped_moving)
-    {
-        auto &animation_state =
-          registry.get<lmng::animation_state>(character.entity);
+                  animation_state.rate = std::abs(animation_state.rate) *
+                                         (left_forward ? 1.f : -1.f);
+              }
+              else
+              {
+                  animation_system.animate(
+                    registry,
+                    entity,
+                    swing_arms_animation,
+                    0.5f,
+                    1.f,
+                    lmng::anim_loop_type::pendulum);
+              }
+          }
 
-        bool left_forward = animation_state.progress >= 0.5f;
+          if (stopped_moving)
+          {
+              auto &animation_state =
+                registry.get<lmng::animation_state>(entity);
 
-        animation_state.rate =
-          std::abs(animation_state.rate) * (left_forward ? -1.f : 1.f);
-    }
+              bool left_forward = animation_state.progress >= 0.5f;
+
+              animation_state.rate =
+                std::abs(animation_state.rate) * (left_forward ? -1.f : 1.f);
+          }
+      });
 }

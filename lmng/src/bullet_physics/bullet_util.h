@@ -17,6 +17,11 @@ inline Eigen::Quaternionf bt_to_quat(btQuaternion const &bt_quat)
     return {bt_quat.getW(), bt_quat.getX(), bt_quat.getY(), bt_quat.getZ()};
 }
 
+inline Eigen::Vector3f bt_to_vec(btVector3 const &vec)
+{
+    return Eigen::Vector3f{vec.getX(), vec.getY(), vec.getZ()};
+}
+
 inline void set_from_bt(Eigen::Vector3f &dest, btVector3 const &src)
 {
     dest[0] = src[0];

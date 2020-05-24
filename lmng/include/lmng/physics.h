@@ -39,6 +39,9 @@ class iphysics
       entt::registry &registry,
       entt::entity entity,
       Eigen::Vector3f const &euler_angles) = 0;
+    virtual Eigen::Vector3f get_character_velocity(
+      entt::registry const &registry,
+      entt::entity entity) = 0;
     virtual ~iphysics() = default;
 };
 

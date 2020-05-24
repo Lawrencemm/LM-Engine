@@ -130,4 +130,11 @@ void bt_physics::rotate_character(
     controller.ghost->setWorldTransform(xform);
 }
 
+Eigen::Vector3f bt_physics::get_character_velocity(
+  const entt::registry &registry,
+  entt::entity entity)
+{
+    return bt_to_vec(registry.get<bt_character_controller>(entity)
+                       .controller->getLinearVelocity());
+}
 } // namespace lmng

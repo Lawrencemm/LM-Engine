@@ -1,52 +1,62 @@
-Protagonist:
+entities:
   Protagonist:
-    Jump impulse: 10
-    Move force: 30
-  Rigid Body:
-    Friction: 0.5
-    Restitution: 0.25
-    Mass: 1
-  Transform:
-    Rotation: 0 0 0 1
-    Position: -8.5 1 0
-  Box Collider:
-    Extents: 1 1 1
-  Box Render:
-    Colour: 0.7 0.5 0.5
-    Extents: 1 1 1
-Enemy:
-  Enemy: ~
-  Rigid Body:
-    Friction: 0.75
-    Restitution: 0.25
-    Mass: 1
-  Transform:
-    Rotation: 0 0 0 1
-    Position: 8 1.1 0
-  Box Collider:
-    Extents: 1 1 1
-  Box Render:
-    Colour: 0.5 0.5 0.7
-    Extents: 1 1 1
-Ground:
-  Rigid Body:
-    Friction: 1
-    Restitution: 1
-    Mass: 0
-  Transform:
-    Rotation: 0 0 0 1
-    Position: 0 0 0
-  Box Collider:
-    Extents: 10 0.1 10
-  Box Render:
-    Colour: 0.5 0.5 0.5
-    Extents: 10 0.1 10
-Camera:
+    components:
+      Protagonist:
+        Jump impulse: 10
+        Move force: 30
+      Rigid Body:
+        Friction: 0.5
+        Restitution: 0.25
+        Mass: 1
+      Transform:
+        Rotation: 0.0 0.0 0.0 1.0
+        Position: -8.5 1.0 0.0
+      Box Collider:
+        Extents: 1.0 1.0 1.0
+      Box Render:
+        Colour: 0.7 0.5 0.5
+        Extents: 1.0 1.0 1.0
+    children: ~
+  Enemy:
+    components:
+      Enemy: ~
+      Rigid Body:
+        Friction: 0.75
+        Restitution: 0.25
+        Mass: 1
+      Transform:
+        Rotation: 0.0 0.0 0.0 1.0
+        Position: 8.0 1.1 0.0
+      Box Collider:
+        Extents: 1.0 1.0 1.0
+      Box Render:
+        Colour: 0.5 0.5 0.7
+        Extents: 1.0 1.0 1.0
+    children: ~
+  Ground:
+    components:
+      Rigid Body:
+        Friction: 1
+        Restitution: 1
+        Mass: 0
+      Transform:
+        Rotation: 0.0 0.0 0.0 1.0
+        Position: 0.0 0.0 0.0
+      Box Collider:
+        Extents: 10.0 0.1 10.0
+      Box Render:
+        Colour: 0.5 0.5 0.5
+        Extents: 10.0 0.1 10.0
+    children: ~
   Camera:
-    Active: 1
-    Far clip: 1000
-    Near clip: 0.1
-    Field of view: 1.0472
-  Transform:
-    Rotation: 0.19509 0 0 0.980785
-    Position: 0 10 -25
+    components:
+      Camera:
+        Active: 1
+        Far clip: 1000
+        Near clip: 0.1
+        Field of view: 1.0472
+      Transform:
+        Rotation: 0.19509 0.0 0.0 0.980785
+        Position: 0.0 10.0 -25.0
+    children: ~
+schema_version: 1

@@ -1,6 +1,7 @@
 #include <Eigen/Eigen>
 #include <fmt/format.h>
 #include <fstream>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/pose.h>
 #include <lmng/serialisation.h>
@@ -44,9 +45,10 @@ YAML::Node save_pose(entt::registry const &registry, entt::entity entity)
 {
     YAML::Node yaml;
 
-    visit_transform_children(registry, entity, [&](auto child) {
+    for (auto child : child_range{registry, entity})
+    {
         yaml[get_name(registry, child)] = output_child(registry, child);
-    });
+    }
 
     return yaml;
 }

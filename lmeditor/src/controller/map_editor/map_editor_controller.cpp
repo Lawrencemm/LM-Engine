@@ -18,7 +18,8 @@ map_editor_controller::map_editor_controller(
     : state{select_state{*this}},
       state_text{select_state::label},
       viewport{{camera_init}},
-      map{&map}
+      map{&map},
+      hierarchy_system{map}
 {
 }
 

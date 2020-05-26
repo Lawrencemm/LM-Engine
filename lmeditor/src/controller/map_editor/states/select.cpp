@@ -10,6 +10,7 @@ map_editor_controller::command delete_selected_command{
       {
           auto selected_box = args.controller.get_selection();
 
+          lmng::orphan_children(args.map, selected_box);
           args.map.destroy(selected_box);
           args.controller.clear_selection();
           return true;

@@ -1,4 +1,5 @@
 #include <lmpl/keyboard.h>
+#include <ostream>
 
 namespace lmpl
 {

@@ -25,7 +25,7 @@ class LmeditorConan(ConanFile):
         'OpenMesh/8.0@lawrencem/stable',
         'Catch2/2.6.1@catchorg/stable',
         'embed-resource/0.2@lawrencem/stable',
-        'fmt/5.3.0@bincrafters/stable',
+        'fmt/6.2.1',
         'clara/1.1.5@bincrafters/stable',
         'boost/1.73.0',
     )

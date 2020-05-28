@@ -173,6 +173,49 @@ LONG_PTR CALLBACK windows_window::WndProc(
           key_up_message{&me, (key_code)WIN_NATIVE_TO_HID[wparam]});
         break;
 
+    case WM_SYSKEYDOWN:
+        switch (wparam)
+        {
+        case VK_LMENU:
+            me.send_message(key_down_message{&me, key_code::LeftAlt});
+            break;
+
+        case VK_RMENU:
+            me.send_message(key_down_message{&me, key_code::RightAlt});
+            break;
+
+        case VK_F4:
+            me.send_message(close_message{&me});
+            break;
+
+        default:
+            me.send_message(
+              key_down_message{&me, (key_code)WIN_NATIVE_TO_HID[wparam]});
+            break;
+        }
+        break;
+
+    case WM_SYSKEYUP:
+        switch (wparam)
+        {
+        case VK_LMENU:
+            me.send_message(key_up_message{&me, key_code::LeftAlt});
+            break;
+
+        case VK_RMENU:
+            me.send_message(key_up_message{&me, key_code::RightAlt});
+            break;
+
+        default:
+            me.send_message(
+              key_up_message{&me, (key_code)WIN_NATIVE_TO_HID[wparam]});
+            break;
+        }
+        break;
+
+    case WM_MENUCHAR:
+        return MNC_CLOSE << 16;
+
     case WM_LBUTTONDOWN:
         SetCapture(me);
         me.send_message(mouse_button_down_message{

@@ -1,4 +1,5 @@
 #include "../map_editor_controller.h"
+#include <lmng/hierarchy.h>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/concat.hpp>
 
@@ -14,7 +15,7 @@ map_editor_controller::command select_parent{
       if (selected_box == reparent_state.entity)
           return false;
 
-      lmng::set_transform_parent(args.map, reparent_state.entity, selected_box);
+      lmng::reparent(args.map, reparent_state.entity, selected_box);
       args.controller.leave_state();
       return true;
   },

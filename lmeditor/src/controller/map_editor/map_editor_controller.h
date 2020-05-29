@@ -5,6 +5,7 @@
 #include <entt/entity/fwd.hpp>
 #include <lmeditor/model/command.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/hierarchy.h>
 #include <lmng/physics.h>
 #include <lmng/shapes.h>
 #include <lmng/transform.h>
@@ -28,6 +29,7 @@ class map_editor_controller : public viewport
       float extent);
 
     entt::registry *map;
+    lmng::hierarchy_system hierarchy_system;
 
     bool have_selection() const;
 

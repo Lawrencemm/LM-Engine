@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <iostream>
 #include <lmlib/range.h>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/pose.h>
 #include <lmng/reflection.h>
@@ -23,11 +24,10 @@ std::pair<entt::entity, std::array<entt::entity, 4>>
       children.end(),
       std::array<lmng::name, 4>{"1", "11", "111", "2"}.begin());
 
-    registry.assign<lmng::transform_parent>(
+    registry.assign<lmng::parent>(
       children.begin(),
       children.end(),
-      std::array<lmng::transform_parent, 4>{
-        parent, children[0], children[1], parent}
+      std::array<lmng::parent, 4>{parent, children[0], children[1], parent}
         .begin());
 
     return {parent, children};
@@ -36,6 +36,7 @@ std::pair<entt::entity, std::array<entt::entity, 4>>
 TEST_CASE("Save/load pose")
 {
     entt::registry registry;
+    lmng::hierarchy_system hierarchy_system{registry};
 
     auto [parent, children] = create_test_hierarchy(registry);
 
@@ -51,22 +52,24 @@ TEST_CASE("Save/load pose")
 
     auto yaml = lmng::save_pose(registry, parent);
 
-    registry = entt::registry{};
+    auto loaded_registry = entt::registry{};
 
-    std::tie(parent, children) = create_test_hierarchy(registry);
+    std::tie(parent, children) = create_test_hierarchy(loaded_registry);
 
-    registry.assign<lmng::transform>(children.begin(), children.end(), {});
+    loaded_registry.assign<lmng::transform>(
+      children.begin(), children.end(), {});
 
-    lmng::load_pose(registry, parent, yaml);
+    lmng::load_pose(loaded_registry, parent, yaml);
 
-    registry.assign<lmng::transform>(parent);
+    loaded_registry.assign<lmng::transform>(parent);
 
     for (auto i : lm::range(4))
     {
-        CHECK(registry.get<lmng::transform>(children[i]) == transforms[i]);
+        CHECK(
+          loaded_registry.get<lmng::transform>(children[i]) == transforms[i]);
     }
 
-    auto resolved_child = lmng::resolve_transform(registry, children[2]);
+    auto resolved_child = lmng::resolve_transform(loaded_registry, children[2]);
 
     auto composed_transform = lmng::compose_transforms(
       lmng::compose_transforms(transforms[0], transforms[1]), transforms[2]);

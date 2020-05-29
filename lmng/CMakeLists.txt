@@ -23,6 +23,7 @@ add_library(
   src/pose.cpp
   src/animation.cpp
   src/extents.cpp
+  src/hierarchy.cpp
 )
 
 target_include_directories(
@@ -50,9 +51,8 @@ endif()
 add_executable(
   test_lmng
   test/test_lmng.cpp
-  test/test_transform.cpp
-  test/test_transform_hierarchy_visit.cpp
   test/test_pose
+  test/test_hierarchy.cpp
 )
 
 target_link_libraries(

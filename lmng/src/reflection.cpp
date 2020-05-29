@@ -1,7 +1,7 @@
 #include <entt/entt.hpp>
-
 #include <fmt/format.h>
 #include <lmng/camera.h>
+#include <lmng/hierarchy.h>
 #include <lmng/kinematic.h>
 #include <lmng/name.h>
 #include <lmng/physics.h>
@@ -188,8 +188,8 @@ void reflect_types()
       .REFLECT_MEMBER(transform, position, "Position")
       .REFLECT_MEMBER(transform, rotation, "Rotation");
 
-    REFLECT_TYPE(transform_parent, "Transform Parent")
-      .REFLECT_MEMBER(transform_parent, entity, "Entity");
+    REFLECT_TYPE(parent, "Transform Parent")
+      .REFLECT_MEMBER(parent, entity, "Entity");
 
     REFLECT_TYPE(rigid_body, "Rigid Body")
       .REFLECT_MEMBER(rigid_body, mass, "Mass")

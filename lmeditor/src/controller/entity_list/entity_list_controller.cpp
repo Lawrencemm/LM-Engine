@@ -3,9 +3,9 @@
 #include <entt/fwd.hpp>
 #include <lmeditor/model/command.h>
 #include <lmeditor/model/selection.h>
-#include <lmng/name.h>
 #include <lmgl/lmgl.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/name.h>
 #include <lmtk/component.h>
 #include <lmtk/font.h>
 #include <lmtk/input_event.h>
@@ -20,6 +20,9 @@ entity_list_controller::entity_list_controller(entt::registry &registry)
       name_destroyed_connection{
         registry.on_destroy<lmng::name>()
           .connect<&entity_list_controller::on_name_destroyed>(this)},
+      name_replaced_connection{
+        registry.on_replace<lmng::name>()
+          .connect<&entity_list_controller::on_name_replaced>(this)},
       selected_entity_index{0},
       named_entities_count{0}
 {
@@ -114,5 +117,12 @@ void entity_list_controller::on_name_contructed(
 {
     dirty = true;
     named_entities_count++;
+}
+
+void entity_list_controller::on_name_replaced(
+  entt::registry &registry,
+  entt::entity entity)
+{
+    dirty = true;
 }
 } // namespace lmeditor

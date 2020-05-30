@@ -28,11 +28,13 @@ class entity_list_controller
 
     void on_name_destroyed(entt::registry &registry, entt::entity entity);
 
+    void on_name_replaced(entt::registry &registry, entt::entity entity);
+
     size_t size();
 
     entt::registry *registry;
     entt::scoped_connection name_constructed_connection,
-      name_destroyed_connection;
+      name_destroyed_connection, name_replaced_connection;
     int selected_entity_index, named_entities_count;
     std::vector<entt::entity> entities;
     bool dirty{false};

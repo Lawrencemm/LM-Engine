@@ -1,4 +1,6 @@
 #include "character_movement.h"
+#include "../components/character_input.h"
+#include "../components/robot.h"
 #include <iostream>
 #include <lmlib/math_constants.h>
 #include <lmng/animation.h>
@@ -7,8 +9,6 @@
 #include <lmng/simulation.h>
 #include <lmng/transform.h>
 #include <yaml-cpp/yaml.h>
-
-#include "../components/character_input.h"
 
 character_movement::character
   character_movement::get_player_character(entt::registry &registry)
@@ -145,8 +145,8 @@ void character_movement::apply_movement_controls(
 
 void character_movement::control_animation(entt::registry &registry, float dt)
 {
-    registry.view<lmng::character_controller>().each(
-      [&](auto entity, auto &character_controller) {
+    registry.view<lmng::character_controller, robot>().each(
+      [&](auto entity, auto &character_controller, auto) {
           auto current_velocity =
             physics->get_character_velocity(registry, entity);
 

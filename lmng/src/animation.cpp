@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fstream>
 #include <lmng/animation.h>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/serialisation.h>
 #include <lmng/transform.h>
@@ -174,13 +175,19 @@ void animation_system::tween_poses(
     for (auto const &[bone_name, from, target] :
          ranges::views::zip(second.bone_names, first.targets, second.targets))
     {
-        auto &transform =
-          registry.get<lmng::transform>(lmng::find_entity(registry, bone_name));
+        auto bone_entity = lmng::find_child(registry, entity, bone_name);
+        if (bone_entity == entt::null)
+        {
+            throw std::runtime_error{"Entity " + bone_name + " not found"};
+        }
+        auto transform = registry.get<lmng::transform>(bone_entity);
 
         transform.position =
           from.position + distance * (target.position - from.position);
 
         transform.rotation = from.rotation.slerp(distance, target.rotation);
+
+        registry.replace<lmng::transform>(bone_entity, transform);
     }
 }
 } // namespace lmng

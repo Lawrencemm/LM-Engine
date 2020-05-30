@@ -1,7 +1,7 @@
 #include "components/character_input.h"
 #include "components/enemy.h"
 #include "components/protagonist.h"
-
+#include "components/robot.h"
 #include <lmng/reflection.h>
 
 void reflect_types_cpp()
@@ -14,4 +14,6 @@ void reflect_types_cpp()
 
     REFLECT_TYPE(character_input, "Character Input")
       .REFLECT_MEMBER(character_input, radians_per_dot, "Radians per dot");
+
+    REFLECT_TYPE(robot, "Robot");
 }

@@ -24,13 +24,6 @@ class entity_list_component : public component_interface
     entity_list_component &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    void add_entity(
-      lmtk::text_layout_factory const &text_layout_factory,
-      int xpos,
-      entt::registry const &registry,
-      entt::entity entity,
-      std::string const &name);
-
     void reset(
       lmgl::irenderer &renderer,
       lmgl::resource_sink &resource_sink,

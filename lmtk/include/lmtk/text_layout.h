@@ -81,7 +81,7 @@ struct text_layout_factory
     std::array<float, 3> colour{0.f, 0.f, 0.f};
     lm::point2i position{0, 0};
 
-    text_layout create(std::string const &text) const
+    text_layout create(std::string const &text)
     {
         return text_layout{
           text_layout_init{
@@ -89,19 +89,6 @@ struct text_layout_factory
             .resource_cache = resource_cache,
             .colour = colour,
             .position = position,
-            .text = text,
-          },
-        };
-    }
-
-    text_layout create(std::string const &text, int xoffset) const
-    {
-        return text_layout{
-          text_layout_init{
-            .renderer = renderer,
-            .resource_cache = resource_cache,
-            .colour = colour,
-            .position = {position.x + xoffset, position.y},
             .text = text,
           },
         };

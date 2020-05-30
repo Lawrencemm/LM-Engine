@@ -48,7 +48,7 @@ rect::rect(
 bool rect::add_to_frame(lmgl::iframe *frame)
 {
     auto [width, height] = frame->size();
-    const uniform_buffer &buf = uniform_buffer{
+    uniform_buffer buf = uniform_buffer{
       2.f * position.x / width - 1,
       2.f * position.y / height - 1,
       2.f * size.width / width,

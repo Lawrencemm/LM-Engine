@@ -1,6 +1,5 @@
 #include "entity_list_component.h"
 #include <entt/entt.hpp>
-#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmtk/vlayout.h>
 
@@ -61,24 +60,6 @@ bool entity_list_component::add_to_frame(lmgl::iframe *frame)
     return false;
 }
 
-void entity_list_component::add_entity(
-  lmtk::text_layout_factory const &text_layout_factory,
-  int xpos,
-  entt::registry const &registry,
-  entt::entity entity,
-  std::string const &name)
-{
-    line_layouts.emplace_back(text_layout_factory.create(name, xpos));
-    xpos += 15;
-    for (auto child : lmng::child_range{registry, entity})
-        add_entity(
-          text_layout_factory,
-          xpos,
-          registry,
-          child,
-          registry.get<lmng::name>(child).string);
-}
-
 void entity_list_component::reset(
   lmgl::irenderer &renderer,
   lmgl::resource_sink &resource_sink,
@@ -93,10 +74,10 @@ void entity_list_component::reset(
     auto layout_factory = lmtk::text_layout_factory{
       renderer, resource_cache, {1.f, 1.f, 1.f}, position};
 
-    registry.view<lmng::name const>(entt::exclude<lmng::parent>)
-      .each([&](auto entity, auto &name_component) {
-          add_entity(
-            layout_factory, 0, registry, entity, name_component.string);
+    registry.view<lmng::name const>().each(
+      [&](auto entity, auto &name_component) {
+          line_layouts.emplace_back(
+            layout_factory.create(name_component.string));
       });
 
     lmtk::layout_vertical(lmtk::vertical_layout{position.y, 12}, line_layouts);

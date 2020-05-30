@@ -44,12 +44,15 @@ class character_movement
       float dt,
       lmtk::input_state const &input_state);
 
+    void move_robots(entt::registry &registry, float dt);
+
     void control_animation(entt::registry &registry, float dt);
 
     void camera_follow_character(
       entt::registry &registry,
       character const &character);
 
+    entt::entity ground;
     lmng::pose left_forward_pose, right_forward_pose;
     lmng::animation swing_arms_animation;
 };

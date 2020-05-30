@@ -40,6 +40,7 @@ set(
   src/graphics/camera.cpp
 
   src/util/remote_executor.cpp
+  src/geometry/intersection.cpp
 )
 
 set(
@@ -56,6 +57,7 @@ set(
 
   ${fmt_LIBRARIES}
   ${TBB_LIBRARIES}
+  Boost::Boost
 )
 
 set(
@@ -81,21 +83,25 @@ set(
   ${COMPILER_INTERFACE_OPTIONS}
 )
 
-add_library(lmlib_base OBJECT ${SOURCES})
+add_library(
+  lmlib
+  SHARED
+
+  ${SOURCES}
+)
 
 target_include_directories(
-  lmlib_base
+  lmlib
 
   PUBLIC
   ${INCLUDE_DIRS}
 
   PRIVATE
-  include/lmlib
   ${scope_guard_INCLUDES}
 )
 
 target_compile_definitions(
-  lmlib_base
+  lmlib
 
   PUBLIC
   ${DEFINITIONS}
@@ -105,7 +111,7 @@ target_compile_definitions(
 )
 
 target_compile_options(
-  lmlib_base
+  lmlib
 
   PUBLIC
   ${OPTIONS}
@@ -114,12 +120,6 @@ target_compile_options(
   ${INTERFACE_OPTIONS}
 )
 
-add_library(
-  lmlib
-  SHARED
-
-  $<TARGET_OBJECTS:lmlib_base>
-)
 target_link_libraries(
   lmlib
 
@@ -127,16 +127,7 @@ target_link_libraries(
   ${LIBS}
 )
 
-target_include_directories(
-  lmlib
-
-  PUBLIC
-  ${INCLUDE_DIRS}
-  include
-)
-
 set_property(TARGET lmlib PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET lmlib_base PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 install(
   TARGETS lmlib
@@ -148,8 +139,9 @@ install(
 add_executable(
   test_lmlib
 
-  src/test/test_lmlib.cpp
+  test/test_lmlib.cpp
   src/geometry/test_geometry.cpp
+  test/test_intersection.cpp
 )
 
 target_include_directories(

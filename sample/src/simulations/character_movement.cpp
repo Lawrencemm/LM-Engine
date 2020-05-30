@@ -1,11 +1,14 @@
 #include "character_movement.h"
 #include "../components/character_input.h"
 #include "../components/robot.h"
+#include <boost/geometry.hpp>
 #include <iostream>
+#include <lmlib/intersection.h>
 #include <lmlib/math_constants.h>
 #include <lmng/animation.h>
 #include <lmng/camera.h>
 #include <lmng/kinematic.h>
+#include <lmng/name.h>
 #include <lmng/simulation.h>
 #include <lmng/transform.h>
 #include <yaml-cpp/yaml.h>
@@ -31,6 +34,7 @@ character_movement::character_movement(lmng::simulation_init const &init)
     : physics{lmng::create_physics(init.registry)},
       camera{init.registry.create()},
       animation_system{},
+      ground{lmng::find_entity(init.registry, "Ground")},
       left_forward_pose{animation_system.load_pose(
         init.registry,
         "left_forward",
@@ -63,7 +67,9 @@ void character_movement::update(
 
     apply_movement_controls(character, registry, dt, input_state);
 
-    control_animation(registry, 0);
+    move_robots(registry, dt);
+
+    control_animation(registry, dt);
 
     physics->step(registry, dt);
 
@@ -216,5 +222,50 @@ void character_movement::control_animation(entt::registry &registry, float dt)
               animation_state.rate =
                 std::abs(animation_state.rate) * (left_forward ? -1.f : 1.f);
           }
+      });
+}
+
+void character_movement::move_robots(entt::registry &registry, float dt)
+{
+    registry.view<lmng::character_controller, lmng::transform, robot>().each(
+      [&](
+        auto entity,
+        auto const character_controller,
+        auto const transform,
+        auto) {
+          auto ground_extents =
+            registry.get<lmng::box_collider>(ground).extents;
+          auto ground_transform = registry.get<lmng::transform>(ground);
+
+          Eigen::Vector2f ground_extents2{ground_extents[0], ground_extents[2]};
+          Eigen::Vector2f pos_ground_relative{
+            transform.position.x() - ground_transform.position.x(),
+            transform.position.z() - ground_transform.position.z()};
+
+          if (boost::geometry::within(
+                pos_ground_relative, lm::get_box(ground_extents2)))
+          {
+              auto [segment, distance] =
+                lm::closest_edge(pos_ground_relative, ground_extents2);
+
+              auto projected = transform.rotation * Eigen::Vector3f::UnitZ();
+              if (
+                distance <= 1.f &&
+                boost::geometry::intersects(
+                  segment,
+                  lm::segment2f{
+                    pos_ground_relative,
+                    pos_ground_relative +
+                      Eigen::Vector2f{projected[0], projected[2]}}))
+              {
+                  physics->rotate_character(
+                    registry, entity, {0.f, lm::pi, 0.f});
+              }
+          }
+
+          registry.replace<lmng::character_controller>(
+            entity,
+            lmng::character_controller{
+              transform.rotation * Eigen::Vector3f::UnitZ()});
       });
 }

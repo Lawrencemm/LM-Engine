@@ -4,7 +4,7 @@ entities:
       Character Controller: ~
       Transform:
         Rotation: 0.0 0.707107 0.0 0.707107
-        Position: -8.5 1.1 0.0
+        Position: 6 1.1 0.0
       Box Collider:
         Extents: 0.48 1.0 0.37
       Robot: ~

@@ -19,6 +19,7 @@ class LmlibConan(ConanFile):
         ('scope_guard/0.2.3@lawrencem/stable', 'private'),
         ('Vulkan/1.1.92.1@lawrencem/stable', 'private'),
         'fmt/6.2.1',
+        'boost/1.73.0',
     )
     build_requires = (
         'Catch2/2.5.0@catchorg/stable',

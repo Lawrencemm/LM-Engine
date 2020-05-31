@@ -42,10 +42,6 @@ class bt_physics : public iphysics
       Eigen::Vector3f const &vector) override;
     void on_tick(btDynamicsWorld *world, btScalar dt);
     bool is_touched(entt::registry &registry, entt::entity entity) override;
-    void rotate_character(
-      entt::registry &registry,
-      entt::entity entity,
-      Eigen::Vector3f const &euler_angles) override;
 
     void create_broadphase();
     void create_collision_config();

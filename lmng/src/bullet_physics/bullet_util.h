@@ -22,6 +22,14 @@ inline Eigen::Vector3f bt_to_vec(btVector3 const &vec)
     return Eigen::Vector3f{vec.getX(), vec.getY(), vec.getZ()};
 }
 
+inline btTransform bt_transform(lmng::transform const &transform)
+{
+    return btTransform{
+      quat_to_bt(transform.rotation),
+      vec_to_bt(transform.position),
+    };
+}
+
 inline void set_from_bt(Eigen::Vector3f &dest, btVector3 const &src)
 {
     dest[0] = src[0];

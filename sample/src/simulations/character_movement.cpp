@@ -124,28 +124,27 @@ void character_movement::apply_movement_controls(
 
     character.controller.requested_velocity = world_velocity;
 
+    float frame_rotation = lm::pi * dt;
+    float rotation_result{0.f};
+
     if (input_state.key_state[lmpl::key_code::Left])
     {
-        physics->rotate_character(
-          registry,
-          character.entity,
-          Eigen::Vector3f{
-            0.f,
-            -lm::pi * dt,
-            0.f,
-          });
+        rotation_result -= frame_rotation;
     }
-
     if (input_state.key_state[lmpl::key_code::Right])
     {
-        physics->rotate_character(
-          registry,
+        rotation_result += frame_rotation;
+    }
+
+    if (rotation_result != 0.f)
+    {
+        auto transform = registry.get<lmng::transform>(character.entity);
+        registry.replace<lmng::transform>(
           character.entity,
-          Eigen::Vector3f{
-            0.f,
-            lm::pi * dt,
-            0.f,
-          });
+          lmng::transform{
+            transform.position,
+            transform.rotation *
+              Eigen::AngleAxisf{rotation_result, Eigen::Vector3f::UnitY()}});
     }
 }
 
@@ -258,8 +257,12 @@ void character_movement::move_robots(entt::registry &registry, float dt)
                     pos_ground_relative +
                       Eigen::Vector2f{projected[0], projected[2]}}))
               {
-                  physics->rotate_character(
-                    registry, entity, {0.f, lm::pi, 0.f});
+                  registry.replace<lmng::transform>(
+                    entity,
+                    lmng::transform{
+                      transform.position,
+                      transform.rotation *
+                        Eigen::AngleAxisf{lm::pi, Eigen::Vector3f::UnitY()}});
               }
           }
 

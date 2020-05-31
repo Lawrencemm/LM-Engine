@@ -35,10 +35,6 @@ class iphysics
       entt::entity entity,
       Eigen::Vector3f const &vector) = 0;
     virtual bool is_touched(entt::registry &registry, entt::entity entity) = 0;
-    virtual void rotate_character(
-      entt::registry &registry,
-      entt::entity entity,
-      Eigen::Vector3f const &euler_angles) = 0;
     virtual Eigen::Vector3f get_character_velocity(
       entt::registry const &registry,
       entt::entity entity) = 0;

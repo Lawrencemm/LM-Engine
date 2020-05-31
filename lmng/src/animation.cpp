@@ -89,49 +89,55 @@ void animation_system::update_animation(
 
     float delta = animation_state.rate * dt;
 
-    float keyframe_gap = std::abs(next_keyframe->time - prev_keyframe->time);
+    float transition_period = next_keyframe->time - prev_keyframe->time;
 
-    float keyframe_progress =
-      std::abs(animation_state.progress - prev_keyframe->time);
+    float transition_progress = animation_state.progress - prev_keyframe->time;
 
     tween_poses(
       registry,
       entity,
       poses[prev_keyframe->pose],
       poses[next_keyframe->pose],
-      (keyframe_progress + delta) / keyframe_gap);
+      (transition_progress + delta) / transition_period);
 
-    advance_animation(animation_state, animation_data, next_keyframe, delta);
+    registry.replace<lmng::animation_state>(
+      entity,
+      advance_animation(
+        animation_state, animation_data, prev_keyframe, next_keyframe, delta));
 }
 
-void animation_system::advance_animation(
-  animation_state &animation_state,
+animation_state animation_system::advance_animation(
+  animation_state const animation_state,
   animation_system::animation_data const &animation_data,
+  keyframe_list::iterator const &prev_keyframe,
   keyframe_list::iterator const &next_keyframe,
   float delta)
 {
-    float to_next = std::abs(next_keyframe->time - animation_state.progress);
+    lmng::animation_state new_state = animation_state;
+    new_state.progress += delta;
 
-    if (to_next - std::abs(delta) <= 0)
+    bool forward = !std::signbit(delta);
+
+    float to_next = forward ? next_keyframe->time - animation_state.progress
+                            : animation_state.progress - prev_keyframe->time;
+
+    if (to_next <= 0)
     {
-        bool forward = !std::signbit(delta);
-
         bool at_end = forward
                         ? next_keyframe + 1 == animation_data.keyframes.end()
-                        : next_keyframe == animation_data.keyframes.begin();
+                        : prev_keyframe == animation_data.keyframes.begin();
 
         if (at_end)
         {
             switch (animation_state.loop_type)
             {
             case anim_loop_type::pendulum:
-                animation_state.rate = -animation_state.rate;
-                delta = -delta;
+                new_state.rate = -animation_state.rate;
             }
         }
     }
 
-    animation_state.progress += delta;
+    return new_state;
 }
 
 auto animation_system::get_keyframes(
@@ -139,29 +145,23 @@ auto animation_system::get_keyframes(
   animation_system::animation_data &animation_data)
   -> std::pair<keyframe_list::iterator, keyframe_list::iterator>
 {
-    keyframe_list::iterator prev;
-    keyframe_list::iterator next;
+    if (animation_state.progress < animation_data.keyframes.front().time)
+        return {
+          animation_data.keyframes.begin(),
+          animation_data.keyframes.begin() + 1};
 
     for (auto keyframe_iterator = animation_data.keyframes.begin();
          keyframe_iterator != animation_data.keyframes.end();
          ++keyframe_iterator)
     {
-        if (keyframe_iterator->time < animation_state.progress)
+        if (animation_state.progress > keyframe_iterator->time)
         {
-            if (animation_state.rate > 0)
-            {
-                prev = keyframe_iterator;
-                next = keyframe_iterator + 1;
-            }
-            else
-            {
-                prev = keyframe_iterator + 1;
-                next = keyframe_iterator;
-            }
+            return {keyframe_iterator, keyframe_iterator + 1};
         }
     }
 
-    return {prev, next};
+    return {
+      animation_data.keyframes.end() - 1, animation_data.keyframes.end() - 2};
 }
 
 void animation_system::tween_poses(

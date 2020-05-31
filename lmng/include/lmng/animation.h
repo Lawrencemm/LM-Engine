@@ -78,9 +78,10 @@ class animation_system
       animation_state &animation_state,
       animation_data &animation_data);
 
-    void advance_animation(
-      animation_state &animation_state,
-      animation_data const &animation_data,
+    animation_state advance_animation(
+      animation_state const animation_state,
+      animation_system::animation_data const &animation_data,
+      keyframe_list::iterator const &prev_keyframe,
       keyframe_list::iterator const &next_keyframe,
       float delta);
 

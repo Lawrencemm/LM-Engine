@@ -13,8 +13,9 @@ sample_app::sample_app()
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); },
       },
-      registry{
-        lmng::deserialise(YAML::LoadFile("../sample/character_movement.lmap"))},
+      registry{lmng::deserialise(
+        YAML::LoadFile("../sample/character_movement.lmap"),
+        asset_cache)},
       simulation{lmng::simulation_init{registry, asset_cache}},
       visual_view{lmhuv::create_visual_view(lmhuv::visual_view_init{
         registry,

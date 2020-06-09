@@ -53,6 +53,7 @@ add_executable(
   test/test_lmng.cpp
   test/test_pose
   test/test_hierarchy.cpp
+  test/test_archetype.cpp
 )
 
 target_link_libraries(

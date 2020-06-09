@@ -1,3 +1,5 @@
+#include <lmng/archetype.h>
+#include <lmng/asset_cache.h>
 #include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/reflection.h>
@@ -22,11 +24,94 @@ YAML::Node serialise_component(
     return component_yaml;
 }
 
+std::vector<entt::entity>
+  get_sorted_children(entt::registry const &registry, entt::entity parent)
+{
+    std::vector<entt::entity> children;
+
+    for (auto child : child_range{registry, parent})
+    {
+        children.emplace_back(child);
+    }
+
+    ranges::actions::sort(children);
+
+    return std::move(children);
+}
+
+YAML::Node serialise_archetypal_entity(
+  entt::registry const &registry,
+  entt::entity entity,
+  meta_type_map const &type_map,
+  archetype const &archetype,
+  asset_cache &asset_cache)
+{
+    auto archetype_data =
+      asset_cache.load<lmng::archetype_data>(archetype.asset_path);
+    auto &archetype_yaml = archetype_data->yaml;
+
+    YAML::Node components_yaml;
+
+    reflect_components(
+      registry,
+      entity,
+      [&](lmng::any_component const &component_any) {
+          if (
+            component_any.any.type() == entt::resolve<parent>() ||
+            component_any.any.type() == entt::resolve<lmng::archetype>())
+              return;
+
+          auto component_yaml =
+            serialise_component(registry, component_any.any);
+
+          auto archetype_components_yaml = archetype_yaml["components"];
+
+          if (
+            auto archetype_component_yaml =
+              archetype_components_yaml[component_any.name()])
+          {
+              bool different{false};
+              for (auto const &archetype_field : archetype_component_yaml)
+              {
+                  if (
+                    component_yaml[archetype_field.first.as<std::string>()]
+                      .as<std::string>() !=
+                    archetype_field.second.as<std::string>())
+                  {
+                      different = true;
+                      break;
+                  }
+              }
+
+              if (different)
+              {
+                  components_yaml[component_any.name()] = component_yaml;
+              }
+          }
+      },
+      type_map);
+
+    YAML::Node entity_yaml;
+
+    entity_yaml["archetype"] = archetype.asset_path;
+    entity_yaml["components"] = components_yaml;
+    entity_yaml["children"] = YAML::Node{};
+
+    return entity_yaml;
+}
+
 YAML::Node serialise_entity(
   entt::registry const &registry,
   entt::entity entity,
-  meta_type_map const &type_map)
+  meta_type_map const &type_map,
+  asset_cache &asset_cache)
 {
+    if (auto parchetype = registry.try_get<archetype>(entity))
+    {
+        return serialise_archetypal_entity(
+          registry, entity, type_map, *parchetype, asset_cache);
+    }
+
     YAML::Node components_yaml;
 
     reflect_components(
@@ -41,21 +126,14 @@ YAML::Node serialise_entity(
       },
       type_map);
 
-    std::vector<entt::entity> children;
-
-    for (auto child : child_range{registry, entity})
-    {
-        children.emplace_back(child);
-    }
-
-    ranges::actions::sort(children);
+    auto children = get_sorted_children(registry, entity);
 
     YAML::Node children_yaml;
 
     for (auto child : children)
     {
         children_yaml[get_name(registry, child)] =
-          serialise_entity(registry, child, type_map);
+          serialise_entity(registry, child, type_map, asset_cache);
     }
 
     YAML::Node entity_yaml;
@@ -66,7 +144,10 @@ YAML::Node serialise_entity(
     return entity_yaml;
 }
 
-void serialise(entt::registry &registry, YAML::Node &yaml)
+void serialise(
+  entt::registry &registry,
+  asset_cache &asset_cache,
+  YAML::Node &yaml)
 {
     std::vector<entt::entity> entities;
 
@@ -84,40 +165,93 @@ void serialise(entt::registry &registry, YAML::Node &yaml)
     for (auto entity : entities)
     {
         entities_yaml[get_name(registry, entity)] =
-          serialise_entity(registry, entity, type_map);
+          serialise_entity(registry, entity, type_map, asset_cache);
     };
 
     yaml["entities"] = entities_yaml;
     yaml["schema_version"] = "1";
 }
 
-void deserialise_entity(
+void deserialise_components(
   entt::registry &registry,
-  std::pair<YAML::Node, YAML::Node> const &actor_yaml,
-  entt::entity parent)
+  entt::entity into_entity,
+  YAML::Node const &components_yaml)
 {
-    auto new_entity = registry.create();
-
-    auto name = actor_yaml.first.as<std::string>();
-
-    registry.assign<lmng::name>(new_entity, name);
-
-    if (parent != entt::null)
-        registry.assign<lmng::parent>(new_entity, parent);
-
-    for (auto const &component_yaml : actor_yaml.second["components"])
+    for (auto const &component_yaml : components_yaml)
     {
-        lmng::assign_to_entity(
+        assign_to_entity(
           deserialise_component(
             registry, component_yaml.first, component_yaml.second),
           registry,
-          new_entity);
+          into_entity);
+    }
+}
+
+void deserialise_entity(
+  entt::registry &registry,
+  std::string const &name,
+  YAML::Node const &yaml,
+  asset_cache &asset_cache,
+  entt::entity parent);
+
+void deserialise_children(
+  entt::registry &registry,
+  const YAML::Node &yaml,
+  asset_cache &asset_cache,
+  const entt::entity &entity)
+{
+    for (auto const &child_yaml : yaml)
+    {
+        deserialise_entity(
+          registry,
+          child_yaml.first.as<std::string>(),
+          child_yaml.second,
+          asset_cache,
+          entity);
+    }
+}
+
+void deserialise_archetype(
+  const entt::entity &entity,
+  entt::registry &registry,
+  std::string const &asset_path,
+  asset_cache &asset_cache)
+{
+    auto archetype_data = asset_cache.load<lmng::archetype_data>(asset_path);
+
+    deserialise_components(
+      registry, entity, archetype_data->yaml["components"]);
+
+    deserialise_children(
+      registry, archetype_data->yaml["children"], asset_cache, entity);
+}
+
+void deserialise_entity(
+  entt::registry &registry,
+  std::string const &name,
+  YAML::Node const &yaml,
+  asset_cache &asset_cache,
+  entt::entity parent)
+{
+    auto entity = registry.create();
+    registry.assign<lmng::name>(entity, name);
+
+    if (parent != entt::null)
+    {
+        registry.assign<lmng::parent>(entity, parent);
     }
 
-    for (auto const &child_yaml : actor_yaml.second["children"])
+    auto archetype_yaml = yaml["archetype"];
+
+    if (archetype_yaml)
     {
-        deserialise_entity(registry, child_yaml, new_entity);
+        auto asset_path = archetype_yaml.as<std::string>();
+        deserialise_archetype(entity, registry, asset_path, asset_cache);
+        registry.assign<archetype>(entity, asset_path);
     }
+
+    deserialise_components(registry, entity, yaml["components"]);
+    deserialise_children(registry, yaml["children"], asset_cache, entity);
 }
 
 void deserialise_v0(YAML::Node const &yaml, entt::registry &registry)
@@ -150,7 +284,10 @@ void deserialise_v0(YAML::Node const &yaml, entt::registry &registry)
     }
 }
 
-void deserialise(YAML::Node const &yaml, entt::registry &registry)
+void deserialise(
+  YAML::Node const &yaml,
+  entt::registry &registry,
+  asset_cache &asset_cache)
 {
     auto version_node = yaml["schema_version"];
 
@@ -162,7 +299,12 @@ void deserialise(YAML::Node const &yaml, entt::registry &registry)
 
     for (auto const &entity_yaml : yaml["entities"])
     {
-        deserialise_entity(registry, entity_yaml, entt::null);
+        deserialise_entity(
+          registry,
+          entity_yaml.first.as<std::string>(),
+          entity_yaml.second,
+          asset_cache,
+          entt::null);
     }
 }
 
@@ -197,10 +339,10 @@ entt::meta_any deserialise_component(
       registry, component_name_yaml.as<std::string>(), component_yaml);
 }
 
-entt::registry deserialise(YAML::Node const &yaml)
+entt::registry deserialise(YAML::Node const &yaml, asset_cache &asset_cache)
 {
     entt::registry registry;
-    deserialise(yaml, registry);
+    deserialise(yaml, registry, asset_cache);
     return std::move(registry);
 }
 } // namespace lmng

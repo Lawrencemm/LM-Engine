@@ -8,6 +8,7 @@
 #include <lmeditor/model/orbital_camera.h>
 #include <lmlib/variant_visitor.h>
 #include <lmng/animation.h>
+#include <lmng/archetype.h>
 #include <lmng/name.h>
 #include <lmtk/choice_list.h>
 #include <random>
@@ -46,8 +47,9 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         })},
       state{gui_state{*this}}
 {
-    asset_cache.add_loader<lmng::yaml_pose_loader>(project_dir);
-    asset_cache.add_loader<lmng::yaml_animation_loader>(project_dir);
+    asset_cache.emplace_loader<lmng::yaml_pose_loader>(project_dir);
+    asset_cache.emplace_loader<lmng::yaml_animation_loader>(project_dir);
+    asset_cache.emplace_loader<lmng::yaml_archetype_loader>(project_dir);
 
     tbb::task_group task_group;
 

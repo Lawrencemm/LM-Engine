@@ -1,5 +1,6 @@
 #include <entt/entt.hpp>
 #include <fmt/format.h>
+#include <lmng/archetype.h>
 #include <lmng/camera.h>
 #include <lmng/hierarchy.h>
 #include <lmng/kinematic.h>
@@ -206,5 +207,8 @@ void reflect_types()
       .REFLECT_MEMBER(camera, near_clip, "Near clip")
       .REFLECT_MEMBER(camera, far_clip, "Far clip")
       .REFLECT_MEMBER(camera, active, "Active");
+
+    REFLECT_TYPE(archetype, "Archetype")
+      .REFLECT_MEMBER(archetype, asset_path, "Asset path");
 }
 } // namespace lmng

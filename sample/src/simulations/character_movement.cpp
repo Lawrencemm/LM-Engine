@@ -216,12 +216,14 @@ void character_movement::control_animation(entt::registry &registry, float dt)
 
 void character_movement::move_robots(entt::registry &registry, float dt)
 {
-    registry.view<lmng::character_controller, lmng::transform, robot>().each(
-      [&](
-        auto entity,
-        auto const character_controller,
-        auto const transform,
-        auto) {
+    registry
+      .view<lmng::character_controller, lmng::transform, robot>(
+        entt::exclude<character_input>)
+      .each([&](
+              auto entity,
+              auto const character_controller,
+              auto const transform,
+              auto) {
           auto ground_extents =
             registry.get<lmng::box_collider>(ground).extents;
           auto ground_transform = registry.get<lmng::transform>(ground);

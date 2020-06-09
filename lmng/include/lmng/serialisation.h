@@ -1,5 +1,6 @@
 #pragma once
 
+#include "asset_cache.h"
 #include <entt/entity/registry.hpp>
 #include <yaml-cpp/node/node.h>
 
@@ -19,7 +20,14 @@ entt::meta_any deserialise_component(
   std::string const &component_type_name,
   YAML::Node const &component_yaml);
 
-void serialise(entt::registry &registry, YAML::Node &yaml);
-void deserialise(YAML::Node const &yaml, entt::registry &registry);
-entt::registry deserialise(YAML::Node const &yaml);
+void serialise(
+  entt::registry &registry,
+  asset_cache &asset_cache,
+  YAML::Node &yaml);
+void deserialise(
+  YAML::Node const &yaml,
+  entt::registry &registry,
+  asset_cache &asset_cache);
+
+entt::registry deserialise(YAML::Node const &yaml, asset_cache &asset_cache);
 } // namespace lmng

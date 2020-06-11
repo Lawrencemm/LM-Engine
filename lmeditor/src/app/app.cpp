@@ -7,6 +7,7 @@
 #include <lmeditor/component/saver.h>
 #include <lmeditor/model/orbital_camera.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/animation.h>
 #include <lmng/name.h>
 #include <lmtk/choice_list.h>
 #include <random>
@@ -45,6 +46,9 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         })},
       state{gui_state{*this}}
 {
+    asset_cache.add_loader<lmng::yaml_pose_loader>(project_dir);
+    asset_cache.add_loader<lmng::yaml_animation_loader>(project_dir);
+
     tbb::task_group task_group;
 
     task_group.run([&]() {
@@ -52,7 +56,6 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
           YAML::LoadFile((project_dir / "lmproj.yml").string());
 
         project_plugin.load(
-          project_dir,
           project_config["editor_plugin_name"].as<std::string>(),
           entt::meta_ctx{});
     });
@@ -373,6 +376,7 @@ lmtk::component editor_app::create_player()
       .map = map,
       .project_plugin = project_plugin,
       .simulation_index = selected_simulation_index,
+      .asset_cache = asset_cache,
       .position = {0, 0},
       .size = resources.window_size,
     }

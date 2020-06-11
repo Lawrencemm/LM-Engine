@@ -10,14 +10,13 @@ namespace lmeditor
 class project_plugin
 {
   public:
-    void load(
-      std::filesystem::path const &project_dir,
-      std::string const &plugin_name,
-      entt::meta_ctx const &meta_context);
+    void
+      load(std::string const &plugin_name, entt::meta_ctx const &meta_context);
 
     psimulation create_simulation(
       size_t simulation_index,
-      entt::registry &registry) const;
+      entt::registry &registry,
+      lmng::asset_cache &asset_cache) const;
 
     std::vector<std::string> const &get_simulation_names()
     {
@@ -25,7 +24,6 @@ class project_plugin
     };
 
   private:
-    std::filesystem::path project_dir;
     boost::dll::shared_library shared_library;
     std::vector<std::string> simulation_names;
     lmeditor::create_simulation_fn create_simulation_fn;

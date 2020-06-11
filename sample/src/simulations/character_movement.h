@@ -53,6 +53,5 @@ class character_movement
       character const &character);
 
     entt::entity ground;
-    lmng::pose left_forward_pose, right_forward_pose;
     lmng::animation swing_arms_animation;
 };

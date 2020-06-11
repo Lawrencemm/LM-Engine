@@ -35,18 +35,8 @@ character_movement::character_movement(lmng::simulation_init const &init)
       camera{init.registry.create()},
       animation_system{},
       ground{lmng::find_entity(init.registry, "Ground")},
-      left_forward_pose{animation_system.load_pose(
-        init.registry,
-        "left_forward",
-        YAML::LoadFile(
-          (init.project_dir / "assets/pose/left_forward.lpose").string()))},
-      right_forward_pose{animation_system.load_pose(
-        init.registry,
-        "right_forward",
-        YAML::LoadFile(
-          (init.project_dir / "assets/pose/right_forward.lpose").string()))},
-      swing_arms_animation{animation_system.load_animation(YAML::LoadFile(
-        (init.project_dir / "assets/animation/swing_arms.lmanim").string()))}
+      swing_arms_animation{
+        init.asset_cache.load<lmng::animation_data>("animation/swing_arms")}
 {
     init.registry.assign<lmng::transform>(camera);
     init.registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);

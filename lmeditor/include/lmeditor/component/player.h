@@ -47,6 +47,7 @@ struct player_init
     entt::registry const &map;
     lmeditor::project_plugin const &project_plugin;
     size_t simulation_index;
+    lmng::asset_cache &asset_cache;
     lm::point2i position;
     lm::size2i size;
 

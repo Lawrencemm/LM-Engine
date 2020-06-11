@@ -1,5 +1,5 @@
 Keyframes:
-  - Pose: right_forward
+  - Pose: pose/right_forward
     Time: 0
-  - Pose: left_forward
+  - Pose: pose/left_forward
     Time: 1

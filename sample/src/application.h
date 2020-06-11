@@ -20,6 +20,7 @@ class sample_app
 
     lmtk::app_resources resources;
     lmtk::app_flow_graph flow_graph;
+    lmng::asset_cache asset_cache;
 
     entt::registry registry;
     character_movement simulation;

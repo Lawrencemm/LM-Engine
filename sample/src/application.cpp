@@ -15,7 +15,7 @@ sample_app::sample_app()
       },
       registry{
         lmng::deserialise(YAML::LoadFile("../sample/character_movement.lmap"))},
-      simulation{{registry, "../sample"}},
+      simulation{lmng::simulation_init{registry, asset_cache}},
       visual_view{lmhuv::create_visual_view(lmhuv::visual_view_init{
         registry,
         resources.renderer.get(),

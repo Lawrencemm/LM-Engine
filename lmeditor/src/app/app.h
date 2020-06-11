@@ -59,6 +59,7 @@ class editor_app
 
     lmtk::app_resources resources;
     lmtk::resource_cache resource_cache;
+    lmng::asset_cache asset_cache;
     lmtk::app_flow_graph flow_graph;
 
     lmeditor::project_plugin project_plugin;

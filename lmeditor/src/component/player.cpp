@@ -6,8 +6,10 @@ player::player(player_init const &init)
     : registry{init.map.clone()},
       position{init.position},
       size{init.size},
-      simulation{
-        init.project_plugin.create_simulation(init.simulation_index, registry)},
+      simulation{init.project_plugin.create_simulation(
+        init.simulation_index,
+        registry,
+        init.asset_cache)},
       visual_view{
         lmhuv::visual_view_init{
           .registry = registry,

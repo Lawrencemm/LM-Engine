@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(lmlib)
+
 set(
   LMLIB_LIST_DIR
   ${CMAKE_CURRENT_LIST_DIR}
@@ -9,6 +10,7 @@ set(
 include(cmake/cpp_standard.cmake)
 
 include(cmake/dependencies.cmake)
+find_package(spdlog REQUIRED)
 
 if (MSVC)
   set(
@@ -58,6 +60,7 @@ set(
   ${fmt_LIBRARIES}
   ${TBB_LIBRARIES}
   Boost::Boost
+  spdlog::spdlog
 )
 
 set(
@@ -108,6 +111,9 @@ target_compile_definitions(
 
   INTERFACE
   ${INTERFACE_DEFINITIONS}
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
 )
 
 target_compile_options(

@@ -5,6 +5,7 @@
 #include <lmlib/math_constants.h>
 #include <lmng/archetype.h>
 #include <lmng/hierarchy.h>
+#include <lmng/logging.h>
 #include <lmng/name.h>
 #include <lmng/serialisation.h>
 #include <lmng/transform.h>
@@ -98,6 +99,7 @@ TEST_CASE("Map deserialisation with archetypes")
 
     entt::registry registry;
     lmng::hierarchy_system hierarchy_system{registry};
+    lmng::connect_component_logging(registry);
 
     lmng::deserialise(map_yaml, registry, asset_cache);
 

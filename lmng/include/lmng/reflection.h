@@ -1,7 +1,11 @@
 #pragma once
 
+#include "hierarchy.h"
+#include "name.h"
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 namespace lmng
 {
@@ -250,6 +254,71 @@ char const *get_data_name(entt::meta_data const &data);
 
 void set_meta_context(entt::meta_ctx const &ctx);
 void reflect_types();
+
+template <typename component_type>
+std::string
+  output_data_for_log(entt::registry const &registry, entt::entity entity)
+{
+    std::string message{"\ncomponent data"};
+
+    entt::resolve<component_type>().data([&](entt::meta_data data) {
+        message += fmt::format(
+          "\n    {}: {}",
+          lmng::get_data_name(data),
+          get_data(registry.get<component_type>(entity), data, registry));
+    });
+
+    return std::move(message);
+}
+
+template <typename component_type>
+void log_component_signal(
+  entt::registry &registry,
+  entt::entity entity,
+  char const *event_name,
+  char const *inflection)
+{
+    std::string message{"{} component {} {} entity {} with id {}"};
+
+    message += output_data_for_log<component_type>(registry, entity);
+
+    SPDLOG_INFO(
+      message,
+      event_name,
+      get_type_name(entt::resolve<component_type>()),
+      inflection,
+      get_name(registry, entity),
+      std::to_string(to_integral(entity)));
+}
+
+template <typename component_type>
+void log_assign(entt::registry &registry, entt::entity entity)
+{
+    log_component_signal<component_type>(registry, entity, "assign", "to");
+}
+
+template <typename component_type>
+void log_replace(entt::registry &registry, entt::entity entity)
+{
+    log_component_signal<component_type>(registry, entity, "replace", "on");
+}
+
+template <typename component_type>
+void log_destroy(entt::registry &registry, entt::entity entity)
+{
+    log_component_signal<component_type>(registry, entity, "destroy", "on");
+}
+
+template <typename component_type>
+void connect_logging(entt::registry &registry)
+{
+    registry.on_construct<component_type>()
+      .template connect<&log_assign<component_type>>();
+    registry.on_replace<component_type>()
+      .template connect<log_replace<component_type>>();
+    registry.on_destroy<component_type>()
+      .template connect<log_destroy<component_type>>();
+}
 } // namespace lmng
 
 #define REFLECT_MEMBER(type, member, name)                                     \
@@ -270,4 +339,5 @@ void reflect_types();
       .func<&lmng::replace_on_entity<_type>>("replace_on_entity"_hs)           \
       .func<&lmng::get_from_entity<_type>>("get_from_entity"_hs)               \
       .func<&lmng::remove_from_entity<_type>>("remove_from_entity"_hs)         \
-      .func<&lmng::clone<_type>>("clone"_hs)
+      .func<&lmng::clone<_type>>("clone"_hs)                                   \
+      .func<&lmng::connect_logging<_type>>("connect_logging"_hs)

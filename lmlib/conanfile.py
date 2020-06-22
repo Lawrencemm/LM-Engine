@@ -10,12 +10,13 @@ class LmlibConan(ConanFile):
     description = "<Description of Lmlib here>"
     topics = ("<Put some tag here>", "<here>", "<and here>")
     settings = "os", "compiler", "build_type", "arch"
-    default_options = {"TBB:shared": True, "fmt:header_only": True}
+    default_options = {"TBB:shared": True, "fmt:header_only": False}
     generators = "cmake_find_package", 'virtualenv'
     requires = (
         'eigen/3.3.5@conan/stable',
         'TBB/2019_U4@conan/stable',
         'range-v3/0.10.0@lawrencemm/stable',
+        'spdlog/1.6.1',
         ('scope_guard/0.2.3@lawrencem/stable', 'private'),
         ('Vulkan/1.1.92.1@lawrencem/stable', 'private'),
         'fmt/6.2.1',

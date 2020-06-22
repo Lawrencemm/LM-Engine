@@ -61,6 +61,13 @@ target_link_libraries(
   ${fmt_LIBRARIES}
 )
 
+target_compile_definitions(
+  lmgl
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
 if (WIN32)
   set(PLATFORM_DEFINITIONS VK_USE_PLATFORM_WIN32_KHR)
 elseif (UNIX)

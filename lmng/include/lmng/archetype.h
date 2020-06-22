@@ -36,3 +36,9 @@ class yaml_archetype_loader : public asset_loader_interface<archetype_data>
     std::filesystem::path project_dir;
 };
 } // namespace lmng
+
+inline std::ostream &operator<<(std::ostream &os, lmng::archetype const &archetype)
+{
+    os << archetype.asset_path;
+    return os;
+}

@@ -234,6 +234,7 @@ void deserialise_entity(
   entt::entity parent)
 {
     auto entity = registry.create();
+
     registry.assign<lmng::name>(entity, name);
 
     if (parent != entt::null)

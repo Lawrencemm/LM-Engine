@@ -9,10 +9,12 @@
 #include <lmlib/variant_visitor.h>
 #include <lmng/animation.h>
 #include <lmng/archetype.h>
+#include <lmng/logging.h>
 #include <lmng/name.h>
 #include <lmtk/choice_list.h>
 #include <random>
 #include <range/v3/algorithm/find.hpp>
+#include <spdlog/spdlog.h>
 #include <tbb/task_group.h>
 #include <yaml-cpp/yaml.h>
 
@@ -128,6 +130,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 
     refit_visible_components();
     focus_component(visible_components.front());
+
+    lmng::connect_component_logging(map);
 
     task_group.wait();
 }

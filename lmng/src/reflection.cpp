@@ -151,7 +151,7 @@ void stream_data_out(
   entt::entity const &data,
   entt::registry const *context)
 {
-    stream << context->get<name>(data).string;
+    stream << get_name(*context, data);
 }
 
 void stream_data_in(

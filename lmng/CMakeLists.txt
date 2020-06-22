@@ -24,7 +24,7 @@ add_library(
   src/animation.cpp
   src/extents.cpp
   src/hierarchy.cpp
-)
+  src/logging.cpp)
 
 target_include_directories(
   lmng
@@ -42,6 +42,13 @@ target_link_libraries(
   EnTT::EnTT
   Bullet::Bullet
   yaml-cpp::yaml-cpp
+)
+
+target_compile_definitions(
+  lmng
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
 )
 
 if (MSVC)

@@ -1,6 +1,7 @@
 #pragma once
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
+#include <fmt/format.h>
 
 namespace lmng
 {
@@ -45,3 +46,37 @@ using physics = std::unique_ptr<iphysics>;
 
 physics create_physics(entt::registry &registry);
 } // namespace lmng
+
+inline std::ostream &operator<<(
+  std::ostream &os,
+  lmng::character_controller const &character_controller)
+{
+    os << fmt::format(
+      "Requested velocity: X: {} Y: {} Z: {}",
+      character_controller.requested_velocity[0],
+      character_controller.requested_velocity[1],
+      character_controller.requested_velocity[2]);
+    return os;
+}
+
+inline std::ostream &
+  operator<<(std::ostream &os, lmng::box_collider const &box_collider)
+{
+    os << fmt::format(
+      "X: {} Y: {} Z: {}",
+      box_collider.extents[0],
+      box_collider.extents[1],
+      box_collider.extents[2]);
+    return os;
+}
+
+inline std::ostream &
+  operator<<(std::ostream &os, lmng::rigid_body const &rigid_body)
+{
+    os << fmt::format(
+      "Mass: {} Restitution: {} Friction: {}",
+      rigid_body.mass,
+      rigid_body.restitution,
+      rigid_body.friction);
+    return os;
+}

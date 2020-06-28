@@ -2,6 +2,7 @@
 #include <entt/meta/meta.hpp>
 #include <fmt/format.h>
 #include <lmlib/enumerate.h>
+#include <lmng/meta/any_component.h>
 #include <lmng/name.h>
 #include <lmtk/component.h>
 #include <lmtk/shapes.h>

@@ -3,9 +3,9 @@
 #include <lmeditor/model/selection.h>
 #include <lmlib/eigen.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/meta/any_component.h>
 #include <lmng/name.h>
 #include <lmng/physics.h>
-#include <lmng/reflection.h>
 #include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/join.hpp>

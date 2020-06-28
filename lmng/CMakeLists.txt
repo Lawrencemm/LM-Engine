@@ -13,7 +13,7 @@ add_library(
   lmng
   SHARED
 
-  src/reflection.cpp
+  src/reflect_component.cpp
   src/serialisation.cpp
   src/bullet_physics/bullet_physics.cpp
   src/bullet_physics/rigid_body.cpp
@@ -24,7 +24,10 @@ add_library(
   src/animation.cpp
   src/extents.cpp
   src/hierarchy.cpp
-  src/logging.cpp)
+  src/logging.cpp
+  src/context.cpp
+  src/any_component.cpp
+)
 
 target_include_directories(
   lmng

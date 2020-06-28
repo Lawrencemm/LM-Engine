@@ -25,7 +25,7 @@ target_link_libraries(
 set(
   SAMPLE_SOURCES
   src/simulations/rigid_bodies_battle.cpp
-  src/reflection.cpp
+  src/reflect_types.cpp
   src/simulations/character_movement.cpp
 )
 

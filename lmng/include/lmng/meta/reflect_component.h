@@ -1,7 +1,8 @@
 #pragma once
 
-#include "hierarchy.h"
-#include "name.h"
+#include "any_component.h"
+#include "../hierarchy.h"
+#include "../name.h"
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 #include <fmt/ostream.h>
@@ -9,111 +10,6 @@
 
 namespace lmng
 {
-entt::meta_any get_component_any(
-  entt::registry const &registry,
-  entt::entity entity,
-  entt::meta_type const &type);
-
-std::string get_data(
-  entt::meta_any const &component,
-  entt::meta_data const &data,
-  entt::registry const &context);
-
-void set_data(
-  entt::meta_any &component,
-  entt::meta_data const &data,
-  std::string const &string,
-  entt::registry const &context);
-
-void assign_to_entity(
-  entt::meta_any const &component,
-  entt::registry &registry,
-  entt::entity entity);
-
-void replace_on_entity(
-  entt::meta_any const &component,
-  entt::registry &registry,
-  entt::entity entity);
-
-void remove_from_entity(
-  entt::meta_type const &component_type,
-  entt::registry &registry,
-  entt::entity entity);
-
-void clone(
-  entt::registry const &from,
-  entt::registry &to,
-  entt::meta_type const &type);
-
-class any_component
-{
-  public:
-    any_component(
-      entt::registry const &registry,
-      entt::entity entity,
-      entt::meta_type const &type)
-        : any{lmng::get_component_any(registry, entity, type)}
-    {
-    }
-
-    char const *name() const
-    {
-        return any.type()
-          .prop(entt::hashed_string{"name"}.value())
-          .value()
-          .cast<char const *>();
-    }
-
-    std::string
-      get(entt::meta_data const &data, entt::registry const &registry) const
-    {
-        return get_data(any, data, registry);
-    }
-
-    any_component &set(
-      entt::meta_data const &data,
-      std::string const &from,
-      entt::registry const &registry)
-    {
-        set_data(any, data, from, registry);
-        return *this;
-    }
-
-    any_component &assign(entt::registry &registry, entt::entity entity)
-    {
-        assign_to_entity(any, registry, entity);
-        return *this;
-    }
-
-    any_component &replace(entt::registry &registry, entt::entity entity)
-    {
-        replace_on_entity(any, registry, entity);
-        return *this;
-    }
-
-    entt::meta_any any;
-};
-
-using meta_type_map = std::unordered_map<ENTT_ID_TYPE, entt::meta_type>;
-
-meta_type_map create_meta_type_map();
-
-/// Supply a function to be called with every reflected component on the entity.
-template <typename function_type>
-void reflect_components(
-  entt::registry const &registry,
-  entt::entity entity,
-  function_type const &function,
-  meta_type_map type_map = create_meta_type_map())
-{
-    registry.visit(entity, [&](auto type_id) {
-        auto found_meta_type = type_map.find(type_id);
-
-        if (found_meta_type != type_map.end())
-            function(any_component{registry, entity, found_meta_type->second});
-    });
-}
-
 template <typename component_type>
 void assign_to_entity(
   void const *component,
@@ -248,12 +144,6 @@ void clone(entt::registry const *from, entt::registry *to)
           to->assign<component_type>(entity, component);
       });
 }
-
-char const *get_type_name(entt::meta_type const &type);
-char const *get_data_name(entt::meta_data const &data);
-
-void set_meta_context(entt::meta_ctx const &ctx);
-void reflect_types();
 
 template <typename component_type>
 std::string

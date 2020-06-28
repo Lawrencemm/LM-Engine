@@ -4,8 +4,8 @@
 #include <lmeditor/model/selection.h>
 #include <lmlib/enumerate.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/meta/any_component.h>
 #include <lmng/name.h>
-#include <lmng/reflection.h>
 #include <lmtk/text_editor.h>
 #include <range/v3/algorithm/remove.hpp>
 #include <range/v3/view/transform.hpp>

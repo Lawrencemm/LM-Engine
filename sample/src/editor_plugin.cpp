@@ -7,7 +7,7 @@
 
 #include <lmeditor/simulation_plugin.h>
 
-#include "reflection.h"
+#include "reflect_types.h"
 #include "simulations/character_movement.h"
 #include "simulations/rigid_bodies_battle.h"
 

@@ -3,7 +3,7 @@
 #include <lmhuv/box.h>
 #include <lmlib/enumerate.h>
 #include <lmlib/variant_visitor.h>
-#include <lmng/reflection.h>
+#include <lmng/meta/any_component.h>
 #include <lmng/transform.h>
 
 namespace lmeditor

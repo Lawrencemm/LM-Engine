@@ -52,7 +52,7 @@ YAML::Node serialise_archetypal_entity(
 
     YAML::Node components_yaml;
 
-    reflect_components(
+    visit_components(
       registry,
       entity,
       [&](lmng::any_component const &component_any) {
@@ -114,7 +114,7 @@ YAML::Node serialise_entity(
 
     YAML::Node components_yaml;
 
-    reflect_components(
+    visit_components(
       registry,
       entity,
       [&](lmng::any_component const &component_any) {

@@ -120,7 +120,7 @@ entt::entity map_editor_controller::copy_entity(
     auto new_name =
       get_unique_name(map, lmng::get_name(map, selected_box).c_str());
     auto new_box = map.create(selected_box);
-    lmng::reflect_components(
+    lmng::visit_components(
       map, selected_box, [&](lmng::any_component component) {
           component.assign(map, new_box);
       });

@@ -69,7 +69,7 @@ meta_type_map create_meta_type_map();
 
 /// Supply a function to be called with every reflected component on the entity.
 template <typename function_type>
-void reflect_components(
+void visit_components(
   entt::registry const &registry,
   entt::entity entity,
   function_type const &function,

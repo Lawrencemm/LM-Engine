@@ -40,7 +40,7 @@ void inspector_controller::create_entries(const entt::registry &registry)
 {
     entries.emplace_back();
 
-    lmng::reflect_components(
+    lmng::visit_components(
       registry, entity, [&](lmng::any_component const &component) {
           entries.emplace_back(entry{component.any.type()});
 

@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 #include <fstream>
 #include <lmng/animation.h>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/serialisation.h>
 #include <lmng/transform.h>
@@ -11,48 +12,6 @@
 
 namespace lmng
 {
-pose animation_system::load_pose(
-  entt::registry const &registry,
-  std::string const &pose_name,
-  YAML::Node const &yaml)
-{
-    auto new_pose = pose{next_pose_index++};
-
-    pose_data data;
-
-    for (auto const &yaml_entity : yaml)
-    {
-        data.targets.emplace_back(
-          deserialise_component(
-            registry, "Transform", yaml_entity.second["Transform"])
-            .cast<transform>());
-        data.bone_names.emplace_back(yaml_entity.first.as<std::string>());
-    }
-    poses[new_pose] = data;
-    pose_name_to_id.emplace(std::pair{pose_name, new_pose});
-
-    return new_pose;
-}
-
-animation animation_system::load_animation(YAML::Node const &yaml)
-{
-    auto new_animation = animation{next_animation_index++};
-
-    animation_data data;
-
-    for (auto const &keyframe_yaml : yaml["Keyframes"])
-    {
-        data.keyframes.emplace_back(keyframe{
-          pose_name_to_id.at(keyframe_yaml["Pose"].as<std::string>()),
-          keyframe_yaml["Time"].as<float>(),
-        });
-    }
-
-    animations.emplace(std::pair{new_animation, std::move(data)});
-
-    return new_animation;
-}
-
 void animation_system::update(entt::registry &registry, float dt)
 {
     registry.view<animation_state>().each(
@@ -79,7 +38,7 @@ void animation_system::update_animation(
   animation_state &animation_state,
   float dt)
 {
-    auto &animation_data = animations[animation_state.animation];
+    auto &animation_data = *animation_state.animation;
 
     if (animation_state.rate == 0)
         return;
@@ -89,98 +48,169 @@ void animation_system::update_animation(
 
     float delta = animation_state.rate * dt;
 
-    float keyframe_gap = std::abs(next_keyframe->time - prev_keyframe->time);
+    float transition_period = next_keyframe->time - prev_keyframe->time;
 
-    float keyframe_progress =
-      std::abs(animation_state.progress - prev_keyframe->time);
+    float transition_progress = animation_state.progress - prev_keyframe->time;
 
     tween_poses(
       registry,
       entity,
-      poses[prev_keyframe->pose],
-      poses[next_keyframe->pose],
-      (keyframe_progress + delta) / keyframe_gap);
+      *prev_keyframe->pose,
+      *next_keyframe->pose,
+      (transition_progress + delta) / transition_period);
 
-    advance_animation(animation_state, animation_data, next_keyframe, delta);
+    registry.replace<lmng::animation_state>(
+      entity,
+      advance_animation(
+        animation_state, animation_data, prev_keyframe, next_keyframe, delta));
 }
 
-void animation_system::advance_animation(
-  animation_state &animation_state,
-  animation_system::animation_data const &animation_data,
+animation_state animation_system::advance_animation(
+  animation_state const animation_state,
+  animation_data const &animation_data,
+  keyframe_list::iterator const &prev_keyframe,
   keyframe_list::iterator const &next_keyframe,
   float delta)
 {
-    float to_next = std::abs(next_keyframe->time - animation_state.progress);
+    lmng::animation_state new_state = animation_state;
+    new_state.progress += delta;
 
-    if (to_next - std::abs(delta) <= 0)
+    bool forward = !std::signbit(delta);
+
+    float to_next = forward ? next_keyframe->time - animation_state.progress
+                            : animation_state.progress - prev_keyframe->time;
+
+    if (to_next <= 0)
     {
-        bool forward = !std::signbit(delta);
-
         bool at_end = forward
                         ? next_keyframe + 1 == animation_data.keyframes.end()
-                        : next_keyframe == animation_data.keyframes.begin();
+                        : prev_keyframe == animation_data.keyframes.begin();
 
         if (at_end)
         {
             switch (animation_state.loop_type)
             {
             case anim_loop_type::pendulum:
-                animation_state.rate = -animation_state.rate;
-                delta = -delta;
+                new_state.rate = -animation_state.rate;
             }
         }
     }
 
-    animation_state.progress += delta;
+    return new_state;
 }
 
 auto animation_system::get_keyframes(
   animation_state &animation_state,
-  animation_system::animation_data &animation_data)
+  animation_data &animation_data)
   -> std::pair<keyframe_list::iterator, keyframe_list::iterator>
 {
-    keyframe_list::iterator prev;
-    keyframe_list::iterator next;
+    if (animation_state.progress < animation_data.keyframes.front().time)
+        return {
+          animation_data.keyframes.begin(),
+          animation_data.keyframes.begin() + 1};
 
     for (auto keyframe_iterator = animation_data.keyframes.begin();
          keyframe_iterator != animation_data.keyframes.end();
          ++keyframe_iterator)
     {
-        if (keyframe_iterator->time < animation_state.progress)
+        if (animation_state.progress > keyframe_iterator->time)
         {
-            if (animation_state.rate > 0)
-            {
-                prev = keyframe_iterator;
-                next = keyframe_iterator + 1;
-            }
-            else
-            {
-                prev = keyframe_iterator + 1;
-                next = keyframe_iterator;
-            }
+            return {keyframe_iterator, keyframe_iterator + 1};
         }
     }
 
-    return {prev, next};
+    return {
+      animation_data.keyframes.end() - 1, animation_data.keyframes.end() - 2};
 }
 
 void animation_system::tween_poses(
   entt::registry &registry,
   entt::entity entity,
-  const animation_system::pose_data &first,
-  const animation_system::pose_data &second,
+  const pose_data &first,
+  const pose_data &second,
   float distance)
 {
     for (auto const &[bone_name, from, target] :
          ranges::views::zip(second.bone_names, first.targets, second.targets))
     {
-        auto &transform =
-          registry.get<lmng::transform>(lmng::find_entity(registry, bone_name));
+        auto bone_entity = lmng::find_child(registry, entity, bone_name);
+        if (bone_entity == entt::null)
+        {
+            throw std::runtime_error{"Entity " + bone_name + " not found"};
+        }
+        auto transform = registry.get<lmng::transform>(bone_entity);
 
         transform.position =
           from.position + distance * (target.position - from.position);
 
         transform.rotation = from.rotation.slerp(distance, target.rotation);
+
+        registry.replace<lmng::transform>(bone_entity, transform);
     }
+}
+
+yaml_pose_loader::yaml_pose_loader(const std::filesystem::path &project_dir)
+    : project_dir{project_dir}
+{
+}
+
+std::shared_ptr<pose_data>
+  yaml_pose_loader::load(asset_cache &cache, std::string const &asset_path)
+{
+    auto yaml = YAML::LoadFile(
+      (project_dir / "assets" / (asset_path + ".lpose")).string());
+
+    pose_data data;
+
+    for (auto const &yaml_entity : yaml)
+    {
+        transform target_transform;
+
+        auto transform_yaml = yaml_entity.second["Transform"];
+
+        auto pos_strstr =
+          std::istringstream{transform_yaml["Position"].as<std::string>()};
+
+        pos_strstr >> target_transform.position[0] >>
+          target_transform.position[1] >> target_transform.position[2];
+
+        auto rot_strstr =
+          std::istringstream{transform_yaml["Rotation"].as<std::string>()};
+
+        rot_strstr >> target_transform.rotation.coeffs()[0] >>
+          target_transform.rotation.coeffs()[1] >>
+          target_transform.rotation.coeffs()[2] >>
+          target_transform.rotation.coeffs()[3];
+
+        data.bone_names.emplace_back(yaml_entity.first.as<std::string>());
+        data.targets.emplace_back(target_transform);
+    }
+
+    return std::make_shared<pose_data>(std::move(data));
+}
+
+yaml_animation_loader::yaml_animation_loader(
+  const std::filesystem::path &project_dir)
+    : project_dir{project_dir}
+{
+}
+
+std::shared_ptr<animation_data>
+  yaml_animation_loader::load(asset_cache &cache, const std::string &asset_path)
+{
+    auto yaml = YAML::LoadFile(
+      (project_dir / "assets" / (asset_path + ".lmanim")).string());
+
+    animation_data data;
+
+    for (auto const &keyframe_yaml : yaml["Keyframes"])
+    {
+        data.keyframes.emplace_back(keyframe_data{
+          cache.load<lmng::pose_data>(keyframe_yaml["Pose"].as<std::string>()),
+          keyframe_yaml["Time"].as<float>(),
+        });
+    }
+
+    return std::make_shared<animation_data>(std::move(data));
 }
 } // namespace lmng

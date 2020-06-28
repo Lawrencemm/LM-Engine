@@ -13,7 +13,7 @@ add_library(
   lmng
   SHARED
 
-  src/reflection.cpp
+  src/reflect_component.cpp
   src/serialisation.cpp
   src/bullet_physics/bullet_physics.cpp
   src/bullet_physics/rigid_body.cpp
@@ -24,6 +24,9 @@ add_library(
   src/animation.cpp
   src/extents.cpp
   src/hierarchy.cpp
+  src/logging.cpp
+  src/context.cpp
+  src/any_component.cpp
 )
 
 target_include_directories(
@@ -44,6 +47,13 @@ target_link_libraries(
   yaml-cpp::yaml-cpp
 )
 
+target_compile_definitions(
+  lmng
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
 if (MSVC)
   target_compile_definitions(lmng PRIVATE _ENABLE_EXTENDED_ALIGNED_STORAGE)
 endif()
@@ -53,6 +63,7 @@ add_executable(
   test/test_lmng.cpp
   test/test_pose
   test/test_hierarchy.cpp
+  test/test_archetype.cpp
 )
 
 target_link_libraries(

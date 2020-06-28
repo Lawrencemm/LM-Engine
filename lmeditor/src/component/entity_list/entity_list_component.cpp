@@ -1,7 +1,9 @@
 #include "entity_list_component.h"
 #include <entt/entt.hpp>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmtk/vlayout.h>
+#include <range/v3/algorithm/find.hpp>
 
 namespace lmeditor
 {
@@ -26,7 +28,7 @@ entity_list_component::entity_list_component(entity_list_init const &init)
 
 void entity_list_component::update_selection_background()
 {
-    if (controller.named_entities_count == 0)
+    if (controller.registry->view<lmng::name>().empty())
         return;
 
     lmtk::text_layout &line = selected_line();
@@ -66,6 +68,8 @@ void entity_list_component::reset(
   lmtk::resource_cache const &resource_cache,
   entt::registry const &registry)
 {
+    auto visible_entities = controller.get_visible_entities();
+
     for (auto &layout : line_layouts)
         layout.move_resources(resource_sink);
 
@@ -74,11 +78,30 @@ void entity_list_component::reset(
     auto layout_factory = lmtk::text_layout_factory{
       renderer, resource_cache, {1.f, 1.f, 1.f}, position};
 
-    registry.view<lmng::name const>().each(
-      [&](auto entity, auto &name_component) {
-          line_layouts.emplace_back(
-            layout_factory.create(name_component.string));
-      });
+    std::function<void(entt::entity, unsigned)> add_children;
+
+    add_children = [&](auto entity, unsigned level) {
+        for (auto child : lmng::child_range{registry, entity})
+        {
+            // Add layout
+            line_layouts.emplace_back(
+              layout_factory.create(registry.get<lmng::name>(child).string));
+            auto old_pos = line_layouts.back().position;
+            old_pos.x += level * 15;
+            line_layouts.back().set_position(old_pos);
+            if (ranges::find(visible_entities, child) != visible_entities.end())
+                add_children(child, level + 1);
+        }
+    };
+
+    auto add_root_entity = [&](auto entity, auto &name_component) {
+        line_layouts.emplace_back(layout_factory.create(name_component.string));
+        if (ranges::find(visible_entities, entity) != visible_entities.end())
+            add_children(entity, 1);
+    };
+
+    registry.view<lmng::name const>(entt::exclude<lmng::parent>)
+      .each(add_root_entity);
 
     lmtk::layout_vertical(lmtk::vertical_layout{position.y, 12}, line_layouts);
 }

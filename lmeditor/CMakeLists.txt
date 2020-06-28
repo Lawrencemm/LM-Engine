@@ -108,6 +108,13 @@ target_include_directories(
   ${embed-resource_INCLUDES}
 )
 
+target_compile_definitions(
+  lmeditor
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
 # In-built shaders
 file(GLOB_RECURSE GLSL_SOURCE_FILES "src/shaders/*")
 
@@ -150,6 +157,7 @@ add_executable(
   test/test_trimesh.cpp
   test/map_editor/test.cpp
   test/map_editor/test_move_selection.cpp
+  test/test_entity_list.cpp
 )
 
 target_include_directories(

@@ -77,6 +77,13 @@ target_link_libraries(
   EnTT::EnTT
 )
 
+target_compile_definitions(
+  lmtk
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
 # In-built shaders
 file(GLOB_RECURSE GLSL_SOURCE_FILES "src/shaders/*")
 

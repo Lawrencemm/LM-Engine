@@ -88,11 +88,13 @@ void bt_physics::set_character_velocity_intervals(
   entt::registry &entities,
   float dt) const
 {
-    entities.view<character_controller, bt_character_controller>().each(
-      [&](
-        auto character,
-        character_controller &controller,
-        bt_character_controller &bt_controller) {
+    entities.view<character_controller, bt_character_controller, transform>()
+      .each([&](
+              auto character,
+              character_controller &controller,
+              bt_character_controller &bt_controller,
+              transform const &transform) {
+          bt_controller.ghost->setWorldTransform(bt_transform(transform));
           bt_controller.controller->setVelocityForTimeInterval(
             vec_to_bt(controller.requested_velocity), dt);
       });
@@ -108,26 +110,11 @@ void bt_physics::sync_character_transforms(entt::registry &entities) const
       });
 }
 
-void bt_physics::rotate_character(
-  entt::registry &registry,
-  entt::entity entity,
-  Eigen::Vector3f const &euler_angles)
+Eigen::Vector3f bt_physics::get_character_velocity(
+  const entt::registry &registry,
+  entt::entity entity)
 {
-    auto &controller = registry.get<bt_character_controller>(entity);
-    auto xform = controller.ghost->getWorldTransform();
-
-    auto char_rot = bt_to_quat(xform.getRotation());
-
-    Eigen::Vector3f roll_axis = Eigen::Vector3f::UnitZ();
-    Eigen::Vector3f yaw_axis = Eigen::Vector3f::UnitY();
-    Eigen::Vector3f pitch_axis = (char_rot * roll_axis).cross(yaw_axis);
-
-    char_rot = Eigen::AngleAxisf{euler_angles[2], roll_axis} * char_rot;
-    char_rot = Eigen::AngleAxisf{euler_angles[0], pitch_axis} * char_rot;
-    char_rot = Eigen::AngleAxisf{euler_angles[1], yaw_axis} * char_rot;
-
-    xform.setRotation(quat_to_bt(char_rot));
-    controller.ghost->setWorldTransform(xform);
+    return bt_to_vec(registry.get<bt_character_controller>(entity)
+                       .controller->getLinearVelocity());
 }
-
 } // namespace lmng

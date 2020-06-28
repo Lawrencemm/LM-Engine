@@ -2,9 +2,9 @@
 #include <iostream>
 #include <lmlib/range.h>
 #include <lmng/hierarchy.h>
+#include <lmng/meta/any_component.h>
 #include <lmng/name.h>
 #include <lmng/pose.h>
-#include <lmng/reflection.h>
 #include <lmng/serialisation.h>
 #include <lmng/transform.h>
 #include <range/v3/algorithm/generate.hpp>

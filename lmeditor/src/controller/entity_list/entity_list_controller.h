@@ -24,20 +24,24 @@ class entity_list_controller
 
     void reset(const entt::registry &registry);
 
-    void on_name_contructed(entt::registry &registry, entt::entity entity);
+    void on_name_constructed(entt::registry &registry, entt::entity entity);
 
     void on_name_destroyed(entt::registry &registry, entt::entity entity);
+
+    void on_name_replaced(entt::registry &registry, entt::entity entity);
 
     size_t size();
 
     entt::registry *registry;
     entt::scoped_connection name_constructed_connection,
-      name_destroyed_connection;
-    int selected_entity_index, named_entities_count;
-    std::vector<entt::entity> entities;
+      name_destroyed_connection, name_replaced_connection;
+
+    int selected_entity_index;
     bool dirty{false};
 
     bool handle_key_down(lmtk::key_down_event const &event);
     bool move_selection(int movement);
+
+    auto get_visible_entities() { return registry->view<lmng::name>(); }
 };
 } // namespace lmeditor

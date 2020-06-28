@@ -36,22 +36,22 @@ class character_movement
         lmng::character_controller &controller;
     };
 
-    static character get_character(entt::registry &registry);
+    static character get_player_character(entt::registry &registry);
 
     void apply_movement_controls(
       character &character,
       entt::registry &registry,
       float dt,
       lmtk::input_state const &input_state);
-    void control_animation(
-      character &character,
-      entt::registry &registry,
-      float dt,
-      Eigen::Vector3f const &new_velocity);
+
+    void move_robots(entt::registry &registry, float dt);
+
+    void control_animation(entt::registry &registry, float dt);
+
     void camera_follow_character(
       entt::registry &registry,
       character const &character);
 
-    lmng::pose left_forward_pose, right_forward_pose;
+    entt::entity ground;
     lmng::animation swing_arms_animation;
 };

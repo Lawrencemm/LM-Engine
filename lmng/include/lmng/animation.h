@@ -1,18 +1,40 @@
 #pragma once
 
+#include "asset_cache.h"
 #include "transform.h"
 #include <entt/fwd.hpp>
+#include <filesystem>
 #include <yaml-cpp/yaml.h>
 
 namespace lmng
 {
-ENTT_OPAQUE_TYPE(pose, uint32_t);
-ENTT_OPAQUE_TYPE(animation, uint32_t);
-
 enum class anim_loop_type
 {
     pendulum
 };
+
+struct pose_data
+{
+    std::vector<std::string> bone_names;
+    std::vector<lmng::transform> targets;
+};
+
+using pose = std::shared_ptr<pose_data>;
+
+struct keyframe_data
+{
+    lmng::pose pose;
+    float time;
+};
+
+using keyframe_list = std::vector<keyframe_data>;
+
+struct animation_data
+{
+    keyframe_list keyframes;
+};
+
+using animation = std::shared_ptr<animation_data>;
 
 struct animation_state
 {
@@ -34,25 +56,12 @@ class animation_system
       float rate,
       anim_loop_type loop_type);
 
-    pose load_pose(
-      entt::registry const &registry,
-      std::string const &pose_name,
-      YAML::Node const &yaml);
-
-    animation load_animation(YAML::Node const &yaml);
-
   private:
     void update_animation(
       entt::registry &registry,
       entt::entity entity,
       animation_state &animation_state,
       float dt);
-
-    struct pose_data
-    {
-        std::vector<std::string> bone_names;
-        std::vector<lmng::transform> targets;
-    };
 
     static void tween_poses(
       entt::registry &registry,
@@ -61,35 +70,39 @@ class animation_system
       pose_data const &second,
       float distance);
 
-    struct keyframe
-    {
-        lmng::pose pose;
-        float time;
-    };
-
-    using keyframe_list = std::vector<keyframe>;
-
-    struct animation_data
-    {
-        keyframe_list keyframes;
-    };
-
     std::pair<keyframe_list::iterator, keyframe_list::iterator> get_keyframes(
       animation_state &animation_state,
       animation_data &animation_data);
 
-    void advance_animation(
-      animation_state &animation_state,
+    animation_state advance_animation(
+      animation_state const animation_state,
       animation_data const &animation_data,
+      keyframe_list::iterator const &prev_keyframe,
       keyframe_list::iterator const &next_keyframe,
       float delta);
+};
 
-    unsigned next_pose_index{0};
-    unsigned next_animation_index{0};
+class yaml_pose_loader : public asset_loader_interface<pose_data>
+{
+  public:
+    explicit yaml_pose_loader(std::filesystem::path const &project_dir);
 
-    std::unordered_map<pose, pose_data> poses;
-    std::unordered_map<animation, animation_data> animations;
+    std::shared_ptr<pose_data>
+      load(asset_cache &cache, std::string const &asset_path) override;
 
-    std::unordered_map<std::string, pose> pose_name_to_id;
+  private:
+    std::filesystem::path project_dir;
+};
+
+class yaml_animation_loader : public asset_loader_interface<animation_data>
+{
+  public:
+    explicit yaml_animation_loader(std::filesystem::path const &project_dir);
+
+    std::shared_ptr<animation_data>
+      load(asset_cache &cache, std::string const &asset_path) override;
+
+  private:
+    std::filesystem::path project_dir;
 };
 } // namespace lmng

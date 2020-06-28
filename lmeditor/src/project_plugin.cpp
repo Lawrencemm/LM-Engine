@@ -3,11 +3,9 @@
 namespace lmeditor
 {
 void project_plugin::load(
-  std::filesystem::path const &project_dir,
   std::string const &plugin_name,
   entt::meta_ctx const &meta_context)
 {
-    this->project_dir = project_dir;
     shared_library = boost::dll::shared_library{
       plugin_name,
       boost::dll::load_mode::append_decorations,
@@ -23,10 +21,11 @@ void project_plugin::load(
 
 psimulation project_plugin::create_simulation(
   size_t simulation_index,
-  entt::registry &registry) const
+  entt::registry &registry,
+  lmng::asset_cache &asset_cache) const
 {
     return create_simulation_fn(
       simulation_names[simulation_index],
-      lmng::simulation_init{registry, project_dir});
+      lmng::simulation_init{registry, asset_cache});
 }
 } // namespace lmeditor

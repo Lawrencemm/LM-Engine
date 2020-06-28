@@ -1,5 +1,6 @@
 #include <entt/entt.hpp>
 #include <lmng/hierarchy.h>
+#include <lmng/name.h>
 #include <lmng/transform.h>
 #include <range/v3/action/remove.hpp>
 
@@ -121,5 +122,31 @@ void orphan_children(entt::registry &registry, entt::entity parent)
       copied_children.begin(), copied_children.end());
 
     registry.remove<internal::children>(parent);
+}
+
+entt::entity find_child(
+  entt::registry &registry,
+  entt::entity parent,
+  std::string const &name)
+{
+    entt::entity result{entt::null};
+
+    for (auto child : child_range{registry, parent})
+    {
+        if (registry.get<lmng::name>(child).string == name)
+        {
+            result = child;
+            break;
+        }
+
+        auto child_result = find_child(registry, child, name);
+        if (child_result != entt::null)
+        {
+            result = child_result;
+            break;
+        }
+    }
+
+    return result;
 }
 } // namespace lmng

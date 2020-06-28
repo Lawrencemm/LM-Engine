@@ -192,6 +192,9 @@ target_compile_definitions(
 
   INTERFACE
   ${INTERFACE_DEFINITIONS}
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
 )
 
 target_compile_options(

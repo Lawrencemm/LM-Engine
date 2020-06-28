@@ -1,22 +1,27 @@
 #pragma once
 
+#include "rigid_body.h"
+#include <BulletCollision/CollisionDispatch/btCollisionConfiguration.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletCollision/CollisionShapes/btBoxShape.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
+#include <BulletDynamics/ConstraintSolver/btConstraintSolver.h>
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
-#include <range/v3/algorithm/copy.hpp>
-
 #include <lmng/name.h>
 #include <lmng/physics.h>
 #include <lmng/transform.h>
-
-#include "rigid_body.h"
+#include <range/v3/algorithm/copy.hpp>
 
 namespace lmng
 {
 class bt_physics : public iphysics
 {
+  public:
+    Eigen::Vector3f get_character_velocity(
+      const entt::registry &registry,
+      entt::entity entity) override;
+
   public:
     explicit bt_physics(entt::registry &registry);
     void step(entt::registry &entities, float dt) override;
@@ -37,10 +42,6 @@ class bt_physics : public iphysics
       Eigen::Vector3f const &vector) override;
     void on_tick(btDynamicsWorld *world, btScalar dt);
     bool is_touched(entt::registry &registry, entt::entity entity) override;
-    void rotate_character(
-      entt::registry &registry,
-      entt::entity entity,
-      Eigen::Vector3f const &euler_angles) override;
 
     void create_broadphase();
     void create_collision_config();

@@ -4,7 +4,6 @@
 #include <entt/meta/meta.hpp>
 #include <lmeditor/component/inspector.h>
 #include <lmeditor/model/command.h>
-#include <lmng/reflection.h>
 #include <lmtk/input_event.h>
 #include <lmtk/text_editor.h>
 

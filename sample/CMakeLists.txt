@@ -25,7 +25,7 @@ target_link_libraries(
 set(
   SAMPLE_SOURCES
   src/simulations/rigid_bodies_battle.cpp
-  src/reflection.cpp
+  src/reflect_types.cpp
   src/simulations/character_movement.cpp
 )
 
@@ -56,6 +56,12 @@ target_include_directories(
   ${lmeditor_INCLUDES}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
+target_compile_definitions(
+  sample_editor_plugin
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
 
 
 add_executable(
@@ -71,6 +77,13 @@ target_link_libraries(
 
   sample_interface
   lmhuv::lmhuv
+)
+
+target_compile_definitions(
+  sample_standalone
+
+  PRIVATE
+  SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
 )
 
 add_executable(

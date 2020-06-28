@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 
 project(workspace)
 
+set(
+  LM_ENGINE_LOGGING_LEVEL
+  6
+  CACHE STRING
+  "spdlog logging level for all lm-engine projects, see spdlog logging levels documentation."
+)
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 

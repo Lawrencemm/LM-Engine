@@ -27,6 +27,11 @@ void reparent(
 
 void orphan_children(entt::registry &registry, entt::entity parent);
 
+entt::entity find_child(
+  entt::registry &registry,
+  entt::entity parent,
+  std::string const &name);
+
 class child_iterator
 {
   public:

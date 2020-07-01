@@ -31,7 +31,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         .body_font =
           lmtk::font_description{
             .typeface_name = "Arial",
-            .pixel_size = 32,
+            .pixel_size = 24,
           }}},
       flow_graph(
         resources,

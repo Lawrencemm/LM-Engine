@@ -1,8 +1,8 @@
 #pragma once
 
-#include "any_component.h"
 #include "../hierarchy.h"
 #include "../name.h"
+#include "any_component.h"
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 #include <fmt/ostream.h>
@@ -27,6 +27,16 @@ void replace_on_entity(
   entt::entity entity)
 {
     registry->replace<component_type>(
+      entity, *static_cast<component_type const *>(component));
+}
+
+template <typename component_type>
+void assign_or_replace_on_entity(
+  void const *component,
+  entt::registry *registry,
+  entt::entity entity)
+{
+    registry->assign_or_replace<component_type>(
       entity, *static_cast<component_type const *>(component));
 }
 
@@ -227,6 +237,8 @@ void connect_logging(entt::registry &registry)
       .ctor<&lmng::construct<_type>>()                                         \
       .func<&lmng::assign_to_entity<_type>>("assign_to_entity"_hs)             \
       .func<&lmng::replace_on_entity<_type>>("replace_on_entity"_hs)           \
+      .func<&lmng::assign_or_replace_on_entity<_type>>(                        \
+        "assign_or_replace_on_entity"_hs)                                      \
       .func<&lmng::get_from_entity<_type>>("get_from_entity"_hs)               \
       .func<&lmng::remove_from_entity<_type>>("remove_from_entity"_hs)         \
       .func<&lmng::clone<_type>>("clone"_hs)                                   \

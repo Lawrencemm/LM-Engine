@@ -30,6 +30,11 @@ void replace_on_entity(
   entt::registry &registry,
   entt::entity entity);
 
+void assign_or_replace_on_entity(
+  entt::meta_any const &component,
+  entt::registry &registry,
+  entt::entity entity);
+
 void remove_from_entity(
   entt::meta_type const &component_type,
   entt::registry &registry,

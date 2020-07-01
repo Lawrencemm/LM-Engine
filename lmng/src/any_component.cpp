@@ -43,6 +43,16 @@ void replace_on_entity(
       .invoke({}, component.data(), &registry, entity);
 }
 
+void assign_or_replace_on_entity(
+  const entt::meta_any &component,
+  entt::registry &registry,
+  entt::entity entity)
+{
+    component.type()
+      .func("assign_or_replace_on_entity"_hs)
+      .invoke({}, component.data(), &registry, entity);
+}
+
 void remove_from_entity(
   entt::meta_type const &component_type,
   entt::registry &registry,

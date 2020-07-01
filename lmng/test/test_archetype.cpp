@@ -91,7 +91,15 @@ TEST_CASE("Map deserialisation with archetypes")
 
     YAML::Node parent_yaml;
     parent_yaml["archetype"] = "archetype";
-    parent_yaml["components"] = YAML::Node{};
+
+    YAML::Node parent_transform_yaml;
+
+    parent_transform_yaml["Position"] = "4.0 5.0 6.0";
+
+    YAML::Node parent_components_yaml;
+    parent_components_yaml["Transform"] = parent_transform_yaml;
+
+    parent_yaml["components"] = parent_components_yaml;
     parent_yaml["children"] = YAML::Node{};
 
     map_yaml["entities"]["Parent"] = parent_yaml;
@@ -113,5 +121,5 @@ TEST_CASE("Map deserialisation with archetypes")
 
     auto parent_transform = registry.get<lmng::transform>(parent);
 
-    REQUIRE(parent_transform.position == Eigen::Vector3f{1.f, 2.f, 3.f});
+    REQUIRE(parent_transform.position == Eigen::Vector3f{4.f, 5.f, 6.f});
 }

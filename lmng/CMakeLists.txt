@@ -14,7 +14,7 @@ add_library(
   SHARED
 
   src/reflect_component.cpp
-  src/serialisation.cpp
+  src/yaml_save_load.cpp
   src/bullet_physics/bullet_physics.cpp
   src/bullet_physics/rigid_body.cpp
   src/bullet_physics/character_controller.cpp
@@ -27,6 +27,7 @@ add_library(
   src/logging.cpp
   src/context.cpp
   src/any_component.cpp
+  src/archetype.cpp
 )
 
 target_include_directories(

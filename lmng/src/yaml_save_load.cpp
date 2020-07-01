@@ -3,14 +3,14 @@
 #include <lmng/hierarchy.h>
 #include <lmng/meta/any_component.h>
 #include <lmng/name.h>
-#include <lmng/serialisation.h>
 #include <lmng/transform.h>
+#include <lmng/yaml_save_load.h>
 #include <range/v3/action/sort.hpp>
 #include <yaml-cpp/yaml.h>
 
 namespace lmng
 {
-YAML::Node serialise_component(
+YAML::Node save_component_as_yaml(
   entt::registry const &registry,
   const entt::meta_any &component)
 {
@@ -39,7 +39,7 @@ std::vector<entt::entity>
     return std::move(children);
 }
 
-YAML::Node serialise_archetypal_entity(
+YAML::Node save_archetypal_entity_as_yaml(
   entt::registry const &registry,
   entt::entity entity,
   meta_type_map const &type_map,
@@ -62,7 +62,7 @@ YAML::Node serialise_archetypal_entity(
               return;
 
           auto component_yaml =
-            serialise_component(registry, component_any.any);
+            save_component_as_yaml(registry, component_any.any);
 
           auto archetype_components_yaml = archetype_yaml["components"];
 
@@ -100,7 +100,7 @@ YAML::Node serialise_archetypal_entity(
     return entity_yaml;
 }
 
-YAML::Node serialise_entity(
+YAML::Node save_entity_as_yaml(
   entt::registry const &registry,
   entt::entity entity,
   meta_type_map const &type_map,
@@ -108,7 +108,7 @@ YAML::Node serialise_entity(
 {
     if (auto parchetype = registry.try_get<archetype>(entity))
     {
-        return serialise_archetypal_entity(
+        return save_archetypal_entity_as_yaml(
           registry, entity, type_map, *parchetype, asset_cache);
     }
 
@@ -122,7 +122,7 @@ YAML::Node serialise_entity(
               return;
 
           components_yaml[component_any.name()] =
-            serialise_component(registry, component_any.any);
+            save_component_as_yaml(registry, component_any.any);
       },
       type_map);
 
@@ -133,7 +133,7 @@ YAML::Node serialise_entity(
     for (auto child : children)
     {
         children_yaml[get_name(registry, child)] =
-          serialise_entity(registry, child, type_map, asset_cache);
+          save_entity_as_yaml(registry, child, type_map, asset_cache);
     }
 
     YAML::Node entity_yaml;
@@ -144,7 +144,7 @@ YAML::Node serialise_entity(
     return entity_yaml;
 }
 
-void serialise(
+void save_registry_as_yaml(
   entt::registry &registry,
   asset_cache &asset_cache,
   YAML::Node &yaml)
@@ -165,7 +165,7 @@ void serialise(
     for (auto entity : entities)
     {
         entities_yaml[get_name(registry, entity)] =
-          serialise_entity(registry, entity, type_map, asset_cache);
+          save_entity_as_yaml(registry, entity, type_map, asset_cache);
     };
 
     yaml["entities"] = entities_yaml;
@@ -180,7 +180,7 @@ void assign_components_from_yaml(
     for (auto const &component_yaml : components_yaml)
     {
         assign_to_entity(
-          deserialise_component(
+          construct_component_from_yaml(
             registry, component_yaml.first, component_yaml.second),
           registry,
           into_entity);
@@ -195,21 +195,21 @@ void assign_or_replace_components_from_yaml(
     for (auto const &component_yaml : components_yaml)
     {
         assign_or_replace_on_entity(
-          deserialise_component(
+          construct_component_from_yaml(
             registry, component_yaml.first, component_yaml.second),
           registry,
           into_entity);
     }
 }
 
-void deserialise_entity(
+void create_entity_from_yaml(
   entt::registry &registry,
   std::string const &name,
   YAML::Node const &yaml,
   asset_cache &asset_cache,
   entt::entity parent);
 
-void deserialise_children(
+void create_children_from_yaml(
   entt::registry &registry,
   const YAML::Node &yaml,
   asset_cache &asset_cache,
@@ -217,7 +217,7 @@ void deserialise_children(
 {
     for (auto const &child_yaml : yaml)
     {
-        deserialise_entity(
+        create_entity_from_yaml(
           registry,
           child_yaml.first.as<std::string>(),
           child_yaml.second,
@@ -226,22 +226,7 @@ void deserialise_children(
     }
 }
 
-void deserialise_archetype(
-  const entt::entity &entity,
-  entt::registry &registry,
-  std::string const &asset_path,
-  asset_cache &asset_cache)
-{
-    auto archetype_data = asset_cache.load<lmng::archetype_data>(asset_path);
-
-    assign_components_from_yaml(
-      registry, entity, archetype_data->yaml["components"]);
-
-    deserialise_children(
-      registry, archetype_data->yaml["children"], asset_cache, entity);
-}
-
-void deserialise_entity(
+void create_entity_from_yaml(
   entt::registry &registry,
   std::string const &name,
   YAML::Node const &yaml,
@@ -262,7 +247,7 @@ void deserialise_entity(
     if (archetype_yaml)
     {
         auto asset_path = archetype_yaml.as<std::string>();
-        deserialise_archetype(entity, registry, asset_path, asset_cache);
+        load_archetype_data(entity, registry, asset_path, asset_cache);
         registry.assign<archetype>(entity, asset_path);
         assign_or_replace_components_from_yaml(
           registry, entity, yaml["components"]);
@@ -272,17 +257,17 @@ void deserialise_entity(
         assign_components_from_yaml(registry, entity, yaml["components"]);
     }
 
-    deserialise_children(registry, yaml["children"], asset_cache, entity);
+    create_children_from_yaml(registry, yaml["children"], asset_cache, entity);
 }
 
-void deserialise(
+void populate_registry_from_yaml(
   YAML::Node const &yaml,
   entt::registry &registry,
   asset_cache &asset_cache)
 {
     for (auto const &entity_yaml : yaml["entities"])
     {
-        deserialise_entity(
+        create_entity_from_yaml(
           registry,
           entity_yaml.first.as<std::string>(),
           entity_yaml.second,
@@ -291,7 +276,7 @@ void deserialise(
     }
 }
 
-entt::meta_any deserialise_component(
+entt::meta_any construct_component_from_yaml(
   const entt::registry &registry,
   std::string const &component_type_name,
   YAML::Node const &component_yaml)
@@ -313,19 +298,20 @@ entt::meta_any deserialise_component(
     return component;
 }
 
-entt::meta_any deserialise_component(
+entt::meta_any construct_component_from_yaml(
   const entt::registry &registry,
   const YAML::Node &component_name_yaml,
   YAML::Node const &component_yaml)
 {
-    return deserialise_component(
+    return construct_component_from_yaml(
       registry, component_name_yaml.as<std::string>(), component_yaml);
 }
 
-entt::registry deserialise(YAML::Node const &yaml, asset_cache &asset_cache)
+entt::registry
+  create_registry_from_yaml(YAML::Node const &yaml, asset_cache &asset_cache)
 {
     entt::registry registry;
-    deserialise(yaml, registry, asset_cache);
+    populate_registry_from_yaml(yaml, registry, asset_cache);
     return std::move(registry);
 }
 } // namespace lmng

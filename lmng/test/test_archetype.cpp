@@ -7,8 +7,8 @@
 #include <lmng/hierarchy.h>
 #include <lmng/logging.h>
 #include <lmng/name.h>
-#include <lmng/serialisation.h>
 #include <lmng/transform.h>
+#include <lmng/yaml_save_load.h>
 
 lmng::archetype_data create_test_archetype()
 {
@@ -71,7 +71,7 @@ TEST_CASE("Map serialisation with archetypes")
     expected_yaml["Parent"] = expected_parent_yaml;
 
     YAML::Node actual_yaml;
-    lmng::serialise(registry, asset_cache, actual_yaml);
+    lmng::save_registry_as_yaml(registry, asset_cache, actual_yaml);
 
     std::ostringstream expected_str{}, actual_str{};
     expected_str << expected_yaml;
@@ -109,7 +109,7 @@ TEST_CASE("Map deserialisation with archetypes")
     lmng::hierarchy_system hierarchy_system{registry};
     lmng::connect_component_logging(registry);
 
-    lmng::deserialise(map_yaml, registry, asset_cache);
+    lmng::populate_registry_from_yaml(map_yaml, registry, asset_cache);
 
     auto parent = lmng::find_entity(registry, "Parent");
 

@@ -4,8 +4,8 @@
 #include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmng/pose.h>
-#include <lmng/serialisation.h>
 #include <lmng/transform.h>
+#include <lmng/yaml_save_load.h>
 #include <yaml-cpp/yaml.h>
 
 static YAML::Node
@@ -13,8 +13,8 @@ static YAML::Node
 {
     YAML::Node yaml_node;
 
-    yaml_node["Transform"] =
-      lmng::serialise_component(registry, registry.get<lmng::transform>(child));
+    yaml_node["Transform"] = lmng::save_component_as_yaml(
+      registry, registry.get<lmng::transform>(child));
     yaml_node["Children"] = lmng::save_pose(registry, child);
 
     return std::move(yaml_node);
@@ -33,7 +33,7 @@ void load_pose(
 
         registry.replace<transform>(
           child,
-          deserialise_component(
+          construct_component_from_yaml(
             registry, "Transform", yaml_entity.second["Transform"])
             .cast<transform>());
 

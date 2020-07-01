@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <lmlib/camera.h>
-#include <lmng/serialisation.h>
+#include <lmng/yaml_save_load.h>
 
 sample_app::sample_app()
     : resources{},
@@ -13,7 +13,7 @@ sample_app::sample_app()
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); },
       },
-      registry{lmng::deserialise(
+      registry{lmng::create_registry_from_yaml(
         YAML::LoadFile("../sample/character_movement.lmap"),
         asset_cache)},
       simulation{lmng::simulation_init{registry, asset_cache}},

@@ -1,11 +1,14 @@
 #include "entity_list_controller.h"
 #include <entt/entt.hpp>
+#include <entt/fwd.hpp>
 #include <lmeditor/model/command.h>
 #include <lmeditor/model/selection.h>
+#include <lmgl/lmgl.h>
 #include <lmlib/variant_visitor.h>
 #include <lmng/name.h>
+#include <lmtk/component.h>
+#include <lmtk/font.h>
 #include <lmtk/input_event.h>
-#include <spdlog/spdlog.h>
 
 namespace lmeditor
 {
@@ -13,14 +16,15 @@ entity_list_controller::entity_list_controller(entt::registry &registry)
     : registry{&registry},
       name_constructed_connection{
         registry.on_construct<lmng::name>()
-          .connect<&entity_list_controller::on_name_constructed>(this)},
+          .connect<&entity_list_controller::on_name_contructed>(this)},
       name_destroyed_connection{
         registry.on_destroy<lmng::name>()
           .connect<&entity_list_controller::on_name_destroyed>(this)},
       name_replaced_connection{
         registry.on_replace<lmng::name>()
           .connect<&entity_list_controller::on_name_replaced>(this)},
-      selected_entity_index{0}
+      selected_entity_index{0},
+      named_entities_count{0}
 {
 }
 
@@ -45,14 +49,9 @@ bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
         return move_selection(1);
 
     case lmpl::key_code::Enter:
-    {
-        if (!registry->view<lmng::name>().empty())
-        {
-            lmeditor::select(
-              *registry, registry->view<lmng::name>()[selected_entity_index]);
-        }
+        lmeditor::select(
+          *registry, registry->view<lmng::name>()[selected_entity_index]);
         return true;
-    }
 
     default:
         return false;
@@ -61,23 +60,13 @@ bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
 
 bool entity_list_controller::move_selection(int movement)
 {
-    auto old_index = selected_entity_index;
-
-    auto name_view = registry->view<lmng::name>();
-
     int new_pos = std::max(
-      std::min(selected_entity_index + movement, (int)name_view.size() - 1), 0);
+      std::min(selected_entity_index + movement, named_entities_count - 1), 0);
 
     if (selected_entity_index == new_pos)
         return false;
 
     selected_entity_index = new_pos;
-
-    SPDLOG_INFO(
-      "Entity list: Move selection {} from {} to {}",
-      movement == 1 ? "down" : "up",
-      lmng::get_name(*registry, name_view[old_index]),
-      lmng::get_name(*registry, name_view[selected_entity_index]));
 
     return true;
 }
@@ -105,28 +94,29 @@ void entity_list_controller::reset(const entt::registry &registry) {}
 
 size_t entity_list_controller::size() { return 0; }
 
-void entity_list_controller::on_name_constructed(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    dirty = true;
-    SPDLOG_INFO(
-      "Entity list: adding entity {}", registry.get<lmng::name>(entity).string);
-}
-
 void entity_list_controller::on_name_destroyed(
   entt::registry &registry,
   entt::entity entity)
 {
     dirty = true;
-    SPDLOG_INFO(
-      "Entity list: removing entity {}",
-      registry.get<lmng::name>(entity).string);
+    named_entities_count--;
+    if (
+      named_entities_count > 0 && selected_entity_index >= named_entities_count)
+    {
+        selected_entity_index = named_entities_count - 1;
+    }
+    else
+    {
+        selected_entity_index = 0;
+    }
+}
 
-    auto name_view = registry.view<lmng::name>();
-
-    int remaining = name_view.size() - 1;
-    selected_entity_index = std::min(selected_entity_index, remaining - 1);
+void entity_list_controller::on_name_contructed(
+  entt::registry &registry,
+  entt::entity entity)
+{
+    dirty = true;
+    named_entities_count++;
 }
 
 void entity_list_controller::on_name_replaced(

@@ -275,49 +275,11 @@ void deserialise_entity(
     deserialise_children(registry, yaml["children"], asset_cache, entity);
 }
 
-void deserialise_v0(YAML::Node const &yaml, entt::registry &registry)
-{
-    std::unordered_map<std::string, entt::entity> name_map;
-
-    for (auto const &actor_yaml : yaml)
-    {
-        auto new_entity = registry.create();
-
-        auto name = actor_yaml.first.as<std::string>();
-
-        registry.assign<lmng::name>(new_entity, name);
-
-        name_map.emplace(name, new_entity);
-    }
-
-    for (auto const &actor_yaml : yaml)
-    {
-        auto new_entity = name_map[actor_yaml.first.as<std::string>()];
-
-        for (auto const &component_yaml : actor_yaml.second)
-        {
-            lmng::assign_to_entity(
-              deserialise_component(
-                registry, component_yaml.first, component_yaml.second),
-              registry,
-              new_entity);
-        }
-    }
-}
-
 void deserialise(
   YAML::Node const &yaml,
   entt::registry &registry,
   asset_cache &asset_cache)
 {
-    auto version_node = yaml["schema_version"];
-
-    if (!version_node.IsDefined())
-    {
-        deserialise_v0(yaml, registry);
-        return;
-    }
-
     for (auto const &entity_yaml : yaml["entities"])
     {
         deserialise_entity(

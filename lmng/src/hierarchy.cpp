@@ -62,19 +62,25 @@ hierarchy_system::hierarchy_system(entt::registry &registry)
 
 child_iterator child_range::begin()
 {
-    return child_iterator(registry, parent, 0);
+    auto p_children = registry.try_get<internal::children>(parent);
+    if (p_children)
+        return p_children->entities.begin();
+
+    return child_iterator{};
 }
 
 child_iterator child_range::end()
 {
     auto p_children = registry.try_get<internal::children>(parent);
-    return child_iterator(
-      registry, parent, p_children ? p_children->entities.size() : 0);
+    if (p_children)
+        return p_children->entities.end();
+
+    return child_iterator{};
 }
 
-entt::entity child_iterator::operator*() const
+child_range::child_range(const entt::registry &registry, entt::entity parent)
+    : registry{registry}, parent{parent}
 {
-    return registry.get<internal::children>(parent).entities[i];
 }
 
 void reparent(

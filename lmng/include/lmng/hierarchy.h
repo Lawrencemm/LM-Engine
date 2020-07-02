@@ -32,51 +32,12 @@ entt::entity find_child(
   entt::entity parent,
   std::string const &name);
 
-class child_iterator
-{
-  public:
-    typedef entt::entity value_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef entt::entity *pointer;
-    typedef entt::entity &reference;
-    typedef std::input_iterator_tag iterator_category;
-
-    explicit child_iterator(
-      entt::registry const &registry,
-      entt::entity parent,
-      size_t i)
-        : registry{registry}, parent{parent}, i{i}
-    {
-    }
-
-    entt::entity operator*() const;
-
-    bool operator==(const child_iterator &other) const { return i == other.i; }
-
-    bool operator!=(const child_iterator &other) const
-    {
-        return !(*this == other);
-    }
-
-    child_iterator &operator++()
-    {
-        i++;
-        return *this;
-    }
-
-  private:
-    entt::registry const &registry;
-    entt::entity parent;
-    size_t i;
-};
+using child_iterator = std::vector<entt::entity>::const_iterator;
 
 class child_range
 {
   public:
-    child_range(entt::registry const &registry, entt::entity parent)
-        : registry{registry}, parent{parent}
-    {
-    }
+    child_range(entt::registry const &registry, entt::entity parent);
 
     child_iterator begin();
     child_iterator end();

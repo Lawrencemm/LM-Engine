@@ -3,6 +3,7 @@
 #include <lmng/name.h>
 #include <lmng/transform.h>
 #include <range/v3/action/remove.hpp>
+#include <spdlog/spdlog.h>
 
 namespace lmng
 {
@@ -34,15 +35,22 @@ void on_parent_constructed(entt::registry &registry, entt::entity entity)
 void on_parent_removed(entt::registry &registry, entt::entity entity)
 {
     entt::entity parent = registry.get<lmng::parent>(entity).entity;
+    if (!registry.valid(parent))
+        return;
+
     auto &children = registry.get<lmng::internal::children>(parent);
     ranges::actions::remove(children.entities, entity);
 }
 
 void on_children_remove(entt::registry &registry, entt::entity parent)
 {
-    for (auto child : child_range(registry, parent))
+    std::vector copied_children =
+      registry.get<internal::children>(parent).entities;
+
+    for (auto child : copied_children)
     {
-        registry.remove<lmng::parent>(child);
+        if (registry.valid(child))
+            registry.remove<lmng::parent>(child);
     }
 }
 
@@ -62,19 +70,25 @@ hierarchy_system::hierarchy_system(entt::registry &registry)
 
 child_iterator child_range::begin()
 {
-    return child_iterator(registry, parent, 0);
+    auto p_children = registry.try_get<internal::children>(parent);
+    if (p_children)
+        return p_children->entities.begin();
+
+    return child_iterator{};
 }
 
 child_iterator child_range::end()
 {
     auto p_children = registry.try_get<internal::children>(parent);
-    return child_iterator(
-      registry, parent, p_children ? p_children->entities.size() : 0);
+    if (p_children)
+        return p_children->entities.end();
+
+    return child_iterator{};
 }
 
-entt::entity child_iterator::operator*() const
+child_range::child_range(const entt::registry &registry, entt::entity parent)
+    : registry{registry}, parent{parent}
 {
-    return registry.get<internal::children>(parent).entities[i];
 }
 
 void reparent(
@@ -148,5 +162,117 @@ entt::entity find_child(
     }
 
     return result;
+}
+
+recursive_child_iterator::recursive_child_iterator(
+  const entt::registry &registry,
+  entt::entity root)
+    : registry{registry}
+{
+    if (root == entt::null)
+        return;
+
+    auto p_parent_children = registry.try_get<internal::children>(root);
+
+    if (p_parent_children)
+    {
+        child_range_stack.emplace_back(std::pair{
+          p_parent_children->entities.begin(),
+          p_parent_children->entities.end()});
+    }
+}
+
+recursive_child_iterator &recursive_child_iterator::operator++()
+{
+    SPDLOG_DEBUG(
+      "Recursive child iterator: Increment with current entity {}",
+      lmng::get_name(registry, *child_range_stack.back().first));
+
+    auto &back = child_range_stack.back();
+
+    auto maybe_children = registry.try_get<internal::children>(*back.first);
+    if (maybe_children && !maybe_children->entities.empty())
+    {
+        SPDLOG_DEBUG(
+          "Recursive child iterator: entity {} has children, appending child "
+          "range to stack",
+          lmng::get_name(registry, *child_range_stack.back().first));
+
+        child_range_stack.emplace_back(std::pair{
+          maybe_children->entities.begin(), maybe_children->entities.end()});
+
+        SPDLOG_DEBUG(
+          "Recursive child iterator: Moved to next ({})",
+          lmng::get_name(registry, *child_range_stack.back().first));
+
+        return *this;
+    }
+
+    SPDLOG_DEBUG(
+      "Recursive child iterator: entity {} does not have children; moving to "
+      "next",
+      lmng::get_name(registry, *child_range_stack.back().first));
+
+    while (child_range_stack.back().first + 1 ==
+           child_range_stack.back().second)
+    {
+        SPDLOG_DEBUG(
+          "Recursive child iterator: Popping top child range at "
+          "end ({})",
+          lmng::get_name(registry, *child_range_stack.back().first));
+
+        child_range_stack.pop_back();
+
+        if (child_range_stack.empty())
+        {
+            SPDLOG_DEBUG("Recursive child iterator: Stack empty");
+            return *this;
+        }
+    }
+
+    child_range_stack.back().first++;
+    SPDLOG_DEBUG(
+      "Recursive child iterator: Moved to next ({})",
+      lmng::get_name(registry, *child_range_stack.back().first));
+
+    return *this;
+}
+
+bool recursive_child_iterator::operator==(
+  const recursive_child_iterator &other) const
+{
+    if (other.child_range_stack.empty())
+        return child_range_stack.empty();
+
+    return child_range_stack.back().first ==
+           other.child_range_stack.back().first;
+}
+
+bool recursive_child_iterator::operator!=(
+  const recursive_child_iterator &other) const
+{
+    return !(*this == other);
+}
+
+entt::entity recursive_child_iterator::operator*() const
+{
+    return *child_range_stack.back().first;
+}
+
+recursive_child_range::recursive_child_range(
+  const entt::registry &registry,
+  entt::entity root)
+    : registry{registry}, root{root}
+{
+}
+
+recursive_child_iterator recursive_child_range::begin()
+{
+    return recursive_child_iterator(registry, root);
+}
+
+recursive_child_iterator recursive_child_range::end()
+{
+    return recursive_child_iterator(registry, entt::null);
 }
 } // namespace lmng

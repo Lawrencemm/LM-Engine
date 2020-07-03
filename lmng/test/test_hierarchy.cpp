@@ -3,6 +3,9 @@
 #include <entt/entity/registry.hpp>
 #include <lmlib/math_constants.h>
 #include <lmng/hierarchy.h>
+#include <lmng/logging.h>
+#include <lmng/meta/reflect_component.h>
+#include <lmng/name.h>
 #include <lmng/transform.h>
 
 TEST_CASE("Hierarchy system")
@@ -73,4 +76,85 @@ TEST_CASE("Hierarchy system")
         CHECK(after_reparent_transform.rotation.isApprox(
           before_reparent_transform.rotation));
     }
+}
+
+TEST_CASE("Recursive hierarchy range")
+{
+    entt::registry registry;
+    lmng::hierarchy_system hierarchy_system{registry};
+
+    auto parent = registry.create();
+    registry.assign<lmng::name>(parent, "Parent");
+
+    auto child_1 = registry.create();
+    registry.assign<lmng::name>(child_1, "Child 1");
+    registry.assign<lmng::parent>(child_1, parent);
+
+    auto child_1_child_1 = registry.create();
+    registry.assign<lmng::name>(child_1_child_1, "Child 1 child 1");
+    registry.assign<lmng::parent>(child_1_child_1, child_1);
+
+    auto child_1_child_2 = registry.create();
+    registry.assign<lmng::name>(child_1_child_2, "Child 1 child 2");
+    registry.assign<lmng::parent>(child_1_child_2, child_1);
+
+    auto child_2 = registry.create();
+    registry.assign<lmng::name>(child_2, "Child 2");
+    registry.assign<lmng::parent>(child_2, parent);
+
+    auto child_2_child = registry.create();
+    registry.assign<lmng::name>(child_2_child, "Child 2 child");
+    registry.assign<lmng::parent>(child_2_child, child_2);
+
+    unsigned counter{0};
+
+    for (auto curr_child : lmng::recursive_child_range{registry, parent})
+    {
+        if (counter >= registry.size() - 1)
+            FAIL("Too many entities iterated");
+
+        registry.assign<unsigned>(curr_child, counter++);
+    }
+
+    REQUIRE(registry.has<unsigned>(child_1));
+    CHECK(registry.get<unsigned>(child_1) == 0);
+
+    REQUIRE(registry.has<unsigned>(child_1_child_1));
+    CHECK(registry.get<unsigned>(child_1_child_1) == 1);
+
+    REQUIRE(registry.has<unsigned>(child_1_child_2));
+    CHECK(registry.get<unsigned>(child_1_child_2) == 2);
+
+    REQUIRE(registry.has<unsigned>(child_2));
+    CHECK(registry.get<unsigned>(child_2) == 3);
+
+    REQUIRE(registry.has<unsigned>(child_2_child));
+    CHECK(registry.get<unsigned>(child_2_child) == 4);
+
+    auto childless = registry.create();
+
+    unsigned childless_child_visit_count{0};
+    for (auto unused : lmng::recursive_child_range{registry, childless})
+    {
+        childless_child_visit_count++;
+    }
+
+    REQUIRE(childless_child_visit_count == 0);
+}
+
+TEST_CASE("Hierarchy manipulation")
+{
+    entt::registry registry;
+    lmng::hierarchy_system hierarchy_system{registry};
+    lmng::connect_component_logging(registry);
+
+    auto parent = registry.create();
+
+    std::vector<entt::entity> children{8, entt::entity{entt::null}};
+
+    registry.create(children.begin(), children.end());
+
+    registry.assign(children.begin(), children.end(), lmng::parent{parent});
+
+    registry.destroy(parent);
 }

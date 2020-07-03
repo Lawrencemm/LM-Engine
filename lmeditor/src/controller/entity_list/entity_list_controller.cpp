@@ -5,6 +5,7 @@
 #include <lmeditor/model/selection.h>
 #include <lmgl/lmgl.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmtk/component.h>
 #include <lmtk/font.h>
@@ -49,9 +50,29 @@ bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
         return move_selection(1);
 
     case lmpl::key_code::Enter:
-        lmeditor::select(
-          *registry, registry->view<lmng::name>()[selected_entity_index]);
+    {
+        unsigned iterated{0};
+        for (auto parent :
+             registry->view<lmng::name>(entt::exclude<lmng::parent>))
+        {
+            if (iterated == selected_entity_index)
+            {
+                lmeditor::select(*registry, parent);
+                return true;
+            }
+            iterated++;
+            for (auto child : lmng::recursive_child_range{*registry, parent})
+            {
+                if (iterated == selected_entity_index)
+                {
+                    lmeditor::select(*registry, parent);
+                    return true;
+                }
+                iterated++;
+            }
+        }
         return true;
+    }
 
     default:
         return false;

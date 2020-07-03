@@ -1,5 +1,6 @@
 #include "app.h"
 #include <fmt/format.h>
+#include <lmeditor/component/asset_list.h>
 #include <lmeditor/component/command_help.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
@@ -53,12 +54,12 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     asset_cache.emplace_loader<lmng::yaml_animation_loader>(project_dir);
     asset_cache.emplace_loader<lmng::yaml_archetype_loader>(project_dir);
 
+    YAML::Node project_config =
+      YAML::LoadFile((project_dir / "lmproj.yml").string());
+
     tbb::task_group task_group;
 
     task_group.run([&]() {
-        YAML::Node project_config =
-          YAML::LoadFile((project_dir / "lmproj.yml").string());
-
         project_plugin.load(
           project_config["editor_plugin_name"].as<std::string>(),
           entt::meta_ctx{});
@@ -91,6 +92,18 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .selection_outline_colour = std::array{1.f, 0.f, 0.f},
     }();
 
+    auto config_asset_dir = project_config["asset_directory"];
+
+    auto asset_list = asset_list_init{
+      .asset_dir = config_asset_dir
+                     ? project_dir / config_asset_dir.as<std::string>()
+                     : project_dir / "assets",
+      .position = {0, 0},
+      .size = inspector_size,
+      .renderer = resources.renderer.get(),
+      .resource_cache = resource_cache,
+    }();
+
     auto inspector = inspector_init{
       .registry = map,
       .renderer = *resources.renderer,
@@ -102,29 +115,26 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .registry = map,
       .renderer = *resources.renderer,
       .resource_cache = resource_cache,
-      .position =
-        lm::point2i{
-          inspector->get_size().width + map_editor->get_size().width,
-          0,
-        },
       .size = inspector->get_size(),
     }();
 
     assign_view_key(lmpl::key_code::M, map_editor.get());
+    assign_view_key(lmpl::key_code::A, asset_list.get());
     assign_view_key(lmpl::key_code::I, inspector.get());
     assign_view_key(lmpl::key_code::L, entity_list.get());
 
     visible_components.insert(
       visible_components.begin(),
-      {map_editor.get(), inspector.get(), entity_list.get()});
+      {map_editor.get(), asset_list.get(), inspector.get(), entity_list.get()});
 
     component_order.insert(
       component_order.begin(),
-      {inspector.get(), map_editor.get(), entity_list.get()});
+      {asset_list.get(), inspector.get(), map_editor.get(), entity_list.get()});
 
     main_component = map_editor.get();
 
     components.emplace_back(std::move(map_editor));
+    components.emplace_back(std::move(asset_list));
     components.emplace_back(std::move(inspector));
     components.emplace_back(std::move(entity_list));
 

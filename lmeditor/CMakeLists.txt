@@ -71,6 +71,8 @@ add_library(
 
   src/component/entity_list/entity_list_component.cpp
 
+  src/component/asset_list/asset_list_component.cpp
+
   src/component/player.cpp
 )
 

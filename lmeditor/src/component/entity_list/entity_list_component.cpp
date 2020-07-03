@@ -107,8 +107,8 @@ lm::point2i entity_list_component::get_position() { return position; }
 entity_list_component &
   entity_list_component::set_rect(lm::point2i position, lm::size2i size)
 {
-    position = position;
-    size = size;
+    this->position = position;
+    this->size = size;
     return *this;
 }
 

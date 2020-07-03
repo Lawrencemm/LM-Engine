@@ -3,6 +3,8 @@
 #include <entt/entity/registry.hpp>
 #include <lmlib/math_constants.h>
 #include <lmng/hierarchy.h>
+#include <lmng/logging.h>
+#include <lmng/meta/reflect_component.h>
 #include <lmng/name.h>
 #include <lmng/transform.h>
 
@@ -138,4 +140,21 @@ TEST_CASE("Recursive hierarchy range")
     }
 
     REQUIRE(childless_child_visit_count == 0);
+}
+
+TEST_CASE("Hierarchy manipulation")
+{
+    entt::registry registry;
+    lmng::hierarchy_system hierarchy_system{registry};
+    lmng::connect_component_logging(registry);
+
+    auto parent = registry.create();
+
+    std::vector<entt::entity> children{8, entt::entity{entt::null}};
+
+    registry.create(children.begin(), children.end());
+
+    registry.assign(children.begin(), children.end(), lmng::parent{parent});
+
+    registry.destroy(parent);
 }

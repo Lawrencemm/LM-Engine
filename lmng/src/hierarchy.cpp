@@ -35,15 +35,22 @@ void on_parent_constructed(entt::registry &registry, entt::entity entity)
 void on_parent_removed(entt::registry &registry, entt::entity entity)
 {
     entt::entity parent = registry.get<lmng::parent>(entity).entity;
+    if (!registry.valid(parent))
+        return;
+
     auto &children = registry.get<lmng::internal::children>(parent);
     ranges::actions::remove(children.entities, entity);
 }
 
 void on_children_remove(entt::registry &registry, entt::entity parent)
 {
-    for (auto child : child_range(registry, parent))
+    std::vector copied_children =
+      registry.get<internal::children>(parent).entities;
+
+    for (auto child : copied_children)
     {
-        registry.remove<lmng::parent>(child);
+        if (registry.valid(child))
+            registry.remove<lmng::parent>(child);
     }
 }
 

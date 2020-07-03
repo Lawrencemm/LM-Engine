@@ -1,5 +1,6 @@
 #include "entity_list_component.h"
 #include <entt/entt.hpp>
+#include <lmng/hierarchy.h>
 #include <lmng/name.h>
 #include <lmtk/vlayout.h>
 
@@ -74,11 +75,27 @@ void entity_list_component::reset(
     auto layout_factory = lmtk::text_layout_factory{
       renderer, resource_cache, {1.f, 1.f, 1.f}, position};
 
-    registry.view<lmng::name const>().each(
-      [&](auto entity, auto &name_component) {
-          line_layouts.emplace_back(
-            layout_factory.create(name_component.string));
-      });
+    std::function<void(entt::entity, unsigned)> add_children;
+
+    add_children = [&](auto entity, unsigned level) {
+        for (auto child : lmng::child_range{registry, entity})
+        {
+            line_layouts.emplace_back(
+              layout_factory.create(registry.get<lmng::name>(child).string));
+            auto old_pos = line_layouts.back().position;
+            old_pos.x += level * 15;
+            line_layouts.back().set_position(old_pos);
+            add_children(child, level + 1);
+        }
+    };
+
+    auto add_root_entity = [&](auto entity, auto &name_component) {
+        line_layouts.emplace_back(layout_factory.create(name_component.string));
+        add_children(entity, 1);
+    };
+
+    registry.view<lmng::name const>(entt::exclude<lmng::parent>)
+      .each(add_root_entity);
 
     lmtk::layout_vertical(lmtk::vertical_layout{position.y, 12}, line_layouts);
 }

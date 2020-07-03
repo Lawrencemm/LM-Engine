@@ -51,6 +51,8 @@ jobs:
         run: cmake --build build -j $(nproc --all)
       - name: Test
         working-directory: build
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1
         run: ctest
 
   windows:
@@ -94,4 +96,6 @@ jobs:
         run: cmake --build build -j $(nproc --all)
       - name: Test
         working-directory: build
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1
         run: ctest

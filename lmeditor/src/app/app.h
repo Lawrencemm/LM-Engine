@@ -106,7 +106,7 @@ class editor_app
     void refit_visible_components();
     void assign_view_key(lmpl::key_code code, component_interface *pview);
     void toggle_component(component_interface *pview);
-    void focus_component(lmtk::component_interface *tool_panel);
+    void update_active_component_border(lmtk::component_interface *tool_panel);
 
     void move_current_state_resources();
 

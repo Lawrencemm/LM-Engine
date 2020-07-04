@@ -16,6 +16,36 @@ bool editor_app::gui_state::handle(
         [&](lmtk::key_down_event const &key_down_event) {
             if (key_down_event.input_state.key_state.alt())
             {
+                if (
+                  key_down_event.input_state.key_state.shift() &&
+                  app.visible_components.front() != app.main_component)
+                {
+                    unsigned width_change{0};
+                    switch (key_down_event.key)
+                    {
+                    case lmpl::key_code::L:
+                        width_change = 5;
+                        break;
+
+                    case lmpl::key_code::J:
+                        width_change = -5;
+                        break;
+
+                    default:
+                        break;
+                    }
+                    if (width_change)
+                    {
+                        auto new_size =
+                          app.visible_components.front()->get_size();
+                        new_size.width += width_change;
+                        app.visible_components.front()->set_rect(
+                          app.visible_components.front()->get_position(),
+                          new_size);
+                        app.refit_visible_components();
+                        return true;
+                    }
+                }
                 auto found_mapping =
                   app.key_code_view_map.find(key_down_event.key);
                 if (found_mapping != app.key_code_view_map.end())

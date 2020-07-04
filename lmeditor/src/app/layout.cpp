@@ -3,7 +3,8 @@
 
 namespace lmeditor
 {
-void editor_app::focus_component(lmtk::component_interface *component)
+void editor_app::update_active_component_border(
+  lmtk::component_interface *component)
 {
     active_component_border->set_rect(
       component->get_position(), component->get_size());
@@ -25,7 +26,7 @@ void editor_app::toggle_component(component_interface *pview)
     refit_visible_components();
 
     if (!visible_components.empty())
-        focus_component(visible_components.front());
+        update_active_component_border(visible_components.front());
 }
 
 void editor_app::refit_visible_components()
@@ -59,5 +60,7 @@ void editor_app::refit_visible_components()
         component->set_rect({current_pos, 0}, component_size);
         current_pos += component_size.width;
     }
+
+    update_active_component_border(visible_components.front());
 }
 } // namespace lmeditor

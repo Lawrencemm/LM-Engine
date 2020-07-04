@@ -140,7 +140,6 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     components.emplace_back(std::move(entity_list));
 
     refit_visible_components();
-    focus_component(visible_components.front());
 
     lmng::connect_component_logging(map);
 

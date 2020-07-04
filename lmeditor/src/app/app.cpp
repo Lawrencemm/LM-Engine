@@ -127,7 +127,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 
     visible_components.insert(
       visible_components.begin(),
-      {map_editor.get(), asset_list.get(), inspector.get(), entity_list.get()});
+      {map_editor.get(), asset_list.get(), entity_list.get()});
 
     component_order.insert(
       component_order.begin(),

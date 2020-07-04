@@ -101,6 +101,6 @@ void map_editor_component::render_selection_outline(
 
 void map_editor_component::render_state_text(lmgl::iframe *frame)
 {
-    state_text_layout.render(frame);
+    state_text_layout.render(frame, position, size);
 }
 } // namespace lmeditor

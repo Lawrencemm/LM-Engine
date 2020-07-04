@@ -31,6 +31,10 @@ class text_layout
     static lmgl::material create_material(lmgl::irenderer &renderer);
 
     explicit text_layout(text_layout_init const &init);
+    text_layout &render(
+      lmgl::iframe *frame,
+      lm::point2i const &scissor_origin,
+      lm::size2i const &scissor_extent);
     text_layout &render(lmgl::iframe *frame);
 
     void set_text(
@@ -62,6 +66,7 @@ class text_layout
     unsigned max_glyph_height;
     void move_text_resources(lmgl::resource_sink &sink);
     void move_resources(lmgl::resource_sink &sink);
+    void update_ubuffer(lmgl::iframe *frame);
 };
 
 struct text_layout_init

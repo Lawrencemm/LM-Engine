@@ -56,7 +56,7 @@ bool entity_list_component::add_to_frame(lmgl::iframe *frame)
     update_selection_background();
     selection_background.add_to_frame(frame);
     for (auto &layout : line_layouts)
-        layout.render(frame);
+        layout.render(frame, position, size);
 
     return false;
 }

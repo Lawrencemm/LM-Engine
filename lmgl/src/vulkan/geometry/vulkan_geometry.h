@@ -26,8 +26,9 @@ class vulkan_geometry : public virtual igeometry, public vulkan_element
     explicit vulkan_geometry(
       const geometry_init &init,
       vulkan_renderer *renderer);
-    lm::reference<vulkan_frame_element>
-      create_context_node(vk::Viewport const &viewport) const override;
+    lm::reference<vulkan_frame_element> create_context_node(
+      vk::Viewport const &viewport,
+      vk::Rect2D const &scissor) const override;
     vulkan_geometry &set_n_indices(uint32_t n_indices) override;
 
     void write_descriptors(const geometry_init &init);
@@ -56,7 +57,8 @@ class vulkan_frame_geometry : public vulkan_frame_element
   public:
     explicit vulkan_frame_geometry(
       const vulkan_geometry &geometry,
-      vk::Viewport const &viewport);
+      vk::Viewport const &viewport,
+      vk::Rect2D const &scissor);
     void render(vulkan_frame &context) override;
 
     std::vector<vk::DescriptorSet> descriptor_sets;
@@ -69,5 +71,6 @@ class vulkan_frame_geometry : public vulkan_frame_element
     vk::IndexType index_type;
     float line_width;
     vk::Viewport viewport;
+    vk::Rect2D scissor;
 };
 } // namespace lmgl

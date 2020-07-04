@@ -54,7 +54,8 @@ vulkan_frame::vulkan_frame(
           .setMaxDepth(1.f)
           .setWidth(stage->currentExtent.width)
           .setHeight(stage->currentExtent.height),
-      }
+      },
+      scissor{{0, 0}, stage->currentExtent}
 {
     command_buffer->begin(vk::CommandBufferBeginInfo{}.setFlags(
       vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
@@ -73,8 +74,9 @@ iframe &vulkan_frame::add_buffer_update(
 
 vulkan_frame &vulkan_frame::build()
 {
-    std::array clear_values{vk::ClearValue{clear_colour_},
-                            vk::ClearValue{vk::ClearDepthStencilValue{1.f, 0}}};
+    std::array clear_values{
+      vk::ClearValue{clear_colour_},
+      vk::ClearValue{vk::ClearDepthStencilValue{1.f, 0}}};
 
     auto renderPassBeginInfo =
       vk::RenderPassBeginInfo{}
@@ -86,8 +88,6 @@ vulkan_frame &vulkan_frame::build()
 
     command_buffer->beginRenderPass(
       renderPassBeginInfo, vk::SubpassContents::eInline);
-
-    auto scissor = vk::Rect2D{}.setExtent(stage->currentExtent);
 
     command_buffer->setViewport(0, 1, &viewport);
     command_buffer->setScissor(0, 1, &scissor);
@@ -106,7 +106,8 @@ iframe &vulkan_frame::add(lm::array_proxy<ielement *const> elements)
     for (auto element : elements)
     {
         auto vk_element = dynamic_cast<vulkan_element *const>(element);
-        this->elements.emplace_back(vk_element->create_context_node(viewport));
+        this->elements.emplace_back(
+          vk_element->create_context_node(viewport, scissor));
     }
     return *this;
 }
@@ -131,7 +132,40 @@ iframe &vulkan_frame::add(
     {
         auto vk_element = dynamic_cast<vulkan_element *const>(element);
         this->elements.emplace_back(
-          vk_element->create_context_node(get_vk_viewport(viewport)));
+          vk_element->create_context_node(get_vk_viewport(viewport), scissor));
+    }
+    return *this;
+}
+
+iframe &vulkan_frame::add(
+  lm::array_proxy<ielement *const> elements,
+  lm::point2i scissor_origin,
+  lm::size2i scissor_extent)
+{
+    for (auto element : elements)
+    {
+        auto vk_element = dynamic_cast<vulkan_element *const>(element);
+        this->elements.emplace_back(vk_element->create_context_node(
+          viewport,
+          {{scissor_origin.x, scissor_origin.y},
+           {(unsigned)scissor_extent.width, (unsigned)scissor_extent.height}}));
+    }
+    return *this;
+}
+
+iframe &vulkan_frame::add(
+  lm::array_proxy<ielement *const> elements,
+  struct viewport const &viewport,
+  lm::point2i scissor_origin,
+  lm::size2i scissor_extent)
+{
+    for (auto element : elements)
+    {
+        auto vk_element = dynamic_cast<vulkan_element *const>(element);
+        this->elements.emplace_back(vk_element->create_context_node(
+          get_vk_viewport(viewport),
+          {{scissor_origin.x, scissor_origin.y},
+           {(unsigned)scissor_extent.width, (unsigned)scissor_extent.height}}));
     }
     return *this;
 }

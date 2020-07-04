@@ -33,7 +33,16 @@ class vulkan_frame : public iframe
     iframe &add(lm::array_proxy<ielement *const> elements) override;
     iframe &add(
       lm::array_proxy<ielement *const> elements,
-      struct viewport const &viewport) override;
+      struct viewport const &viewport,
+      lm::point2i scissor_origin,
+      lm::size2i scissor_extent) override;
+    iframe &add(
+      lm::array_proxy<ielement *const> elements,
+      const viewport &viewport) override;
+    iframe &add(
+      lm::array_proxy<ielement *const> elements,
+      lm::point2i scissor_origin,
+      lm::size2i scissor_extent) override;
 
     vulkan_frame &build() override;
     iframe &clear_colour(std::array<float, 4> colour) override;
@@ -49,6 +58,7 @@ class vulkan_frame : public iframe
     vk::UniqueSemaphore completion_semaphore, backbuffer_acquired_semaphore;
     vk::UniqueFence complete_fence;
     vk::Viewport viewport;
+    vk::Rect2D scissor;
 
     std::array<float, 4> clear_colour_{0.f, 0.f, 0.f, 1.f};
 };

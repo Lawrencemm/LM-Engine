@@ -188,7 +188,7 @@ bool inspector_component::add_to_frame(lmgl::iframe *frame)
     selection_background.add_to_frame(frame);
     for (auto &line : lines)
     {
-        line.render(frame);
+        line.render(frame, position, size);
     }
     return false;
 }

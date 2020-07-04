@@ -28,6 +28,7 @@ add_library(
   src/project_plugin.cpp
 
   src/app/app.cpp
+  src/app/layout.cpp
   src/app/save_load.cpp
 
   src/app/states/gui.cpp

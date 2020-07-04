@@ -80,7 +80,6 @@ class editor_app
 
     state_variant_type state;
 
-    lmtk::component create_map_selector();
     lmtk::component create_simulation_selector();
     lmtk::component create_map_saver();
     lmtk::component create_command_help();
@@ -96,7 +95,7 @@ class editor_app
     bool on_map_saved(const std::string &project_path);
     bool on_pose_saved(const std::string &project_path);
 
-    void load_map(const std::string &project_path);
+    bool load_map(std::filesystem::path const &path);
     void save_map(std::filesystem::path const &absolute_path);
 
   protected:

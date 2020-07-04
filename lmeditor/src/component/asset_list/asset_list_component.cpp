@@ -4,19 +4,15 @@
 
 namespace lmeditor
 {
-component asset_list_init::operator()()
+std::unique_ptr<asset_list_interface> asset_list_init::operator()()
 {
     return std::make_unique<asset_list_component>(*this);
 }
 
-std::vector<lmtk::text_layout> create_entries(
-  std::filesystem::path const &asset_dir,
-  lm::point2i position,
+void asset_list_component::create_entries(
   lmgl::irenderer *renderer,
   lmtk::resource_cache const &resource_cache)
 {
-    std::vector<lmtk::text_layout> line_layouts;
-
     auto layout_factory = lmtk::text_layout_factory{
       *renderer, resource_cache, {1.f, 1.f, 1.f}, position};
 
@@ -33,6 +29,7 @@ std::vector<lmtk::text_layout> create_entries(
               auto old_pos = line_layouts.back().position;
               old_pos.x += level * 15;
               line_layouts.back().set_position(old_pos);
+              entries.emplace_back(sub_entry.path());
 
               if (sub_entry.is_directory())
                   add_subdir(sub_entry, level + 1);
@@ -43,13 +40,13 @@ std::vector<lmtk::text_layout> create_entries(
     {
         line_layouts.emplace_back(
           layout_factory.create(entry.path().stem().string()));
+        entries.emplace_back(entry.path());
+
         if (entry.is_directory())
             add_subdir(entry, 1);
     }
 
     lmtk::layout_vertical(lmtk::vertical_layout{position.y, 12}, line_layouts);
-
-    return std::move(line_layouts);
 }
 
 asset_list_component::asset_list_component(const asset_list_init &init)
@@ -62,10 +59,9 @@ asset_list_component::asset_list_component(const asset_list_init &init)
         init.position,
         {0, 0},
         {0.f, 0.f, 0.f, 1.f},
-      },
-      line_layouts{
-        create_entries(asset_dir, position, init.renderer, init.resource_cache)}
+      }
 {
+    create_entries(init.renderer, init.resource_cache);
 }
 
 std::vector<command_description>
@@ -95,8 +91,7 @@ lmtk::component_interface &asset_list_component::update(
 
     line_layouts.clear();
 
-    line_layouts =
-      create_entries(asset_dir, position, renderer, resource_cache);
+    create_entries(renderer, resource_cache);
 
     return *this;
 }
@@ -156,6 +151,13 @@ bool asset_list_component::handle_key_down(const lmtk::key_down_event &event)
     case lmpl::key_code::K:
         return move_selection(1);
 
+    case lmpl::key_code::Enter:
+        if (entries[selected_index].extension() == ".lmap")
+            return lmtk::collect_dirty_signal(
+              map_selected_signal, entries[selected_index]);
+
+        return false;
+
     default:
         return false;
     }
@@ -172,5 +174,11 @@ bool asset_list_component::move_selection(int movement)
     selected_index += movement;
 
     return true;
+}
+
+entt::sink<bool(const std::filesystem::path &)>
+  asset_list_component::on_select_map()
+{
+    return map_selected_signal;
 }
 } // namespace lmeditor

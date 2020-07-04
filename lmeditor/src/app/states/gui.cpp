@@ -47,14 +47,6 @@ bool editor_app::gui_state::handle(
                 }
                 return false;
 
-            case lmpl::key_code::L:
-                if (key_down_event.input_state.key_state.control())
-                {
-                    app.change_state(modal_state{app.create_map_selector()});
-                    return true;
-                }
-                return false;
-
             case lmpl::key_code::S:
                 if (key_down_event.input_state.key_state.control())
                 {

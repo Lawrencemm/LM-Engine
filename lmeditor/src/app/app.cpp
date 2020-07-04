@@ -104,6 +104,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .resource_cache = resource_cache,
     }();
 
+    asset_list->on_select_map().connect<&editor_app::load_map>(this);
+
     auto inspector = inspector_init{
       .registry = map,
       .renderer = *resources.renderer,
@@ -254,33 +256,6 @@ bool editor_app::on_simulation_selected(unsigned selection_index)
     change_state<gui_state>();
 
     return true;
-}
-
-lmtk::component editor_app::create_map_selector()
-{
-    std::vector<std::string> output;
-    for (auto &entry :
-         std::filesystem::recursive_directory_iterator{project_dir})
-    {
-        if (entry.path().extension() != ".lmap")
-            continue;
-
-        auto with_ext = std::filesystem::relative(entry, project_dir).string();
-        output.emplace_back(
-          with_ext.substr(0, with_ext.size() - std::string{".lmap"}.size()));
-    }
-
-    auto selector =
-      lmtk::choice_list_init{
-        .choices = output,
-        .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
-      }
-        .unique();
-
-    selector->on_selected().connect<&editor_app::on_map_selected>(this);
-
-    return std::move(selector);
 }
 
 lmtk::component editor_app::create_simulation_selector()

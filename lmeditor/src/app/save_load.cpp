@@ -39,13 +39,15 @@ bool editor_app::on_map_selected(
     return true;
 }
 
-void editor_app::load_map(const std::string &project_path)
+bool editor_app::load_map(std::filesystem::path const &path)
 {
-    auto map_yaml =
-      YAML::LoadFile((project_dir / (project_path + ".lmap")).string());
+    auto map_yaml = YAML::LoadFile(path.string());
     map.clear();
     lmng::populate_registry_from_yaml(map_yaml, map, asset_cache);
-    map_file_project_relative_path = project_path;
+    map_file_project_relative_path =
+      std::filesystem::relative(path, project_dir).replace_extension().string();
+
+    return true;
 }
 
 bool editor_app::on_pose_saved(const std::string &project_path)

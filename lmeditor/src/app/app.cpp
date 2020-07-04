@@ -1,5 +1,6 @@
 #include "app.h"
 #include <fmt/format.h>
+#include <lmeditor/component/asset_list.h>
 #include <lmeditor/component/command_help.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
@@ -13,7 +14,6 @@
 #include <lmng/name.h>
 #include <lmtk/choice_list.h>
 #include <random>
-#include <range/v3/algorithm/find.hpp>
 #include <spdlog/spdlog.h>
 #include <tbb/task_group.h>
 #include <yaml-cpp/yaml.h>
@@ -53,12 +53,12 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     asset_cache.emplace_loader<lmng::yaml_animation_loader>(project_dir);
     asset_cache.emplace_loader<lmng::yaml_archetype_loader>(project_dir);
 
+    YAML::Node project_config =
+      YAML::LoadFile((project_dir / "lmproj.yml").string());
+
     tbb::task_group task_group;
 
     task_group.run([&]() {
-        YAML::Node project_config =
-          YAML::LoadFile((project_dir / "lmproj.yml").string());
-
         project_plugin.load(
           project_config["editor_plugin_name"].as<std::string>(),
           entt::meta_ctx{});
@@ -91,6 +91,20 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .selection_outline_colour = std::array{1.f, 0.f, 0.f},
     }();
 
+    auto config_asset_dir = project_config["asset_directory"];
+
+    auto asset_list = asset_list_init{
+      .asset_dir = config_asset_dir
+                     ? project_dir / config_asset_dir.as<std::string>()
+                     : project_dir / "assets",
+      .position = {0, 0},
+      .size = inspector_size,
+      .renderer = resources.renderer.get(),
+      .resource_cache = resource_cache,
+    }();
+
+    asset_list->on_select_map().connect<&editor_app::load_map>(this);
+
     auto inspector = inspector_init{
       .registry = map,
       .renderer = *resources.renderer,
@@ -102,34 +116,30 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .registry = map,
       .renderer = *resources.renderer,
       .resource_cache = resource_cache,
-      .position =
-        lm::point2i{
-          inspector->get_size().width + map_editor->get_size().width,
-          0,
-        },
       .size = inspector->get_size(),
     }();
 
     assign_view_key(lmpl::key_code::M, map_editor.get());
+    assign_view_key(lmpl::key_code::A, asset_list.get());
     assign_view_key(lmpl::key_code::I, inspector.get());
     assign_view_key(lmpl::key_code::L, entity_list.get());
 
     visible_components.insert(
       visible_components.begin(),
-      {map_editor.get(), inspector.get(), entity_list.get()});
+      {map_editor.get(), asset_list.get(), entity_list.get()});
 
     component_order.insert(
       component_order.begin(),
-      {inspector.get(), map_editor.get(), entity_list.get()});
+      {asset_list.get(), inspector.get(), map_editor.get(), entity_list.get()});
 
     main_component = map_editor.get();
 
     components.emplace_back(std::move(map_editor));
+    components.emplace_back(std::move(asset_list));
     components.emplace_back(std::move(inspector));
     components.emplace_back(std::move(entity_list));
 
     refit_visible_components();
-    focus_component(visible_components.front());
 
     lmng::connect_component_logging(map);
 
@@ -180,97 +190,12 @@ void editor_app::on_quit()
     resource_cache.move_resources(resources.resource_sink);
 }
 
-void editor_app::focus_component(lmtk::component_interface *component)
-{
-    active_component_border->set_rect(
-      component->get_position(), component->get_size());
-}
-
-void editor_app::toggle_component(component_interface *pview)
-{
-    auto found_visible = ranges::find(visible_components, pview);
-
-    bool is_visible = found_visible != visible_components.end();
-    bool is_focused = found_visible == visible_components.begin();
-
-    if (is_visible)
-        visible_components.erase(found_visible);
-
-    if (!is_focused)
-        visible_components.insert(visible_components.begin(), pview);
-
-    refit_visible_components();
-
-    if (!visible_components.empty())
-        focus_component(visible_components.front());
-}
-
-void editor_app::refit_visible_components()
-{
-    int total_width{0};
-
-    for (auto component : visible_components)
-    {
-        if (component == main_component)
-            continue;
-
-        total_width += component->get_size().width;
-    }
-
-    int remainder = resources.window_size.width - total_width;
-
-    auto main_component_size = main_component->get_size();
-    main_component_size.width = remainder;
-    main_component->set_rect({0, 0}, main_component_size);
-
-    int current_pos{0};
-    for (auto component : component_order)
-    {
-        if (
-          ranges::find(visible_components, component) ==
-          visible_components.end())
-            continue;
-
-        auto component_size = component->get_size();
-
-        component->set_rect({current_pos, 0}, component_size);
-        current_pos += component_size.width;
-    }
-}
-
 bool editor_app::on_simulation_selected(unsigned selection_index)
 {
     selected_simulation_index = selection_index;
     change_state<gui_state>();
 
     return true;
-}
-
-lmtk::component editor_app::create_map_selector()
-{
-    std::vector<std::string> output;
-    for (auto &entry :
-         std::filesystem::recursive_directory_iterator{project_dir})
-    {
-        if (entry.path().extension() != ".lmap")
-            continue;
-
-        auto with_ext = std::filesystem::relative(entry, project_dir).string();
-        output.emplace_back(
-          with_ext.substr(0, with_ext.size() - std::string{".lmap"}.size()));
-    }
-
-    auto selector =
-      lmtk::choice_list_init{
-        .choices = output,
-        .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
-      }
-        .unique();
-
-    selector->on_selected().connect<&editor_app::on_map_selected>(this);
-
-    return std::move(selector);
 }
 
 lmtk::component editor_app::create_simulation_selector()

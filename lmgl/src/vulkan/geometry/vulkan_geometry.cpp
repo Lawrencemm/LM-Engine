@@ -100,7 +100,8 @@ void vulkan_geometry::write_descriptors(const geometry_init &init)
 
 vulkan_frame_geometry::vulkan_frame_geometry(
   const vulkan_geometry &geometry,
-  vk::Viewport const &viewport)
+  vk::Viewport const &viewport,
+  vk::Rect2D const &scissor)
     : descriptor_sets{geometry.descriptor_sets},
       pipeline{
         reinterpret_cast<vulkan_material *>(geometry.material)->pipeline.get()},
@@ -112,14 +113,16 @@ vulkan_frame_geometry::vulkan_frame_geometry(
         reinterpret_cast<vulkan_material *>(geometry.material)->index_type},
       n_indices{geometry.n_indices},
       line_width{geometry.line_width},
-      viewport{viewport}
+      viewport{viewport},
+      scissor{scissor}
 {
 }
 
-lm::reference<vulkan_frame_element>
-  vulkan_geometry::create_context_node(vk::Viewport const &viewport) const
+lm::reference<vulkan_frame_element> vulkan_geometry::create_context_node(
+  vk::Viewport const &viewport,
+  vk::Rect2D const &scissor) const
 {
-    return std::make_unique<vulkan_frame_geometry>(*this, viewport);
+    return std::make_unique<vulkan_frame_geometry>(*this, viewport, scissor);
 }
 
 void vulkan_frame_geometry::render(vulkan_frame &context)
@@ -148,6 +151,7 @@ void vulkan_frame_geometry::render(vulkan_frame &context)
     command_buffer->setLineWidth(line_width);
 
     command_buffer->setViewport(0, 1, &viewport);
+    command_buffer->setScissor(0, 1, &scissor);
 
     if (indices_buffer)
         command_buffer->drawIndexed((uint32_t)n_indices, 1, 0, 0, 0);

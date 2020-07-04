@@ -12,12 +12,12 @@ namespace lmgl
 class MockFrame : public iframe
 {
   public:
-    iframe &add(lm::array_proxy<ielement *const> element) override
+    iframe &add(lm::array_proxy<ielement *const> elements) override
     {
         return *this;
     }
     iframe &add(
-      lm::array_proxy<ielement *const> element,
+      lm::array_proxy<ielement *const> elements,
       struct viewport const &viewport) override
     {
         return *this;

@@ -67,31 +67,24 @@ text_layout &text_layout::render(lmgl::iframe *frame)
     if (vposbuffer == nullptr)
         return *this;
 
-    Eigen::Matrix3f transform = Eigen::Matrix3f::Identity();
-    const lm::size2u &frame_size = frame->size();
-    transform(0, 0) = 2.f / frame_size.width;
-    transform(1, 1) = -2.f / frame_size.height;
+    update_ubuffer(frame);
 
-    Eigen::Vector2f fpos = {-1.f, -1.f};
-    fpos += Eigen::Vector2f{
-      (float)2 * position.x / frame_size.width,
-      (float)2 * (position.y + max_glyph_height) / frame_size.height,
-    };
-
-    transform.col(2).head<2>() = fpos;
-
-    if (alignment == text_alignment::center)
-    {
-        auto width = 2 * pixel_width / frame_size.width;
-        transform(0, 2) -= width / 2;
-    }
-
-    Eigen::Matrix4f padded_transform = Eigen::Matrix4f::Identity();
-    padded_transform.block(0, 0, 3, 3) = transform;
-    text_render_uniform uniform{padded_transform, colour};
-
-    lmgl::add_buffer_update(frame, ubuffer.get(), uniform);
     frame->add({geometry_.get()});
+
+    return *this;
+}
+
+text_layout &text_layout::render(
+  lmgl::iframe *frame,
+  lm::point2i const &scissor_origin,
+  lm::size2i const &scissor_extent)
+{
+    if (vposbuffer == nullptr)
+        return *this;
+
+    update_ubuffer(frame);
+
+    frame->add({geometry_.get()}, scissor_origin, scissor_extent);
     return *this;
 }
 
@@ -205,5 +198,33 @@ void text_layout::set_text(
 lm::size2i text_layout::get_size()
 {
     return {(int)pixel_width, (int)max_glyph_height};
+}
+
+void text_layout::update_ubuffer(lmgl::iframe *frame)
+{
+    Eigen::Matrix3f transform = Eigen::Matrix3f::Identity();
+    const lm::size2u &frame_size = frame->size();
+    transform(0, 0) = 2.f / frame_size.width;
+    transform(1, 1) = -2.f / frame_size.height;
+
+    Eigen::Vector2f fpos = {-1.f, -1.f};
+    fpos += Eigen::Vector2f{
+      (float)2 * position.x / frame_size.width,
+      (float)2 * (position.y + max_glyph_height) / frame_size.height,
+    };
+
+    transform.col(2).head<2>() = fpos;
+
+    if (alignment == text_alignment::center)
+    {
+        auto width = 2 * pixel_width / frame_size.width;
+        transform(0, 2) -= width / 2;
+    }
+
+    Eigen::Matrix4f padded_transform = Eigen::Matrix4f::Identity();
+    padded_transform.block(0, 0, 3, 3) = transform;
+    text_render_uniform uniform{padded_transform, colour};
+
+    lmgl::add_buffer_update(frame, ubuffer.get(), uniform);
 }
 } // namespace lmtk

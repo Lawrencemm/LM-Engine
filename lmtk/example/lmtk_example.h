@@ -19,8 +19,10 @@ class lmtk_example
             display->get_primary_screen()->get_size().proportion({1, 2})},
           window{display->create_window(lmpl::window_init{window_size})},
           stage{renderer->create_stage(lmgl::stage_init{window.get()})},
+          font_loader{lmtk::create_font_loader()},
           resource_cache{lmtk::resource_cache_init{
             .renderer = renderer.get(),
+            .font_loader = font_loader.get(),
             .body_font = {
               .typeface_name = "Arial",
               .pixel_size = 32,
@@ -72,6 +74,8 @@ class lmtk_example
     lm::size2i window_size;
     lmpl::window window;
     lmgl::stage stage;
+
+    lmtk::font_loader font_loader;
 
     lmtk::input_state input_state;
     lmtk::resource_cache resource_cache;

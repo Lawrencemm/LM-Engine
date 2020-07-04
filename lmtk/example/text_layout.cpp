@@ -7,7 +7,6 @@ class lmtk_text_layout_example : public lmtk_example
   public:
     lmtk_text_layout_example()
         : lmtk_example{},
-          font_loader{lmtk::create_font_loader()},
           font{
             font_loader->create_font(lmtk::font_init{
               .renderer = renderer.get(),
@@ -34,7 +33,6 @@ class lmtk_text_layout_example : public lmtk_example
     void on_render(lmgl::iframe *frame) override { text_layout.render(frame); }
 
   private:
-    lmtk::font_loader font_loader;
     lmtk::font font;
     lmgl::material font_material;
     lmtk::text_layout text_layout;

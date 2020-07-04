@@ -16,8 +16,9 @@ class vulkan_element : public virtual ielement
 {
   public:
     vulkan_element(vulkan_renderer *renderer) : renderer{renderer} {}
-    virtual lm::reference<vulkan_frame_element>
-      create_context_node(vk::Viewport const &viewport) const = 0;
+    virtual lm::reference<vulkan_frame_element> create_context_node(
+      vk::Viewport const &viewport,
+      vk::Rect2D const &scissor) const = 0;
 
   public:
     vulkan_renderer *renderer;

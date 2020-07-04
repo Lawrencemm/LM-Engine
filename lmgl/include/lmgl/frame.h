@@ -34,10 +34,22 @@ struct viewport
 class iframe
 {
   public:
-    virtual iframe &add(lm::array_proxy<ielement *const> element) = 0;
+    virtual iframe &add(lm::array_proxy<ielement *const> elements) = 0;
+
     virtual iframe &add(
-      lm::array_proxy<ielement *const> element,
+      lm::array_proxy<ielement *const> elements,
       struct viewport const &viewport) = 0;
+
+    virtual iframe &add(
+      lm::array_proxy<ielement *const> elements,
+      lm::point2i scissor_origin,
+      lm::size2i scissor_extent) = 0;
+
+    virtual iframe &add(
+      lm::array_proxy<ielement *const> elements,
+      struct viewport const &viewport,
+      lm::point2i scissor_origin,
+      lm::size2i scissor_extent) = 0;
 
     virtual iframe &clear_colour(std::array<float, 4> colour) = 0;
 

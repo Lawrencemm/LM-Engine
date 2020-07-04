@@ -44,7 +44,7 @@ lmtk::component_interface &player::update(
 
 bool player::add_to_frame(lmgl::iframe *frame)
 {
-    visual_view->add_to_frame(registry, frame, lmgl::viewport{size});
+    visual_view->add_to_frame(registry, frame, lmgl::viewport{position, size});
 
     return true;
 }

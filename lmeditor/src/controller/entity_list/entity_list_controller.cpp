@@ -65,7 +65,7 @@ bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
             {
                 if (iterated == selected_entity_index)
                 {
-                    lmeditor::select(*registry, parent);
+                    lmeditor::select(*registry, child);
                     return true;
                 }
                 iterated++;

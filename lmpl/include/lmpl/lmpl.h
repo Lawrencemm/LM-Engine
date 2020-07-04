@@ -74,6 +74,10 @@ struct gain_focus_message : public window_message_base
 struct lose_focus_message : public window_message_base
 {
 };
+struct resize_message : public window_message_base
+{
+    unsigned new_width, new_height;
+};
 
 using window_message = std::variant<
   null_window_message,
@@ -85,7 +89,8 @@ using window_message = std::variant<
   key_up_message,
   repaint_message,
   gain_focus_message,
-  lose_focus_message>;
+  lose_focus_message,
+  resize_message>;
 
 class iscreen
 {

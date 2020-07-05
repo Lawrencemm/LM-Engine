@@ -130,11 +130,7 @@ app_flow_graph::app_flow_graph(
         app_lifetime_graph,
         [&](request_frame_msg) {
             return set_promise_on_exception(
-              [&]() {
-                  auto frame = wait_for_frame();
-                  return new_frame_msg{frame};
-              },
-              done_promise);
+              [&]() { return new_frame_msg{wait_for_frame()}; }, done_promise);
         },
       },
       render_frame_node{
@@ -143,7 +139,7 @@ app_flow_graph::app_flow_graph(
         [&](auto &render_frame_msg) {
             return set_promise_on_exception(
               [&]() {
-                  render_frame(render_frame_msg.frame);
+                  render_frame(render_frame_msg.frame.get());
                   return frame_submitted_msg{render_frame_msg.frame};
               },
               done_promise);
@@ -181,12 +177,10 @@ app_flow_graph::app_flow_graph(
     make_edge(render_frame_node, wait_frame_finish_node);
 }
 
-lmgl::iframe *app_flow_graph::wait_for_frame()
+std::shared_ptr<lmgl::iframe> app_flow_graph::wait_for_frame()
 {
     auto frame = resources.stage->wait_for_frame();
-    auto p_frame = frame.get();
-    resources.frames.emplace(std::move(frame));
-    return p_frame;
+    return std::move(frame);
 }
 
 void app_flow_graph::render_frame(lmgl::iframe *frame) const
@@ -205,19 +199,18 @@ void app_flow_graph::handle_app_msg(
                  if (quitting)
                      return;
 
-                 resources.resource_sink.add_frame(new_frame_msg.frame);
+                 resources.resource_sink.add_frame(new_frame_msg.frame.get());
 
                  frame_limiter_node.decrement.try_put(continue_msg{});
 
-                 if (on_new_frame(new_frame_msg.frame))
+                 if (on_new_frame(new_frame_msg.frame.get()))
                      get_frame_async(output_ports);
 
                  start_render_async(output_ports, new_frame_msg.frame);
              },
              [&](frame_complete_msg const &frame_complete_msg) {
                  resources.resource_sink.free_frame(
-                   frame_complete_msg.frame, resources.renderer.get());
-                 resources.frames.pop();
+                   frame_complete_msg.frame.get(), resources.renderer.get());
              },
              [&](lmpl::window_message const &window_message) {
                  if (quitting)
@@ -271,7 +264,7 @@ void app_flow_graph::get_frame_async(
 
 void app_flow_graph::start_render_async(
   app_flow_graph::proc_msg_ports_type &output_ports,
-  lmgl::iframe *frame) const
+  std::shared_ptr<lmgl::iframe> frame) const
 {
     lm::try_put<proc_msg_outputs_type>(output_ports, render_frame_msg{frame});
 }

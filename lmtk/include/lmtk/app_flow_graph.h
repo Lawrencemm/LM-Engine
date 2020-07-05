@@ -7,7 +7,6 @@
 #include <lmgl/fwd_decl.h>
 #include <lmlib/flow_graph.h>
 #include <lmpl/lmpl.h>
-#include <readerwriterqueue.h>
 #include <tbb/task_scheduler_init.h>
 
 namespace lmtk
@@ -38,19 +37,19 @@ class app_flow_graph
     };
     struct new_frame_msg
     {
-        lmgl::iframe *frame;
+        std::shared_ptr<lmgl::iframe> frame;
     };
     struct render_frame_msg
     {
-        lmgl::iframe *frame;
+        std::shared_ptr<lmgl::iframe> frame;
     };
     struct frame_submitted_msg
     {
-        lmgl::iframe *frame;
+        std::shared_ptr<lmgl::iframe> frame;
     };
     struct frame_complete_msg
     {
-        lmgl::iframe *frame;
+        std::shared_ptr<lmgl::iframe> frame;
     };
 
     using appmsg =
@@ -85,10 +84,10 @@ class app_flow_graph
 
     void start_render_async(
       proc_msg_ports_type &output_ports,
-      lmgl::iframe *frame) const;
+      std::shared_ptr<lmgl::iframe> frame) const;
     void get_frame_async(proc_msg_ports_type &output_ports) const;
     void get_window_msg_async(proc_msg_ports_type &output_ports) const;
-    lmgl::iframe *wait_for_frame();
+    std::shared_ptr<lmgl::iframe> wait_for_frame();
     void render_frame(lmgl::iframe *frame) const;
 
   public:
@@ -117,8 +116,6 @@ class app_resources
 
     lmtk::input_state input_state;
     lmgl::resource_sink resource_sink;
-
-    moodycamel::ReaderWriterQueue<lmgl::frame> frames;
 
   public:
     app_resources();

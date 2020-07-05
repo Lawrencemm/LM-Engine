@@ -9,7 +9,6 @@ find_package(embed-resource REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(scope_guard REQUIRED)
 find_package(Boost REQUIRED)
-find_package(readerwriterqueue REQUIRED)
 find_package(EnTT REQUIRED)
 
 add_executable(embed-resource IMPORTED)
@@ -73,7 +72,6 @@ target_link_libraries(
   ${PLATFORM_LIBRARIES}
   scope_guard::scope_guard
   Boost::Boost
-  readerwriterqueue::readerwriterqueue
   EnTT::EnTT
 )
 

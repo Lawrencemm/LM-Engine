@@ -79,13 +79,22 @@ class app_flow_graph
     tbb::flow::graph app_lifetime_graph;
 
     lm::wait_node<request_window_msg_msg, appmsg> wait_for_window_msg_node;
+
+    lm::overwrite_node<request_frame_msg> frame_request_buffer_node;
     lm::limiter_node<request_frame_msg> frame_limiter_node;
+    tbb::flow::function_node<request_frame_msg, int, tbb::flow::lightweight>
+      frame_limit_recreate_stage_node;
     lm::wait_node<request_frame_msg, appmsg> wait_for_frame_node;
+
     tbb::flow::function_node<render_frame_msg, frame_submitted_msg>
       render_frame_node;
-    tbb::flow::write_once_node<recreate_stage_msg> recreate_stage_buffer_node;
+
+    lm::overwrite_node<recreate_stage_msg> recreate_stage_buffer_node;
     lm::limiter_node<recreate_stage_msg> recreate_stage_limiter_node;
+    tbb::flow::function_node<recreate_stage_msg, int, tbb::flow::lightweight>
+      recreate_stage_limit_new_frame_node;
     tbb::flow::function_node<recreate_stage_msg, appmsg> recreate_stage_node;
+
     lm::wait_node<frame_submitted_msg, appmsg> wait_frame_finish_node;
 
     proc_msg_node_type handle_app_msg_node;

@@ -1,8 +1,8 @@
 #pragma once
-#include <tbb/flow_graph.h>
-
 #include "tuple_index.h"
 #include "worker_thread.h"
+#include <optional>
+#include <tbb/flow_graph.h>
 
 typedef tbb::flow::continue_node<tbb::flow::continue_msg> dependency_node;
 
@@ -451,4 +451,208 @@ class limiter_node : public tbb::flow::graph_node,
         decrement.reset_receiver(f);
     }
 }; // limiter_node
+
+template <typename T>
+class overwrite_node : public tbb::flow::graph_node,
+                       public tbb::flow::receiver<T>,
+                       public tbb::flow::sender<T>
+{
+  public:
+    typedef T input_type;
+    typedef T output_type;
+    typedef typename tbb::flow::receiver<input_type>::predecessor_type
+      predecessor_type;
+    typedef
+      typename tbb::flow::sender<output_type>::successor_type successor_type;
+
+    __TBB_NOINLINE_SYM explicit overwrite_node(tbb::flow::graph &g)
+        : graph_node(g)
+    {
+        my_successors.set_owner(this);
+        tbb::internal::fgt_node(
+          CODEPTR(),
+          tbb::internal::FLOW_OVERWRITE_NODE,
+          &this->my_graph,
+          static_cast<tbb::flow::receiver<input_type> *>(this),
+          static_cast<tbb::flow::sender<output_type> *>(this));
+    }
+
+    //! Copy constructor; doesn't take anything from src; default won't work
+    __TBB_NOINLINE_SYM overwrite_node(const overwrite_node &src)
+        : graph_node(src.my_graph),
+          tbb::flow::receiver<T>(),
+          tbb::flow::sender<T>(),
+          reserved(false)
+    {
+        my_successors.set_owner(this);
+        tbb::internal::fgt_node(
+          CODEPTR(),
+          tbb::internal::FLOW_OVERWRITE_NODE,
+          &this->my_graph,
+          static_cast<tbb::flow::receiver<input_type> *>(this),
+          static_cast<tbb::flow::sender<output_type> *>(this));
+    }
+
+    ~overwrite_node() {}
+
+    bool register_successor(successor_type &s) __TBB_override
+    {
+        using namespace tbb;
+
+        spin_mutex::scoped_lock l(my_mutex);
+        if (
+          my_buffer &&
+          tbb::flow::interface11::internal::is_graph_active(my_graph))
+        {
+            // We have a valid value that must be forwarded immediately.
+            bool ret = s.try_put(my_buffer.value());
+            if (ret)
+            {
+                // We add the successor that accepted our put
+                my_successors.register_successor(s);
+                my_buffer.reset();
+            }
+            else
+            {
+                // In case of reservation a race between the moment of
+                // reservation and register_successor can appear, because failed
+                // reserve does not mean that register_successor is not ready to
+                // put a message immediately. We have some sort of infinite
+                // loop: reserving node tries to set pull state for the edge,
+                // but overwrite_node tries to return push state back. That is
+                // why we have to break this loop with task creation.
+                task *rtask = new (task::allocate_additional_child_of(
+                  *(my_graph.root_task()))) register_predecessor_task(*this, s);
+                tbb::flow::interface11::internal::spawn_in_graph_arena(
+                  my_graph, *rtask);
+            }
+        }
+        else
+        {
+            // No valid value yet, just add as successor
+            my_successors.register_successor(s);
+        }
+        return true;
+    }
+
+    bool remove_successor(successor_type &s) __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        my_successors.remove_successor(s);
+        return true;
+    }
+
+    bool try_get(input_type &v) __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        if (my_buffer && !reserved)
+        {
+            v = my_buffer.value();
+            my_buffer.reset();
+            return true;
+        }
+        return false;
+    }
+
+    //! Reserves an item
+    bool try_reserve(T &v) __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        if (my_buffer)
+        {
+            v = my_buffer.value();
+            reserved = true;
+            return true;
+        }
+        return false;
+    }
+
+    //! Releases the reserved item
+    bool try_release() __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        reserved = false;
+        return true;
+    }
+
+    //! Consumes the reserved item
+    bool try_consume() __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        my_buffer.reset();
+        reserved = false;
+        return true;
+    }
+
+    bool is_valid()
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        return my_buffer;
+    }
+
+  protected:
+    template <typename R, typename B> friend class run_and_put_task;
+    template <typename X, typename Y>
+    friend class tbb::flow::interface11::internal::broadcast_cache;
+    template <typename X, typename Y>
+    friend class tbb::flow::interface11::internal::round_robin_cache;
+    tbb::task *try_put_task(const input_type &v) __TBB_override
+    {
+        tbb::spin_mutex::scoped_lock l(my_mutex);
+        return try_put_task_impl(v);
+    }
+
+    tbb::task *try_put_task_impl(const input_type &v)
+    {
+        my_buffer = v;
+        tbb::task *rtask = my_successors.try_put_task(v);
+        if (!rtask)
+            rtask = tbb::flow::interface11::SUCCESSFULLY_ENQUEUED;
+        return rtask;
+    }
+
+    tbb::flow::graph &graph_reference() const __TBB_override
+    {
+        return my_graph;
+    }
+
+    //! Breaks an infinite loop between the node reservation and
+    //! register_successor call
+    struct register_predecessor_task : public tbb::flow::interface11::graph_task
+    {
+        register_predecessor_task(predecessor_type &owner, successor_type &succ)
+            : o(owner), s(succ){};
+
+        tbb::task *execute() __TBB_override
+        {
+            if (!s.register_predecessor(o))
+            {
+                o.register_successor(s);
+            }
+            return NULL;
+        }
+
+        predecessor_type &o;
+        successor_type &s;
+    };
+
+    tbb::spin_mutex my_mutex;
+    tbb::flow::interface11::internal::
+      broadcast_cache<input_type, tbb::null_rw_mutex>
+        my_successors;
+
+    std::optional<input_type> my_buffer;
+    bool reserved;
+    void reset_receiver(tbb::flow::reset_flags /*f*/) __TBB_override {}
+
+    void reset_node(tbb::flow::reset_flags f) __TBB_override
+    {
+        my_buffer.reset();
+        reserved = false;
+        if (f & tbb::flow::rf_clear_edges)
+        {
+            my_successors.clear();
+        }
+    }
+}; // overwrite_node
 } // namespace lm

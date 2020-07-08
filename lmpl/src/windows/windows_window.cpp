@@ -39,7 +39,7 @@ window windows_display::create_window(const window_init &init)
 windows_window::windows_window(
   windows_display *display,
   const window_init &init)
-    : display{display}
+    : display{display}, sizing{false}
 {
     display->run([&]() {
         hwnd = windows_window::createHwnd(this, init);
@@ -278,33 +278,23 @@ LONG_PTR CALLBACK
     case WM_PAINT:
         PAINTSTRUCT ps;
         BeginPaint(me, &ps);
-        me.send_message(repaint_message{&me});
+        if (!me.sizing)
+            me.send_message(repaint_message{&me});
         EndPaint(me, &ps);
         break;
 
-        //    case WM_NCLBUTTONDOWN:
-        //    {
-        //        auto ncState = DefWindowProc(hwnd, WM_NCHITTEST, 0, lparam);
-        //        switch (ncState)
-        //        {
-        //        case HTBOTTOM:
-        //        case HTRIGHT:
-        //        case HTTOP:
-        //        case HTLEFT:
-        //        case HTBOTTOMRIGHT:
-        //        case HTTOPRIGHT:
-        //        case HTTOPLEFT:
-        //        case HTBOTTOMLEFT:
-        //            me.sizing = true;
-        //            return true;
-        //
-        //        default:
-        //            return DefWindowProc(hwnd, umsg, wparam, lparam);
-        //        }
-        //    }
+    case WM_ENTERSIZEMOVE:
+        me.sizing = true;
+        break;
+
+    case WM_EXITSIZEMOVE:
+        me.sizing = false;
+        me.send_message(resize_message{&me});
+        me.send_message(repaint_message{&me});
+        break;
 
     case WM_SIZE:
-        if (!wparam)
+        if (!wparam && !me.sizing)
         {
             me.send_message(
               resize_message{&me, LOWORD(lparam), HIWORD(lparam)});

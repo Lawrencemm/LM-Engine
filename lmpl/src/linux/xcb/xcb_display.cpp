@@ -265,6 +265,13 @@ std::optional<window_message>
         return lose_focus_message{window};
     }
 
+    case XCB_CONFIGURE_NOTIFY:
+    {
+        auto configure_event = (xcb_configure_notify_event_t *)event;
+        auto window = context_map[configure_event->event];
+        return resize_message{window};
+    }
+
     default:
         break;
     }

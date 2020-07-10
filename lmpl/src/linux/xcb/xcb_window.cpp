@@ -6,7 +6,7 @@ namespace lmpl
 XcbWindow::XcbWindow(const window_init &init, XcbDisplay *display)
     : xcb_api_window{0}, p_display_{display}
 {
-    size = {unsigned(init.size.width), unsigned(init.size.height)};
+    lm::size2u size = {unsigned(init.size.width), unsigned(init.size.height)};
     uint32_t mask = XCB_CW_EVENT_MASK;
     uint32_t values = {
       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_KEY_PRESS |
@@ -66,7 +66,7 @@ idisplay *XcbWindow::p_display() { return p_display_; }
 
 iwindow &XcbWindow::set_size(int width, int height)
 {
-    size = {(unsigned)width, (unsigned)height};
+    lm::size2u size = {(unsigned)width, (unsigned)height};
     xcb_configure_window(
       p_display_->xcb_connection,
       xcb_api_window,
@@ -85,7 +85,21 @@ float XcbWindow::dpi_scale() { return (float)p_display_->dpi_scale_; }
 
 lm::size2i XcbWindow::get_size_client()
 {
-    return lm::size2i(size.width, size.height);
+    xcb_get_geometry_cookie_t cookie;
+    xcb_get_geometry_reply_t *reply;
+
+    cookie = xcb_get_geometry(p_display_->xcb_connection, xcb_api_window);
+    /* ... do other work here if possible ... */
+    if (!(reply =
+           xcb_get_geometry_reply(p_display_->xcb_connection, cookie, NULL)))
+    {
+        throw std::runtime_error{"xcb_get_geometry_reply returned nullptr"};
+    }
+    auto size = lm::size2i(reply->width, reply->height);
+
+    free(reply);
+
+    return size;
 }
 
 xcb_connection_t *XcbWindow::get_connection()

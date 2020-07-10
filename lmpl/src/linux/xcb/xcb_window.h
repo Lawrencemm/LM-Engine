@@ -14,8 +14,6 @@ class XcbWindow : public ixcb_window
     friend class XcbDisplay;
 
   public:
-    using Size = lm::size2<unsigned>;
-
     explicit XcbWindow(const window_init &init, XcbDisplay *display);
     XcbWindow &show() override;
     idisplay *p_display();
@@ -32,6 +30,5 @@ class XcbWindow : public ixcb_window
   public:
     xcb_window_t xcb_api_window;
     XcbDisplay *p_display_;
-    Size size;
 };
 } // namespace lmpl

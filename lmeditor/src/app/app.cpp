@@ -64,13 +64,15 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
           entt::meta_ctx{});
     });
 
+    auto window_size = resources.window->get_size_client();
+
     auto inspector_size = lm::size2i{
-      resources.window_size.width / 5,
-      resources.window_size.height,
+      window_size.width / 5,
+      window_size.height,
     };
     auto map_editor_size = lm::size2i{
-      resources.window_size.width - 2 * inspector_size.width,
-      resources.window_size.height,
+      window_size.width - 2 * inspector_size.width,
+      window_size.height,
     };
 
     auto map_editor = map_editor_init{
@@ -167,6 +169,12 @@ bool editor_app::on_new_frame(lmgl::iframe *frame)
 
 bool editor_app::on_input_event(lmtk::input_event const &input_event)
 {
+    input_event >> lm::variant_visitor{
+                     [&](lmtk::resize_event const &resize_event) {
+                         refit_visible_components();
+                     },
+                     [](auto &) {},
+                   };
     return state >>
            lm::variant_visitor{
              [&](auto &state) { return state.handle(*this, input_event); },
@@ -309,7 +317,7 @@ lmtk::component editor_app::create_player()
       .simulation_index = selected_simulation_index,
       .asset_cache = asset_cache,
       .position = {0, 0},
-      .size = resources.window_size,
+      .size = resources.window->get_size_client(),
     }
       .unique();
 }

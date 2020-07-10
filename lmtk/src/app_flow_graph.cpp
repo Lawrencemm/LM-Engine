@@ -40,11 +40,8 @@ app_resources::app_resources()
     auto window_node = continue_node<lmpl::iwindow *>(init_graph, [&](auto) {
         display = lmpl::create_display();
 
-        window_size =
-          display->get_primary_screen()->get_size().proportion({2, 3});
-
         window = display->create_window(lmpl::window_init{
-          .size = window_size,
+          .size = display->get_primary_screen()->get_size().proportion({2, 3}),
         });
 
         return window.get();
@@ -132,8 +129,8 @@ app_flow_graph::app_flow_graph(
         app_lifetime_graph,
         1,
         [](auto) {
-          SPDLOG_INFO("New frame limiting recreate stage");
-          return -1;
+            SPDLOG_INFO("New frame limiting recreate stage");
+            return -1;
         }},
       wait_for_frame_node{
         app_lifetime_graph,
@@ -179,8 +176,8 @@ app_flow_graph::app_flow_graph(
         app_lifetime_graph,
         1,
         [](auto) {
-          SPDLOG_INFO("Recreate stage limiting new frame");
-          return -1;
+            SPDLOG_INFO("Recreate stage limiting new frame");
+            return -1;
         }},
       recreate_stage_node{
         app_lifetime_graph,
@@ -271,6 +268,7 @@ void app_flow_graph::handle_app_msg(
             SPDLOG_DEBUG("Stage recreated message received");
 
             stage_recreate_pending = false;
+            on_input_event(resize_event{*resources.window});
             frame_limiter_node.decrement.try_put(1);
             recreate_stage_limiter_node.decrement.try_put(1);
             make_edge(frame_request_buffer_node, frame_limiter_node);

@@ -32,6 +32,7 @@ void editor_app::toggle_component(component_interface *pview)
 void editor_app::refit_visible_components()
 {
     int total_width{0};
+    auto window_size = resources.window->get_size_client();
 
     for (auto component : visible_components)
     {
@@ -41,7 +42,7 @@ void editor_app::refit_visible_components()
         total_width += component->get_size().width;
     }
 
-    int remainder = resources.window_size.width - total_width;
+    int remainder = window_size.width - total_width;
 
     auto main_component_size = main_component->get_size();
     main_component_size.width = remainder;
@@ -56,6 +57,7 @@ void editor_app::refit_visible_components()
             continue;
 
         auto component_size = component->get_size();
+        component_size.height = window_size.height;
 
         component->set_rect({current_pos, 0}, component_size);
         current_pos += component_size.width;

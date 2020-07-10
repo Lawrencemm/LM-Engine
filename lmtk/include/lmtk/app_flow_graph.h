@@ -136,8 +136,6 @@ class app_resources
 
     lmtk::font_loader font_loader;
 
-    lm::size2i window_size;
-
     lmtk::input_state input_state;
     lmgl::resource_sink resource_sink;
 

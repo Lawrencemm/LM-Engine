@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "app/app.h"
+#include "spdlog/cfg/env.h"
 #include <clara.hpp>
 #include <lmng/meta/context.h>
 #include <spdlog/sinks/stdout_sinks.h>
@@ -17,6 +18,7 @@ try
     lmng::set_meta_context(entt::meta_ctx{});
     lmng::reflect_types();
 
+    spdlog::cfg::load_env_levels();
     auto console_logger = spdlog::stdout_logger_mt("basic_logger");
     spdlog::set_default_logger(console_logger);
 

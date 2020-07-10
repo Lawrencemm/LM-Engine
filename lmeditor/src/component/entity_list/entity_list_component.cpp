@@ -109,6 +109,7 @@ entity_list_component &
 {
     this->position = position;
     this->size = size;
+    controller.dirty = true;
     return *this;
 }
 

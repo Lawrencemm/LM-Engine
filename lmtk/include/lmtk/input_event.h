@@ -36,12 +36,17 @@ struct mouse_move_event
     lm::point2i pos;
     lm::size2i delta;
 };
+struct resize_event
+{
+    lmpl::iwindow &window;
+};
 using input_event = std::variant<
   key_down_event,
   key_up_event,
   mouse_button_down_event,
   mouse_button_up_event,
-  mouse_move_event>;
+  mouse_move_event,
+  resize_event>;
 
 /// Create input event from platform window event, updating the input state.
 std::optional<input_event>

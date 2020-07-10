@@ -39,7 +39,7 @@ window windows_display::create_window(const window_init &init)
 windows_window::windows_window(
   windows_display *display,
   const window_init &init)
-    : display{display}
+    : display{display}, sizing{false}
 {
     display->run([&]() {
         hwnd = windows_window::createHwnd(this, init);
@@ -113,18 +113,19 @@ void windows_window::createWindowClass(HINSTANCE hinstance)
     static bool registered = false;
     if (!registered)
     {
-        const WNDCLASSEXW createStruct{sizeof(WNDCLASSEXW),
-                                       CS_HREDRAW | CS_VREDRAW,
-                                       &CreationWndProc,
-                                       0,
-                                       0,
-                                       hinstance,
-                                       NULL,
-                                       LoadCursor(NULL, IDC_ARROW),
-                                       HBRUSH(COLOR_BACKGROUND),
-                                       NULL,
-                                       wndClassName,
-                                       NULL};
+        const WNDCLASSEXW createStruct{
+          sizeof(WNDCLASSEXW),
+          CS_HREDRAW | CS_VREDRAW,
+          &CreationWndProc,
+          0,
+          0,
+          hinstance,
+          NULL,
+          LoadCursor(NULL, IDC_ARROW),
+          HBRUSH(COLOR_BACKGROUND),
+          NULL,
+          wndClassName,
+          NULL};
         const WORD wndClassAtom = RegisterClassEx(&createStruct);
         registered = true;
     }
@@ -153,11 +154,8 @@ HWND windows_window::createHwnd(windows_window *window, const window_init &init)
     return hwnd;
 }
 
-LONG_PTR CALLBACK windows_window::WndProc(
-  HWND hwnd,
-  UINT umsg,
-  WPARAM wparam,
-  LPARAM lparam)
+LONG_PTR CALLBACK
+  windows_window::WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
     windows_window &me = GetReference(hwnd);
 
@@ -280,30 +278,29 @@ LONG_PTR CALLBACK windows_window::WndProc(
     case WM_PAINT:
         PAINTSTRUCT ps;
         BeginPaint(me, &ps);
-        me.send_message(repaint_message{&me});
+        if (!me.sizing)
+            me.send_message(repaint_message{&me});
         EndPaint(me, &ps);
         break;
 
-    case WM_NCLBUTTONDOWN:
-    {
-        auto ncState = DefWindowProc(hwnd, WM_NCHITTEST, 0, lparam);
-        switch (ncState)
-        {
-        case HTBOTTOM:
-        case HTRIGHT:
-        case HTTOP:
-        case HTLEFT:
-        case HTBOTTOMRIGHT:
-        case HTTOPRIGHT:
-        case HTTOPLEFT:
-        case HTBOTTOMLEFT:
-            me.sizing = true;
-            return true;
+    case WM_ENTERSIZEMOVE:
+        me.sizing = true;
+        break;
 
-        default:
-            return DefWindowProc(hwnd, umsg, wparam, lparam);
+    case WM_EXITSIZEMOVE:
+        me.sizing = false;
+        me.send_message(resize_message{&me});
+        me.send_message(repaint_message{&me});
+        break;
+
+    case WM_SIZE:
+        if (!wparam && !me.sizing)
+        {
+            me.send_message(
+              resize_message{&me, LOWORD(lparam), HIWORD(lparam)});
+            return 0;
         }
-    }
+        return DefWindowProc(hwnd, umsg, wparam, lparam);
 
     default:
         return DefWindowProc(hwnd, umsg, wparam, lparam);

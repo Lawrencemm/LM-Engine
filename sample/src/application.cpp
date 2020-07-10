@@ -22,10 +22,12 @@ sample_app::sample_app()
         resources.renderer.get(),
       })}
 {
+    auto window_size = resources.window->get_size_client();
+
     visual_view->set_camera_override(lm::camera{lm::camera_init{
       .fov = (float)M_PI / 3,
       .aspect =
-        (float)resources.window_size.width / resources.window_size.height,
+        (float)window_size.width / window_size.height,
       .near_clip = 0.1f,
       .far_clip = 1000.f,
       .position = {0.f, 10.f, -25.f},
@@ -44,7 +46,7 @@ bool sample_app::on_new_frame(lmgl::iframe *pIframe)
 {
     simulation.update(registry, clock.tick(), resources.input_state);
     visual_view->add_to_frame(
-      registry, pIframe, lmgl::viewport{resources.window_size});
+      registry, pIframe, lmgl::viewport{resources.window->get_size_client()});
     return true;
 }
 

@@ -1,5 +1,6 @@
 #include <random>
 
+#include <spdlog/spdlog.h>
 #include <tbb/flow_graph.h>
 #include <tbb/task_scheduler_init.h>
 
@@ -39,11 +40,8 @@ app_resources::app_resources()
     auto window_node = continue_node<lmpl::iwindow *>(init_graph, [&](auto) {
         display = lmpl::create_display();
 
-        window_size =
-          display->get_primary_screen()->get_size().proportion({2, 3});
-
         window = display->create_window(lmpl::window_init{
-          .size = window_size,
+          .size = display->get_primary_screen()->get_size().proportion({2, 3}),
         });
 
         return window.get();
@@ -125,16 +123,20 @@ app_flow_graph::app_flow_graph(
               [&]() { return resources.display->wait_for_message(); },
               done_promise);
         }),
+      frame_request_buffer_node{app_lifetime_graph},
       frame_limiter_node{app_lifetime_graph, 1},
+      frame_limit_recreate_stage_node{
+        app_lifetime_graph,
+        1,
+        [](auto) {
+            SPDLOG_INFO("New frame limiting recreate stage");
+            return -1;
+        }},
       wait_for_frame_node{
         app_lifetime_graph,
         [&](request_frame_msg) {
             return set_promise_on_exception(
-              [&]() {
-                  auto frame = wait_for_frame();
-                  return new_frame_msg{frame};
-              },
-              done_promise);
+              [&]() { return new_frame_msg{wait_for_frame()}; }, done_promise);
         },
       },
       render_frame_node{
@@ -143,7 +145,7 @@ app_flow_graph::app_flow_graph(
         [&](auto &render_frame_msg) {
             return set_promise_on_exception(
               [&]() {
-                  render_frame(render_frame_msg.frame);
+                  render_frame(render_frame_msg.frame.get());
                   return frame_submitted_msg{render_frame_msg.frame};
               },
               done_promise);
@@ -167,30 +169,67 @@ app_flow_graph::app_flow_graph(
             return set_promise_on_exception(
               [&]() { handle_app_msg(msg, outputs); }, done_promise);
         },
+      },
+      recreate_stage_buffer_node{app_lifetime_graph},
+      recreate_stage_limiter_node{app_lifetime_graph, 1},
+      recreate_stage_limit_new_frame_node{
+        app_lifetime_graph,
+        1,
+        [](auto) {
+            SPDLOG_INFO("Recreate stage limiting new frame");
+            return -1;
+        }},
+      recreate_stage_node{
+        app_lifetime_graph,
+        1,
+        [this](recreate_stage_msg) {
+            return set_promise_on_exception(
+              [&]() {
+                  SPDLOG_DEBUG("Recreating stage concurrently");
+                  this->resources.stage =
+                    this->resources.renderer->create_stage(
+                      {this->resources.window.get()});
+                  return stage_recreated_msg{};
+              },
+              done_promise);
+        },
       }
 {
     make_edge(wait_for_window_msg_node, handle_app_msg_node);
     make_edge(wait_for_frame_node, handle_app_msg_node);
     make_edge(wait_frame_finish_node, handle_app_msg_node);
+    make_edge(recreate_stage_node, handle_app_msg_node);
 
     lm::make_edge(handle_app_msg_node, wait_for_window_msg_node);
-    lm::make_edge(handle_app_msg_node, frame_limiter_node);
+    lm::make_edge(handle_app_msg_node, frame_request_buffer_node);
     lm::make_edge(handle_app_msg_node, render_frame_node);
+    lm::make_edge(handle_app_msg_node, recreate_stage_buffer_node);
 
+    make_edge(recreate_stage_buffer_node, recreate_stage_limiter_node);
+    make_edge(recreate_stage_limiter_node, recreate_stage_node);
+    make_edge(recreate_stage_limiter_node, recreate_stage_limit_new_frame_node);
+    make_edge(
+      recreate_stage_limit_new_frame_node, frame_limiter_node.decrement);
+
+    make_edge(frame_request_buffer_node, frame_limiter_node);
     make_edge(frame_limiter_node, wait_for_frame_node);
+    make_edge(frame_limiter_node, frame_limit_recreate_stage_node);
+    make_edge(
+      frame_limit_recreate_stage_node, recreate_stage_limiter_node.decrement);
+
     make_edge(render_frame_node, wait_frame_finish_node);
 }
 
-lmgl::iframe *app_flow_graph::wait_for_frame()
+std::shared_ptr<lmgl::iframe> app_flow_graph::wait_for_frame()
 {
+    SPDLOG_DEBUG("Waiting for frame concurrently");
     auto frame = resources.stage->wait_for_frame();
-    auto p_frame = frame.get();
-    resources.frames.emplace(std::move(frame));
-    return p_frame;
+    return std::move(frame);
 }
 
 void app_flow_graph::render_frame(lmgl::iframe *frame) const
 {
+    SPDLOG_DEBUG("Rendering frame concurrently");
     frame->clear_colour({0.05f, 0.05f, 0.05f, 1.f});
     frame->build();
     frame->submit();
@@ -200,61 +239,84 @@ void app_flow_graph::handle_app_msg(
   appmsg &msg,
   app_flow_graph::proc_msg_ports_type &output_ports)
 {
-    msg >> lm::variant_visitor{
-             [&](new_frame_msg const &new_frame_msg) {
-                 if (quitting)
-                     return;
+    msg >>
+      lm::variant_visitor{
+        [&](new_frame_msg const &new_frame_msg) {
+            SPDLOG_DEBUG("New frame message received");
+            if (quitting)
+                return;
 
-                 resources.resource_sink.add_frame(new_frame_msg.frame);
+            frame_limiter_node.decrement.try_put(1);
 
-                 frame_limiter_node.decrement.try_put(continue_msg{});
+            resources.resource_sink.add_frame(new_frame_msg.frame.get());
 
-                 if (on_new_frame(new_frame_msg.frame))
-                     get_frame_async(output_ports);
+            if (on_new_frame(new_frame_msg.frame.get()))
+                get_frame_async(output_ports);
 
-                 start_render_async(output_ports, new_frame_msg.frame);
-             },
-             [&](frame_complete_msg const &frame_complete_msg) {
-                 resources.resource_sink.free_frame(
-                   frame_complete_msg.frame, resources.renderer.get());
-                 resources.frames.pop();
-             },
-             [&](lmpl::window_message const &window_message) {
-                 if (quitting)
-                     return;
+            start_render_async(output_ports, new_frame_msg.frame);
+        },
+        [&](frame_complete_msg const &frame_complete_msg) {
+            SPDLOG_DEBUG(
+              "Frame complete message received",
+              recreate_stage_limiter_node.my_count - 1);
+            recreate_stage_limiter_node.decrement.try_put(1);
 
-                 window_message >>
-                   lm::variant_visitor{
-                     [&](lmpl::close_message) {
-                         quitting = true;
-                         done_promise.set_value();
-                         on_quit();
-                         resources.resource_sink.free_orphans(
-                           resources.renderer.get());
-                     },
-                     [&](lmpl::repaint_message) {
-                         get_window_msg_async(output_ports);
-                         get_frame_async(output_ports);
-                     },
-                     [&](auto msg) {
-                         bool dirty{false};
-                         auto input_event =
-                           lmtk::create_input_event(msg, resources.input_state);
+            resources.resource_sink.free_frame(
+              frame_complete_msg.frame.get(), resources.renderer.get());
+        },
+        [&](stage_recreated_msg const &stage_recreated_msg) {
+            SPDLOG_DEBUG("Stage recreated message received");
 
-                         if (input_event)
-                         {
-                             dirty = on_input_event(input_event.value());
-                         }
+            stage_recreate_pending = false;
+            on_input_event(resize_event{*resources.window});
+            frame_limiter_node.decrement.try_put(1);
+            recreate_stage_limiter_node.decrement.try_put(1);
+            make_edge(frame_request_buffer_node, frame_limiter_node);
+        },
+        [&](lmpl::window_message const &window_message) {
+            if (quitting)
+                return;
 
-                         get_window_msg_async(output_ports);
+            window_message >>
+              lm::variant_visitor{
+                [&](lmpl::close_message) {
+                    quitting = true;
+                    done_promise.set_value();
+                    on_quit();
+                    resources.resource_sink.free_orphans(
+                      resources.renderer.get());
+                },
+                [&](lmpl::repaint_message) {
+                    SPDLOG_DEBUG("Repaint message received");
+                    get_window_msg_async(output_ports);
+                    get_frame_async(output_ports);
+                },
+                [&](lmpl::resize_message const &resize_message) {
+                    SPDLOG_DEBUG("Resize message received");
+                    stage_recreate_pending = true;
+                    remove_edge(frame_request_buffer_node, frame_limiter_node);
+                    recreate_stage_async(output_ports);
+                    get_window_msg_async(output_ports);
+                },
+                [&](auto msg) {
+                    bool dirty{false};
+                    auto input_event =
+                      lmtk::create_input_event(msg, resources.input_state);
 
-                         if (dirty)
-                         {
-                             get_frame_async(output_ports);
-                         }
-                     },
-                   };
-             }};
+                    if (input_event)
+                    {
+                        dirty = on_input_event(input_event.value());
+                    }
+
+                    get_window_msg_async(output_ports);
+
+                    if (dirty)
+                    {
+                        get_frame_async(output_ports);
+                    }
+                },
+              };
+        }};
 }
 
 void app_flow_graph::get_window_msg_async(
@@ -264,16 +326,25 @@ void app_flow_graph::get_window_msg_async(
 }
 
 void app_flow_graph::get_frame_async(
-  app_flow_graph::proc_msg_ports_type &output_ports) const
+  app_flow_graph::proc_msg_ports_type &output_ports)
 {
+    SPDLOG_INFO("Request new frame requested");
     lm::try_put<proc_msg_outputs_type>(output_ports, request_frame_msg{});
 }
 
 void app_flow_graph::start_render_async(
   app_flow_graph::proc_msg_ports_type &output_ports,
-  lmgl::iframe *frame) const
+  std::shared_ptr<lmgl::iframe> frame)
 {
+    SPDLOG_INFO("Start render requested");
     lm::try_put<proc_msg_outputs_type>(output_ports, render_frame_msg{frame});
+}
+
+void app_flow_graph::recreate_stage_async(
+  app_flow_graph::proc_msg_ports_type &output_ports)
+{
+    SPDLOG_INFO("Recreate stage requested");
+    lm::try_put<proc_msg_outputs_type>(output_ports, recreate_stage_msg{});
 }
 
 void app_flow_graph::enter()

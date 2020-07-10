@@ -90,7 +90,6 @@ target_link_libraries(
   lmhuv::lmhuv
   fmt::fmt
   OpenMesh::OpenMesh
-  readerwriterqueue::readerwriterqueue
   yaml-cpp::yaml-cpp
   clara::clara
   Boost::Boost

@@ -7,7 +7,7 @@
 
 namespace lmeditor
 {
-struct map_editor_init
+struct entity_editor_init
 {
     entt::registry &registry;
     orbital_camera_init camera_init;

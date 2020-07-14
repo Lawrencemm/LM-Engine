@@ -11,6 +11,7 @@
 #include <lmlib/application.h>
 #include <lmlib/realtime_clock.h>
 #include <lmlib/variant_visitor.h>
+#include <lmng/meta/signal.h>
 #include <lmtk/app_flow_graph.h>
 #include <lmtk/component.h>
 #include <lmtk/rect_border.h>
@@ -21,7 +22,7 @@
 
 namespace lmeditor
 {
-class editor_app
+class editor_app : public lmng::any_component_listener
 {
   public:
     explicit editor_app(const std::filesystem::path &project_dir);
@@ -29,6 +30,19 @@ class editor_app
     editor_app(editor_app &&) = delete;
     void main() { flow_graph.enter(); }
     ~editor_app() = default;
+
+    void on_construct_any(
+      entt::registry &registry,
+      entt::entity entity,
+      entt::meta_type const &meta_type) override;
+    void on_replace_any(
+      entt::registry &registry,
+      entt::entity entity,
+      entt::meta_type const &meta_type) override;
+    void on_destroy_any(
+      entt::registry &registry,
+      entt::entity entity,
+      entt::meta_type const &meta_type) override;
 
   private:
     struct gui_state
@@ -61,6 +75,14 @@ class editor_app
     lmtk::resource_cache resource_cache;
     lmng::asset_cache asset_cache;
     lmtk::app_flow_graph flow_graph;
+
+    struct save_map_msg
+    {
+        std::shared_ptr<entt::registry> map;
+    };
+
+    lm::overwrite_node<save_map_msg> save_map_buffer_node;
+    tbb::flow::function_node<save_map_msg> save_map_node;
 
     lmeditor::project_plugin project_plugin;
 
@@ -96,7 +118,10 @@ class editor_app
     bool on_pose_saved(const std::string &project_path);
 
     bool load_map(std::filesystem::path const &path);
-    void save_map(std::filesystem::path const &absolute_path);
+    void save_map(
+      std::filesystem::path const &absolute_path,
+      entt::registry &map_registry);
+    void save_map_async();
 
   protected:
     bool on_input_event(lmtk::input_event const &variant);

@@ -28,6 +28,8 @@ add_library(
   src/context.cpp
   src/any_component.cpp
   src/archetype.cpp
+  src/meta/clone.cpp
+  src/meta/signal.cpp
 )
 
 target_include_directories(

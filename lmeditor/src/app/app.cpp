@@ -38,6 +38,15 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         [&](auto &ev) { return on_input_event(ev); },
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); }),
+      save_map_buffer_node{flow_graph.app_lifetime_graph},
+      save_map_node(
+        flow_graph.app_lifetime_graph,
+        1,
+        [&](auto &save_map_msg) {
+            save_map(
+              project_dir / (map_file_project_relative_path + ".lmap"),
+              *save_map_msg.map);
+        }),
       active_component_border{
         std::make_unique<lmtk::rect_border>(lmtk::rect_border{
           resources.renderer.get(),
@@ -49,6 +58,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         })},
       state{gui_state{*this}}
 {
+    make_edge(save_map_buffer_node, save_map_node);
+
     asset_cache.emplace_loader<lmng::yaml_pose_loader>(project_dir);
     asset_cache.emplace_loader<lmng::yaml_animation_loader>(project_dir);
     asset_cache.emplace_loader<lmng::yaml_archetype_loader>(project_dir);
@@ -320,5 +331,41 @@ lmtk::component editor_app::create_player()
       .size = resources.window->get_size_client(),
     }
       .unique();
+}
+
+void editor_app::on_construct_any(
+  entt::registry &registry,
+  entt::entity entity,
+  entt::meta_type const &meta_type)
+{
+    if (&registry == &map)
+    {
+        SPDLOG_INFO("Serialising map async");
+        save_map_async();
+    }
+}
+
+void editor_app::on_replace_any(
+  entt::registry &registry,
+  entt::entity entity,
+  entt::meta_type const &meta_type)
+{
+    if (&registry == &map)
+    {
+        SPDLOG_INFO("Serialising map async");
+        save_map_async();
+    }
+}
+
+void editor_app::on_destroy_any(
+  entt::registry &registry,
+  entt::entity entity,
+  entt::meta_type const &meta_type)
+{
+    if (&registry == &map)
+    {
+        SPDLOG_INFO("Serialising map async");
+        save_map_async();
+    }
 }
 } // namespace lmeditor

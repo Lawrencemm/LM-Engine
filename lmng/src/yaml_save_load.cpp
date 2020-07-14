@@ -118,7 +118,9 @@ YAML::Node save_entity_as_yaml(
       registry,
       entity,
       [&](lmng::any_component const &component_any) {
-          if (component_any.any.type() == entt::resolve<parent>())
+          if (
+            component_any.any.type() == entt::resolve<parent>() ||
+            component_any.any.type() == entt::resolve<name>())
               return;
 
           components_yaml[component_any.name()] =

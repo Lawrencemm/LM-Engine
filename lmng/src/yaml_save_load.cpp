@@ -151,20 +151,11 @@ void save_registry_as_yaml(
   asset_cache &asset_cache,
   YAML::Node &yaml)
 {
-    std::vector<entt::entity> entities;
-
-    registry.view<name>(entt::exclude<parent>)
-      .each([&](entt::entity entity, auto &name) {
-          entities.emplace_back(entity);
-      });
-
-    ranges::action::sort(entities);
-
     auto const type_map = lmng::create_meta_type_map();
 
     YAML::Node entities_yaml;
 
-    for (auto entity : entities)
+    for (auto entity : registry.view<name>(entt::exclude<parent>))
     {
         entities_yaml[get_name(registry, entity)] =
           save_entity_as_yaml(registry, entity, type_map, asset_cache);

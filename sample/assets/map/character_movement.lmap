@@ -4,28 +4,26 @@ entities:
     components:
       Transform:
         Rotation: 0.0 0.707107 0.0 0.707107
-        Position: 6 1.1 0.0
+        Position: 6.0 1.1 0.0
     children: ~
   Ground:
     components:
+      Box Render:
+        Colour: 0.5 0.5 0.5
+        Extents: 10.0 0.1 10.0
+      Transform:
+        Rotation: 0.0 0.0 0.0 1.0
+        Position: 0.0 0.0 0.0
       Rigid Body:
         Friction: 1
         Restitution: 1
         Mass: 0
-      Transform:
-        Rotation: 0.0 0.0 0.0 1.0
-        Position: 0.0 0.0 0.0
       Box Collider:
-        Extents: 10.0 0.1 10.0
-      Box Render:
-        Colour: 0.5 0.5 0.5
         Extents: 10.0 0.1 10.0
     children: ~
   Player:
     archetype: archetype/robot
     components:
-      Character Input:
-        Radians per dot: 0.0023
       Transform:
         Rotation: 0.0 -0.7071072 0.0 0.7071071
         Position: 7.34 1.1 1.7988538e-28

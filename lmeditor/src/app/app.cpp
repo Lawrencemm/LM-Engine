@@ -6,6 +6,7 @@
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/component/player.h>
 #include <lmeditor/component/saver.h>
+#include <lmeditor/model/creation_time.h>
 #include <lmeditor/model/orbital_camera.h>
 #include <lmlib/variant_visitor.h>
 #include <lmng/animation.h>
@@ -155,6 +156,8 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     refit_visible_components();
 
     lmng::connect_component_logging(map);
+
+    map.on_construct<lmng::name>().connect<&assign_creation_time>();
 
     task_group.wait();
 }

@@ -3,6 +3,7 @@
 #include "../hierarchy.h"
 #include "../name.h"
 #include "any_component.h"
+#include "signal.h"
 #include <Eigen/Eigen>
 #include <entt/entt.hpp>
 #include <fmt/ostream.h>
@@ -219,6 +220,103 @@ void connect_logging(entt::registry &registry)
     registry.on_destroy<component_type>()
       .template connect<log_destroy<component_type>>();
 }
+
+template <typename component_type>
+void copy_pool(entt::registry &dest, entt::registry const &src)
+{
+    auto p_entities = src.data<component_type>();
+
+    if constexpr (!std::is_empty_v<component_type>)
+    {
+        auto p_data = src.raw<component_type>();
+
+        dest.assign<component_type>(
+          p_entities, p_entities + src.size<component_type>(), p_data);
+    }
+    else
+    {
+        dest.assign<component_type>(
+          p_entities, p_entities + src.size<component_type>(), {});
+    }
+}
+
+template <typename component_type>
+void dispatch_construct(
+  any_component_listener &listener,
+  entt::registry &registry,
+  entt::entity entity)
+{
+    listener.on_construct_any(
+      registry, entity, entt::resolve<component_type>());
+}
+
+template <typename component_type>
+void dispatch_replace(
+  any_component_listener &listener,
+  entt::registry &registry,
+  entt::entity entity)
+{
+    listener.on_replace_any(registry, entity, entt::resolve<component_type>());
+}
+
+template <typename component_type>
+void dispatch_destroy(
+  any_component_listener &listener,
+  entt::registry &registry,
+  entt::entity entity)
+{
+    listener.on_destroy_any(registry, entity, entt::resolve<component_type>());
+}
+
+template <typename component_type>
+void connect_construct(
+  entt::registry &registry,
+  any_component_listener &listener)
+{
+    registry.on_construct<component_type>()
+      .template connect<&dispatch_construct<component_type>>(listener);
+}
+
+template <typename component_type>
+void connect_replace(entt::registry &registry, any_component_listener &listener)
+{
+    registry.on_replace<component_type>()
+      .template connect<&dispatch_construct<component_type>>(listener);
+}
+
+template <typename component_type>
+void connect_destroy(entt::registry &registry, any_component_listener &listener)
+{
+    registry.on_destroy<component_type>()
+      .template connect<&dispatch_destroy<component_type>>(listener);
+}
+
+template <typename component_type>
+void disconnect_construct(
+  entt::registry &registry,
+  any_component_listener &listener)
+{
+    registry.on_construct<component_type>()
+      .template disconnect<&dispatch_construct<component_type>>(listener);
+}
+
+template <typename component_type>
+void disconnect_replace(
+  entt::registry &registry,
+  any_component_listener &listener)
+{
+    registry.on_replace<component_type>()
+      .template disconnect<&dispatch_construct<component_type>>(listener);
+}
+
+template <typename component_type>
+void disconnect_destroy(
+  entt::registry &registry,
+  any_component_listener &listener)
+{
+    registry.on_destroy<component_type>()
+      .template disconnect<&dispatch_destroy<component_type>>(listener);
+}
 } // namespace lmng
 
 #define REFLECT_MEMBER(type, member, name)                                     \
@@ -242,4 +340,11 @@ void connect_logging(entt::registry &registry)
       .func<&lmng::get_from_entity<_type>>("get_from_entity"_hs)               \
       .func<&lmng::remove_from_entity<_type>>("remove_from_entity"_hs)         \
       .func<&lmng::clone<_type>>("clone"_hs)                                   \
-      .func<&lmng::connect_logging<_type>>("connect_logging"_hs)
+      .func<&lmng::connect_logging<_type>>("connect_logging"_hs)               \
+      .func<&lmng::connect_construct<_type>>("connect_construct"_hs)           \
+      .func<&lmng::connect_replace<_type>>("connect_replace"_hs)               \
+      .func<&lmng::connect_destroy<_type>>("connect_destroy"_hs)               \
+      .func<&lmng::disconnect_construct<_type>>("disconnect_construct"_hs)     \
+      .func<&lmng::disconnect_replace<_type>>("disconnect_replace"_hs)         \
+      .func<&lmng::disconnect_destroy<_type>>("disconnect_destroy"_hs)         \
+      .func<&lmng::copy_pool<_type>>("copy_pool"_hs)

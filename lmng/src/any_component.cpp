@@ -84,15 +84,6 @@ void set_data(
     from_string.invoke({}, component.data(), &string, &context);
 }
 
-void clone(
-  entt::registry const &from,
-  entt::registry &to,
-  entt::meta_type const &type)
-{
-    auto meta_func = type.func("clone"_hs);
-    meta_func.invoke({}, &from, &to);
-}
-
 meta_type_map create_meta_type_map()
 {
     meta_type_map map;

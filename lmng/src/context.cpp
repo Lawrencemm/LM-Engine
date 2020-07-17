@@ -1,10 +1,10 @@
-#include <lmng/meta/reflect_component.h>
-#include <lmng/shapes.h>
-#include <lmng/transform.h>
-#include <lmng/hierarchy.h>
-#include <lmng/physics.h>
 #include <lmng/archetype.h>
 #include <lmng/camera.h>
+#include <lmng/hierarchy.h>
+#include <lmng/meta/reflect_component.h>
+#include <lmng/physics.h>
+#include <lmng/shapes.h>
+#include <lmng/transform.h>
 
 namespace lmng
 {
@@ -41,5 +41,7 @@ void reflect_types()
 
     REFLECT_TYPE(archetype, "Archetype")
       .REFLECT_MEMBER(archetype, asset_path, "Asset path");
+
+    REFLECT_TYPE(name, "Name");
 }
-}
+} // namespace lmng

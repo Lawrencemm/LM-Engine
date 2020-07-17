@@ -88,8 +88,4 @@ void visit_components(
     });
 }
 
-void clone(
-  entt::registry const &from,
-  entt::registry &to,
-  entt::meta_type const &type);
 }

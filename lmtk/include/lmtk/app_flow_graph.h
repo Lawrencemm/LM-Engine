@@ -15,11 +15,14 @@ class app_resources;
 
 class app_flow_graph
 {
+  public:
+    tbb::flow::graph app_lifetime_graph;
+
+  private:
     using input_event_handler = std::function<bool(input_event const &)>;
     using new_frame_handler = std::function<bool(lmgl::iframe *)>;
     using quit_handler = std::function<void()>;
 
-  private:
     app_resources &resources;
 
     input_event_handler on_input_event;
@@ -75,8 +78,6 @@ class app_flow_graph
       tbb::flow::multifunction_node<appmsg, proc_msg_outputs_type>;
 
     using proc_msg_ports_type = proc_msg_node_type::output_ports_type;
-
-    tbb::flow::graph app_lifetime_graph;
 
     lm::wait_node<request_window_msg_msg, appmsg> wait_for_window_msg_node;
 

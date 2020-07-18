@@ -31,14 +31,12 @@ jobs:
           conan profile update settings.compiler.version=8 default
       - name: Add remotes to Conan
         run: conan config install conan/config/common
-      - name: Run init script
-        run: ./init.py
       - name: Conan install
         env:
           CC: gcc-8
           CXX: g++-8
         run: mkdir build &&
-          conan workspace install .
+          conan install .
           -if build
           --build missing
           -s build_type=${{ matrix.configuration }}
@@ -73,16 +71,13 @@ jobs:
         run: pip install conan && conan profile new default --detect
       - name: Add remotes to Conan
         run: conan config install conan/config/common
-      - name: Run init script
-        run: python init.py
       - name: Conan install
         run: mkdir build &&
           conan config set general.parallel_download=8 &&
-          conan workspace install .
+          conan install .
           -if build
           --build missing
           -s build_type=${{ matrix.configuration }}
-          -e WORKSPACE_DIR=../../../build
       - name: Configure
         env:
           CC: cl

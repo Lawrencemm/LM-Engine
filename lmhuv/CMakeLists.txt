@@ -1,21 +1,5 @@
 project(lmhuv)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
-
-find_package(lmng REQUIRED)
-find_package(lmgl REQUIRED)
-find_package(lmtk REQUIRED)
-find_package(embed-resource REQUIRED)
-find_package(OpenMesh REQUIRED)
-
-add_executable(embed-resource IMPORTED)
-set_target_properties(embed-resource PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/embed-resource)
-
-add_executable(glslangValidator IMPORTED)
-set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/glslangValidator)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
-
 add_library(
   lmhuv
   SHARED
@@ -37,9 +21,9 @@ target_link_libraries(
   lmhuv
   PUBLIC
 
-  lmng::lmng
-  lmgl::lmgl
-  lmtk::lmtk
+  lmng
+  lmgl
+  lmtk
   OpenMesh::OpenMesh
 )
 

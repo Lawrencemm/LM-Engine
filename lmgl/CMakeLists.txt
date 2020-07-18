@@ -2,16 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 
 project(lmgl)
 
-# Support conan cmake_find_package generator. It puts Find* files in the
-# binary directory.
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_MODULE_PATH})
-
-find_package(Catch2 REQUIRED)
-find_package(fmt REQUIRED)
-find_package(Vulkan REQUIRED)
-find_package(lmlib REQUIRED)
-find_package(lmpl REQUIRED)
-
 set(
   SOURCES
 
@@ -55,9 +45,9 @@ target_include_directories(
 target_link_libraries(
   lmgl
 
-  lmlib::lmlib
+  lmlib
   Vulkan::Vulkan
-  lmpl::lmpl
+  lmpl
   ${fmt_LIBRARIES}
 )
 

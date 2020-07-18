@@ -55,9 +55,7 @@ On the command line, in the repository root directory, run:
     * This may override your Conan config. If you need to keep your config,
     set the environment variable CONAN_USER_HOME to a directory of your 
     choice while running these commands.
-* `mkdir build && conan workspace install . -if build --build missing`
-    * Windows: add the arguments `-e WORKSPACE_DIR=../../../build` to copy 
-    required DLLs to the build directory. 
+* `mkdir build && conan install . -if build --build missing`
 
 You may now run a regular CMake config/build in the build directory. See 
 documentation of CMake and Conan for using different configurations/settings.

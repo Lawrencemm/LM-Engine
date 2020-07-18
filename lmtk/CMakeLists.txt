@@ -1,24 +1,5 @@
 project(lmtk)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
-
-find_package(lmgl REQUIRED)
-find_package(lmlib REQUIRED)
-find_package(lmpl REQUIRED)
-find_package(embed-resource REQUIRED)
-find_package(Freetype REQUIRED)
-find_package(scope_guard REQUIRED)
-find_package(Boost REQUIRED)
-find_package(EnTT REQUIRED)
-
-add_executable(embed-resource IMPORTED)
-set_target_properties(embed-resource PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/embed-resource)
-
-add_executable(glslangValidator IMPORTED)
-set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/glslangValidator)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
-
 if (UNIX)
   set(
     PLATFORM_SOURCES
@@ -64,9 +45,9 @@ target_include_directories(
 
 target_link_libraries(
   lmtk
-  lmgl::lmgl
-  lmpl::lmpl
-  lmlib::lmlib
+  lmgl
+  lmpl
+  lmlib
   embed-resource::embed-resource
   Freetype::Freetype
   ${PLATFORM_LIBRARIES}

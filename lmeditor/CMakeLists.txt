@@ -1,27 +1,5 @@
 project(editor)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_MODULE_PATH})
-
-find_package(lmng REQUIRED)
-find_package(lmgl REQUIRED)
-find_package(lmlib REQUIRED)
-find_package(lmpl REQUIRED)
-find_package(lmtk REQUIRED)
-find_package(lmhuv REQUIRED)
-find_package(embed-resource REQUIRED)
-find_package(Catch2 REQUIRED)
-find_package(fmt REQUIRED)
-find_package(OpenMesh REQUIRED)
-add_executable(glslangValidator IMPORTED)
-set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/glslangValidator)
-add_executable(embed-resource IMPORTED)
-set_target_properties(embed-resource PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/embed-resource)
-find_package(yaml-cpp REQUIRED)
-find_package(clara REQUIRED)
-find_package(Boost REQUIRED COMPONENTS dll)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/scripts/embed-resource.cmake)
-
 add_library(
   lmeditor
 
@@ -82,12 +60,12 @@ target_link_libraries(
 
   PUBLIC
 
-  lmng::lmng
-  lmgl::lmgl
-  lmlib::lmlib
-  lmpl::lmpl
-  lmtk::lmtk
-  lmhuv::lmhuv
+  lmng
+  lmgl
+  lmlib
+  lmpl
+  lmtk
+  lmhuv
   fmt::fmt
   OpenMesh::OpenMesh
   yaml-cpp::yaml-cpp

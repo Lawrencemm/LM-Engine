@@ -4,4 +4,4 @@ project(PackageTest CXX)
 find_package(lmlib REQUIRED)
 
 add_executable(test_lmlib_package test_lmlib_package.cpp)
-target_link_libraries(test_lmlib_package lmlib::lmlib)
+target_link_libraries(test_lmlib_package lmlib)

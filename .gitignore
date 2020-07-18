@@ -3,4 +3,3 @@ cmake-build*
 /.vs/
 .python-env
 .conan
-conanws.yml

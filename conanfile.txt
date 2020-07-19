@@ -1,0 +1,35 @@
+[generators]
+cmake_find_package
+
+[requires]
+cereal/1.2.2@conan/stable
+entt/3.3.0
+bullet3/2.89
+yaml-cpp/0.6.3
+eigen/3.3.5@conan/stable
+tbb/2020.1
+range-v3/0.10.0@lawrencemm/stable
+spdlog/1.6.1
+scope_guard/0.2.3@lawrencem/stable
+Vulkan/1.1.92.1@lawrencem/stable
+fmt/6.2.1
+boost/1.73.0
+embed-resource/0.2@lawrencem/stable
+OpenMesh/8.0@lawrencem/stable
+clara/1.1.5
+freetype/2.10.2
+
+[build_requires]
+catch2/2.13.0
+
+[options]
+yaml-cpp:shared=True
+OpenMesh:shared=True
+
+[imports]
+bin, embed-resource -> ./bin
+bin, embed-resource.exe -> ./bin
+bin, glslangValidator* -> ./bin
+bin, *.dll -> .
+., *.dll -> .
+cmake, embed-resource.cmake -> ./scripts

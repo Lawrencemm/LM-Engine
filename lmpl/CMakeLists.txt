@@ -2,13 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 
 project(lmpl)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_MODULE_PATH})
-
-find_package(Catch2 REQUIRED)
-find_package(fmt REQUIRED)
-find_package(lmlib REQUIRED)
-find_package(scope_guard REQUIRED)
-
 if (UNIX)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
@@ -135,7 +128,7 @@ set(
 
   ${fmt_LIBRARIES}
   ${TBB_LIBRARIES}
-  lmlib::lmlib
+  lmlib
 )
 
 set(

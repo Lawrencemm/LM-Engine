@@ -9,9 +9,6 @@ set(
 
 include(cmake/cpp_standard.cmake)
 
-include(cmake/dependencies.cmake)
-find_package(spdlog REQUIRED)
-
 if (MSVC)
   set(
     COMPILER_DEFINITIONS
@@ -61,6 +58,7 @@ set(
   ${TBB_LIBRARIES}
   Boost::Boost
   spdlog::spdlog
+  range-v3::range-v3
 )
 
 set(

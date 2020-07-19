@@ -1,15 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(sample)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
-
-find_package(lmng REQUIRED)
-find_package(lmeditor REQUIRED)
-find_package(lmtk REQUIRED)
-find_package(lmhuv REQUIRED)
-find_package(Boost REQUIRED COMPONENTS dll)
-find_package(Catch2 REQUIRED)
-
 
 add_library(
   sample_interface
@@ -18,8 +9,8 @@ add_library(
 target_link_libraries(
   sample_interface
   INTERFACE
-  lmng::lmng
-  lmtk::lmtk
+  lmng
+  lmtk
 )
 
 set(
@@ -45,7 +36,7 @@ set_target_properties(
 target_link_libraries(
   sample_editor_plugin
 
-  lmeditor::lmeditor
+  lmeditor
   sample_interface
   Boost::Boost
 )
@@ -76,7 +67,7 @@ target_link_libraries(
   sample_standalone
 
   sample_interface
-  lmhuv::lmhuv
+  lmhuv
 )
 
 target_compile_definitions(

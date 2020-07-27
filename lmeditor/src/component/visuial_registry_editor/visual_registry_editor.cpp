@@ -1,4 +1,4 @@
-#include "map_editor_component.h"
+#include "visual_registry_editor.h"
 #include <fmt/format.h>
 #include <lmhuv/box.h>
 #include <lmlib/enumerate.h>
@@ -8,12 +8,13 @@
 
 namespace lmeditor
 {
-component map_editor_init::operator()()
+component visual_registry_editor_init::operator()()
 {
-    return std::make_unique<map_editor_component>(*this);
+    return std::make_unique<visual_registry_editor>(*this);
 }
 
-map_editor_component::map_editor_component(map_editor_init const &init)
+visual_registry_editor::visual_registry_editor(
+  visual_registry_editor_init const &init)
     : controller{init.registry, init.camera_init},
       visual_view{
         lmhuv::create_visual_view(lmhuv::visual_view_init{
@@ -32,7 +33,7 @@ map_editor_component::map_editor_component(map_editor_init const &init)
         .resource_cache = init.resource_cache,
         .colour = state_text_colour,
         .position = init.position + state_text_position,
-        .text = map_editor_controller::select_state::label,
+        .text = visual_registry_controller::select_state::label,
       }},
       selection_outline_colour{init.selection_outline_colour},
       position{init.position},
@@ -56,7 +57,7 @@ map_editor_component::map_editor_component(map_editor_init const &init)
     selection_outline_geometry->set_line_width(6.f);
 }
 
-lmgl::geometry map_editor_component::create_box_geometry(
+lmgl::geometry visual_registry_editor::create_box_geometry(
   lmgl::irenderer *renderer,
   lmgl::material box_material,
   lmgl::ibuffer *ubuffer)
@@ -74,7 +75,7 @@ lmgl::geometry map_editor_component::create_box_geometry(
     return geometry;
 }
 
-void map_editor_component::set_state_text(
+void visual_registry_editor::set_state_text(
   lmgl::irenderer *renderer,
   std::string new_text,
   lmgl::resource_sink &resource_sink,
@@ -84,7 +85,7 @@ void map_editor_component::set_state_text(
       *renderer, resource_cache.body_font.get(), new_text, resource_sink);
 }
 
-component_interface &map_editor_component::update(
+component_interface &visual_registry_editor::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
@@ -97,7 +98,7 @@ component_interface &map_editor_component::update(
     return *this;
 }
 
-bool map_editor_component::add_to_frame(lmgl::iframe *frame)
+bool visual_registry_editor::add_to_frame(lmgl::iframe *frame)
 {
     visual_view->add_to_frame(
       *controller.map, frame, lmgl::viewport{position, size});
@@ -107,7 +108,7 @@ bool map_editor_component::add_to_frame(lmgl::iframe *frame)
 }
 
 lmtk::widget_interface &
-  map_editor_component::move_resources(lmgl::resource_sink &resource_sink)
+  visual_registry_editor::move_resources(lmgl::resource_sink &resource_sink)
 {
     resource_sink.add(
       selection_stencil_material,
@@ -123,8 +124,8 @@ lmtk::widget_interface &
     return *this;
 }
 
-map_editor_component &
-  map_editor_component::set_rect(lm::point2i pos, lm::size2i size)
+visual_registry_editor &
+  visual_registry_editor::set_rect(lm::point2i pos, lm::size2i size)
 {
     position = pos;
     this->size = size;
@@ -133,16 +134,16 @@ map_editor_component &
     return *this;
 }
 
-lm::size2i map_editor_component::get_size() { return size; }
+lm::size2i visual_registry_editor::get_size() { return size; }
 
-lm::point2i map_editor_component::get_position() { return position; }
+lm::point2i visual_registry_editor::get_position() { return position; }
 
-bool map_editor_component::handle(const lmtk::input_event &input_event)
+bool visual_registry_editor::handle(const lmtk::input_event &input_event)
 {
     return controller.handle(input_event);
 }
 std::vector<command_description>
-  map_editor_component::get_command_descriptions()
+  visual_registry_editor::get_command_descriptions()
 {
     return controller.get_command_descriptions();
 }

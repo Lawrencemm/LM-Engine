@@ -20,25 +20,25 @@ add_library(
 
   src/controller/viewport/viewport.cpp
 
-  src/controller/map_editor/map_editor_controller.cpp
-  src/controller/map_editor/move_selection.cpp
-  src/controller/map_editor/viewport_commands.cpp
-  src/controller/map_editor/move_selection_commands.cpp
+  src/controller/visual_registry_editor/visual_registry_controller.cpp
+  src/controller/visual_registry_editor/move_selection.cpp
+  src/controller/visual_registry_editor/viewport_commands.cpp
+  src/controller/visual_registry_editor/move_selection_commands.cpp
 
-  src/controller/map_editor/states/add_adjacent.cpp
-  src/controller/map_editor/states/translate.cpp
-  src/controller/map_editor/states/select.cpp
-  src/controller/map_editor/states/copy_object.cpp
-  src/controller/map_editor/states/scale.cpp
-  src/controller/map_editor/states/rotate.cpp
-  src/controller/map_editor/states/reparent.cpp
+  src/controller/visual_registry_editor/states/add_adjacent.cpp
+  src/controller/visual_registry_editor/states/translate.cpp
+  src/controller/visual_registry_editor/states/select.cpp
+  src/controller/visual_registry_editor/states/copy_object.cpp
+  src/controller/visual_registry_editor/states/scale.cpp
+  src/controller/visual_registry_editor/states/rotate.cpp
+  src/controller/visual_registry_editor/states/reparent.cpp
 
   src/controller/entity_list/entity_list_controller.cpp
 
   src/controller/inspector/inspector_controller.cpp
 
-  src/component/map_editor/rendering.cpp
-  src/component/map_editor/map_editor_component.cpp
+  src/component/visuial_registry_editor/rendering.cpp
+  src/component/visuial_registry_editor/visual_registry_editor.cpp
 
   src/component/inspector/inspector_component.cpp
 
@@ -135,8 +135,8 @@ add_executable(
 
   test/test_lmeditor.cpp
   test/test_trimesh.cpp
-  test/map_editor/test.cpp
-  test/map_editor/test_move_selection.cpp
+  test/visual_registry_editor/test.cpp
+  test/visual_registry_editor/test_move_selection.cpp
   test/test_entity_list.cpp
 )
 

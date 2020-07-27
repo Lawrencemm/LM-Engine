@@ -1,8 +1,8 @@
-#include "map_editor_controller_test_case.h"
+#include "test_case.h"
 #include <catch2/catch.hpp>
 #include <lmlib/math_constants.h>
 
-TEST_CASE_METHOD(map_editor_controller_test_case, "Move selection")
+TEST_CASE_METHOD(visual_registry_controller_test_case, "Move selection")
 {
     std::array cubes{
       controller.add_cube(map, {0.f, 0.f, 0.f}, 1.f),
@@ -113,7 +113,7 @@ TEST_CASE_METHOD(map_editor_controller_test_case, "Move selection")
 TEST_CASE("Move selection snaps to world axes")
 {
     entt::registry map;
-    lmeditor::map_editor_controller controller{
+    lmeditor::visual_registry_controller controller{
       map,
       lmeditor::orbital_camera_init{
         .fov = (float)M_PI / 3,
@@ -146,7 +146,7 @@ TEST_CASE("Move selection snaps to world axes")
 }
 
 TEST_CASE_METHOD(
-  map_editor_controller_test_case,
+  visual_registry_controller_test_case,
   "Move selection minimum distance")
 {
     std::array cubes{
@@ -163,7 +163,7 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  map_editor_controller_test_case,
+  visual_registry_controller_test_case,
   "Move selection with no selection")
 {
     std::array cubes{
@@ -216,7 +216,7 @@ TEST_CASE_METHOD(
     REQUIRE(controller.get_selection() == cubes[expected_selection]);
 }
 
-TEST_CASE_METHOD(map_editor_controller_test_case, "Lone entity selection")
+TEST_CASE_METHOD(visual_registry_controller_test_case, "Lone entity selection")
 {
     lmtk::input_state input_state{};
 

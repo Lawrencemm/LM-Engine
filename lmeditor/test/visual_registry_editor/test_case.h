@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../../src/controller/map_editor/map_editor_controller.h"
+#include "../../src/controller/visual_registry_editor/visual_registry_controller.h"
 #include <catch2/catch.hpp>
 #include <entt/entity/registry.hpp>
 
-class map_editor_controller_test_case
+class visual_registry_controller_test_case
 {
   protected:
     entt::registry map;
-    lmeditor::map_editor_controller controller;
+    lmeditor::visual_registry_controller controller;
 
   public:
-    map_editor_controller_test_case()
+    visual_registry_controller_test_case()
         : controller{
             map,
             lmeditor::orbital_camera_init{

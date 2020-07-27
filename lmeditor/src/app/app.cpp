@@ -3,9 +3,9 @@
 #include <lmeditor/component/asset_list.h>
 #include <lmeditor/component/command_help.h>
 #include <lmeditor/component/entity_list.h>
-#include <lmeditor/component/map_editor.h>
 #include <lmeditor/component/player.h>
 #include <lmeditor/component/saver.h>
+#include <lmeditor/component/visual_registry_editor.h>
 #include <lmeditor/model/creation_time.h>
 #include <lmeditor/model/orbital_camera.h>
 #include <lmlib/variant_visitor.h>
@@ -87,7 +87,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       window_size.height,
     };
 
-    auto map_editor = map_editor_init{
+    auto map_editor = visual_registry_editor_init{
       .registry = map,
       .camera_init =
         orbital_camera_init{

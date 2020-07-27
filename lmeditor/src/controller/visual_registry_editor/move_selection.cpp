@@ -1,4 +1,4 @@
-#include "map_editor_controller.h"
+#include "visual_registry_controller.h"
 
 #include <range/v3/algorithm/min_element.hpp>
 
@@ -7,7 +7,7 @@
 
 namespace lmeditor
 {
-entt::entity map_editor_controller::nearest_entity(
+entt::entity visual_registry_controller::nearest_entity(
   entt::registry const &map,
   entt::entity entity,
   const Eigen::Vector3f &direction)
@@ -44,7 +44,7 @@ entt::entity map_editor_controller::nearest_entity(
     return nearest_entity;
 }
 
-entt::entity map_editor_controller::farthest_entity(
+entt::entity visual_registry_controller::farthest_entity(
   entt::registry const &map,
   const Eigen::Vector3f &direction)
 {
@@ -72,7 +72,7 @@ entt::entity map_editor_controller::farthest_entity(
     return farthest;
 }
 
-bool map_editor_controller::move_selection(
+bool visual_registry_controller::move_selection(
   entt::registry const &map,
   Eigen::Vector3f const &direction)
 {
@@ -95,14 +95,14 @@ bool map_editor_controller::move_selection(
     return true;
 }
 
-bool map_editor_controller::move_selection_view(
+bool visual_registry_controller::move_selection_view(
   entt::registry const &map,
   const Eigen::Vector3f &view_axis)
 {
     return move_selection(map, lm::snap_to_axis(camera.rotation * view_axis));
 }
 
-void map_editor_controller::set_map(const entt::registry &registry)
+void visual_registry_controller::set_map(const entt::registry &registry)
 {
     state.emplace<select_state>(*this);
     clear_selection();

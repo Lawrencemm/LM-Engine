@@ -3,7 +3,7 @@
 #include <boost/dll/shared_library.hpp>
 #include <filesystem>
 #include <lmeditor/component/inspector.h>
-#include <lmeditor/component/map_editor.h>
+#include <lmeditor/component/visual_registry_editor.h>
 #include <lmeditor/model/trimesh.h>
 #include <lmeditor/project_plugin.h>
 #include <lmeditor/simulation_plugin.h>

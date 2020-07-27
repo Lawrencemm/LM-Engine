@@ -18,6 +18,7 @@ embed-resource/0.2@lawrencem/stable
 OpenMesh/8.0@lawrencem/stable
 clara/1.1.5
 freetype/2.10.2
+enum-flags/[>=0.1]@grisumbras/testing
 
 [build_requires]
 catch2/2.13.0

@@ -1,5 +1,5 @@
-#include "map_editor_controller.h"
-#include <lmeditor/component/map_editor.h>
+#include "visual_registry_controller.h"
+#include <lmeditor/component/visual_registry_editor.h>
 #include <lmeditor/model/selection.h>
 #include <lmlib/eigen.h>
 #include <lmlib/variant_visitor.h>
@@ -12,7 +12,7 @@
 
 namespace lmeditor
 {
-map_editor_controller::map_editor_controller(
+visual_registry_controller::visual_registry_controller(
   entt::registry &map,
   orbital_camera_init const &camera_init)
     : state{select_state{*this}},
@@ -23,7 +23,7 @@ map_editor_controller::map_editor_controller(
 {
 }
 
-bool map_editor_controller::handle(lmtk::input_event const &event)
+bool visual_registry_controller::handle(lmtk::input_event const &event)
 {
     return std::visit(
       lm::variant_visitor{
@@ -53,7 +53,7 @@ bool map_editor_controller::handle(lmtk::input_event const &event)
       state);
 }
 
-entt::entity map_editor_controller::add_cube(
+entt::entity visual_registry_controller::add_cube(
   entt::registry &map,
   Eigen::Vector3f const &position,
   float extent)
@@ -79,7 +79,7 @@ entt::entity map_editor_controller::add_cube(
     return new_cube;
 }
 
-std::string map_editor_controller::get_unique_name(
+std::string visual_registry_controller::get_unique_name(
   entt::registry const &map,
   char const *prefix)
 {
@@ -100,7 +100,7 @@ std::string map_editor_controller::get_unique_name(
     return unique_name;
 }
 
-entt::entity map_editor_controller::add_adjacent(
+entt::entity visual_registry_controller::add_adjacent(
   entt::registry &map,
   Eigen::Vector3f const &direction)
 {
@@ -111,7 +111,7 @@ entt::entity map_editor_controller::add_adjacent(
     return add_cube(map, add_pos, 1.f);
 }
 
-entt::entity map_editor_controller::copy_entity(
+entt::entity visual_registry_controller::copy_entity(
   entt::registry &map,
   Eigen::Vector3f const &direction)
 {
@@ -132,7 +132,7 @@ entt::entity map_editor_controller::copy_entity(
     return new_box;
 }
 
-void map_editor_controller::translate(
+void visual_registry_controller::translate(
   entt::registry &map,
   entt::entity entity,
   Eigen::Vector3f const &vector)
@@ -143,7 +143,7 @@ void map_editor_controller::translate(
 }
 
 std::vector<command_description>
-  map_editor_controller::get_command_descriptions()
+  visual_registry_controller::get_command_descriptions()
 {
     return state >> lm::variant_visitor{[this](auto &state_alternative) {
                return get_command_descriptions(
@@ -155,8 +155,8 @@ std::vector<command_description>
 }
 
 std::vector<command_description>
-  map_editor_controller::get_command_descriptions(
-    map_editor_controller::command_list const &list,
+  visual_registry_controller::get_command_descriptions(
+    visual_registry_controller::command_list const &list,
     std::string const &context)
 {
     std::vector<command_description> command_lines;
@@ -177,13 +177,12 @@ std::vector<command_description>
 }
 
 Eigen::Vector3f
-  map_editor_controller::view_to_axis(Eigen::Vector3f const &view_vector)
+  visual_registry_controller::view_to_axis(Eigen::Vector3f const &view_vector)
 {
     return lm::snap_to_axis(view_to_world(view_vector));
 }
 
-Eigen::Vector3f
-  map_editor_controller::get_selection_extents(entt::registry const &map) const
+Eigen::Vector3f visual_registry_controller::get_selection_extents(entt::registry const &map) const
 {
     auto selected_box = get_selection();
 
@@ -198,36 +197,35 @@ Eigen::Vector3f
     return Eigen::Vector3f{0.f, 0.f, 0.f};
 }
 
-void map_editor_controller::select(entt::entity entity)
+void visual_registry_controller::select(entt::entity entity)
 {
     clear_selection();
     map->assign<selected>(entity);
 }
 
-void map_editor_controller::clear_selection() const { map->clear<selected>(); }
+void visual_registry_controller::clear_selection() const { map->clear<selected>(); }
 
-entt::registry *map_editor_controller::get_registry() const { return map; }
+entt::registry *visual_registry_controller::get_registry() const { return map; }
 
-bool map_editor_controller::have_selection() const
+bool visual_registry_controller::have_selection() const
 {
     return !map->view<selected>().empty();
 }
 
-entt::entity map_editor_controller::get_selection() const
+entt::entity visual_registry_controller::get_selection() const
 {
     return lmeditor::get_selection(*map);
 }
 
-lm::camera map_editor_controller::get_camera() const { return camera; }
+lm::camera visual_registry_controller::get_camera() const { return camera; }
 
 Eigen::Vector3f
-  map_editor_controller::view_to_world(const Eigen::Vector3f &view_vector)
+  visual_registry_controller::view_to_world(const Eigen::Vector3f &view_vector)
 {
     return camera.rotation * view_vector;
 }
 
-Eigen::Vector3f
-  map_editor_controller::get_selection_position(const entt::registry &map) const
+Eigen::Vector3f visual_registry_controller::get_selection_position(const entt::registry &map) const
 {
     return lmng::resolve_transform(map, get_selection()).position;
 }

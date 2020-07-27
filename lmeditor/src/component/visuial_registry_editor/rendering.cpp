@@ -1,5 +1,5 @@
 #include "../../model/trimesh/util.h"
-#include "map_editor_component.h"
+#include "visual_registry_editor.h"
 
 #include <Resource.h>
 #include <lmeditor/model/selection.h>
@@ -18,7 +18,7 @@ struct selection_ubuffer_data
 namespace lmeditor
 {
 lmgl::buffer
-  map_editor_component::create_selection_ubuffer(lmgl::irenderer *renderer)
+  visual_registry_editor::create_selection_ubuffer(lmgl::irenderer *renderer)
 {
     return renderer->create_buffer(lmgl::buffer_init{
       .usage = lmgl::render_buffer_usage::uniform,
@@ -26,7 +26,7 @@ lmgl::buffer
     });
 }
 
-lmgl::material map_editor_component::create_selection_stencil_material(
+lmgl::material visual_registry_editor::create_selection_stencil_material(
   lmgl::irenderer *renderer)
 {
     return renderer->create_material(lmgl::material_init{
@@ -43,7 +43,7 @@ lmgl::material map_editor_component::create_selection_stencil_material(
 }
 
 lmgl::material
-  map_editor_component::create_outline_material(lmgl::irenderer *renderer)
+  visual_registry_editor::create_outline_material(lmgl::irenderer *renderer)
 {
     return renderer->create_material(lmgl::material_init{
       .vshader_spirv = lm::raw_array_proxy(stencil_vshader_data),
@@ -61,7 +61,7 @@ lmgl::material
     });
 }
 
-void map_editor_component::render_selection_outline(
+void visual_registry_editor::render_selection_outline(
   lmgl::iframe *frame,
   entt::registry const &map) const
 {
@@ -99,7 +99,7 @@ void map_editor_component::render_selection_outline(
     frame->add({selection_outline_geometry.get()}, viewport);
 }
 
-void map_editor_component::render_state_text(lmgl::iframe *frame)
+void visual_registry_editor::render_state_text(lmgl::iframe *frame)
 {
     state_text_layout.render(frame, position, size);
 }

@@ -14,10 +14,10 @@
 
 namespace lmeditor
 {
-class map_editor_controller : public viewport
+class visual_registry_controller : public viewport
 {
   public:
-    explicit map_editor_controller(
+    explicit visual_registry_controller(
       entt::registry &map,
       orbital_camera_init const &camera_init);
 
@@ -77,7 +77,7 @@ class map_editor_controller : public viewport
 
     struct command_args
     {
-        class map_editor_controller &controller;
+        class visual_registry_controller &controller;
         entt::registry &map;
         lmtk::key_down_event const &key_down_event;
     };
@@ -104,10 +104,11 @@ class map_editor_controller : public viewport
         constexpr static auto label = "";
 
         template <typename other_state_type>
-        explicit select_state(other_state_type &, map_editor_controller &model)
+        explicit select_state(other_state_type &,
+          visual_registry_controller &model)
             : select_state{model} {};
 
-        explicit select_state(map_editor_controller &model);
+        explicit select_state(visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -117,7 +118,7 @@ class map_editor_controller : public viewport
         using parent_state_type = select_state;
         constexpr static auto label = "Translate Entity";
 
-        explicit translate_state(select_state &, map_editor_controller &);
+        explicit translate_state(select_state &, visual_registry_controller &);
 
         command_list commands;
         command_map key_command_map;
@@ -128,8 +129,8 @@ class map_editor_controller : public viewport
         using parent_state_type = select_state;
 
         explicit add_adjacent_state(
-          map_editor_controller::select_state &,
-          map_editor_controller &model);
+          visual_registry_controller::select_state &,
+          visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -140,8 +141,8 @@ class map_editor_controller : public viewport
         using parent_state_type = select_state;
 
         copy_entity_state(
-          map_editor_controller::select_state &,
-          map_editor_controller &model);
+          visual_registry_controller::select_state &,
+          visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -151,7 +152,7 @@ class map_editor_controller : public viewport
         constexpr static auto label = "Reparent Entity";
         using parent_state_type = select_state;
 
-        reparent_state(select_state &, map_editor_controller &model);
+        reparent_state(select_state &, visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -162,7 +163,7 @@ class map_editor_controller : public viewport
         constexpr static auto label = "Scale Entity";
         using parent_state_type = select_state;
 
-        scale_state(select_state &, map_editor_controller &model);
+        scale_state(select_state &, visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -172,7 +173,7 @@ class map_editor_controller : public viewport
         constexpr static auto label = "Rotate Entity";
         using parent_state_type = select_state;
 
-        rotate_state(select_state &, map_editor_controller &model);
+        rotate_state(select_state &, visual_registry_controller &model);
 
         command_list commands;
         command_map key_command_map;
@@ -220,7 +221,7 @@ class map_editor_controller : public viewport
 };
 
 template <typename new_state_type, typename current_state_type>
-auto map_editor_controller::enter_state(current_state_type &current_state)
+auto visual_registry_controller::enter_state(current_state_type &current_state)
 {
     static_assert(
       std::is_same_v<

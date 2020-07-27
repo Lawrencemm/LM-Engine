@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../controller/map_editor/map_editor_controller.h"
+#include "../../controller/visual_registry_editor/visual_registry_controller.h"
 #include <chrono>
 #include <entt/entt.hpp>
 #include <filesystem>
 #include <lmeditor/component/command_help.h>
-#include <lmeditor/component/map_editor.h>
+#include <lmeditor/component/visual_registry_editor.h>
 #include <lmgl/lmgl.h>
 #include <lmhuv.h>
 #include <lmlib/variant_visitor.h>
@@ -20,12 +20,12 @@
 
 namespace lmeditor
 {
-class map_editor_component : public component_interface
+class visual_registry_editor : public component_interface
 {
   public:
-    explicit map_editor_component(map_editor_init const &init);
-    map_editor_component(map_editor_component const &) = delete;
-    map_editor_component(map_editor_component &&) = delete;
+    explicit visual_registry_editor(visual_registry_editor_init const &init);
+    visual_registry_editor(visual_registry_editor const &) = delete;
+    visual_registry_editor(visual_registry_editor &&) = delete;
 
     component_interface &update(
       lmgl::irenderer *renderer,
@@ -38,7 +38,7 @@ class map_editor_component : public component_interface
     widget_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    map_editor_component &set_rect(lm::point2i pos, lm::size2i size) override;
+    visual_registry_editor &set_rect(lm::point2i pos, lm::size2i size) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     std::vector<command_description> get_command_descriptions() override;
@@ -68,7 +68,7 @@ class map_editor_component : public component_interface
     lmgl::buffer create_selection_ubuffer(lmgl::irenderer *renderer);
     lmgl::material create_outline_material(lmgl::irenderer *renderer);
 
-    map_editor_controller controller;
+    visual_registry_controller controller;
     lmhuv::pvisual_view visual_view;
     lmgl::material selection_stencil_material, selection_outline_material;
     lmgl::buffer box_vpositions, box_vnormals, box_indices;

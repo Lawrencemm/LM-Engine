@@ -102,6 +102,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       {0, 0},
       map_editor_size,
       std::array{1.f, 0.f, 0.f},
+      entity_editor_features{}.add().add_root().reparent().rotate().scale().translate.
     }();
 
     auto config_asset_dir = project_config["asset_directory"];

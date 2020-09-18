@@ -30,7 +30,7 @@ void replace_on_entity(
   entt::registry &registry,
   entt::entity entity);
 
-void assign_or_replace_on_entity(
+void emplace_or_replace_on_entity(
   entt::meta_any const &component,
   entt::registry &registry,
   entt::entity entity);

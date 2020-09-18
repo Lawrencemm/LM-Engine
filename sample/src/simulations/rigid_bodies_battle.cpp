@@ -94,7 +94,7 @@ void rigid_bodies_battle::move_enemies(
     auto enemy_view =
       registry.view<enemy_component, lmng::rigid_body, lmng::transform>();
 
-    enemy_view.each([&](auto enemy, auto, auto &rigid_body, auto &transform) {
+    enemy_view.each([&](auto enemy, auto &rigid_body, auto &transform) {
         if (!physics->is_touched(registry, enemy))
             return;
 

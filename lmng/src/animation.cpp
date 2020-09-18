@@ -28,7 +28,7 @@ void animation_system::animate(
   float rate,
   anim_loop_type loop_type)
 {
-    registry.assign<animation_state>(
+    registry.emplace<animation_state>(
       skeleton_root, animation, rate, progress, loop_type);
 }
 

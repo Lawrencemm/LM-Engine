@@ -27,13 +27,12 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     : project_dir{project_dir},
       resources{},
       resource_cache{lmtk::resource_cache_init{
-        .renderer = resources.renderer.get(),
-        .font_loader = resources.font_loader.get(),
-        .body_font =
-          lmtk::font_description{
-            .typeface_name = "Arial",
-            .pixel_size = 24,
-          }}},
+        resources.renderer.get(),
+        resources.font_loader.get(),
+        lmtk::font_description{
+          .typeface_name = "Arial",
+          .pixel_size = 24,
+        }}},
       flow_graph(
         resources,
         [&](auto &ev) { return on_input_event(ev); },
@@ -88,21 +87,20 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     };
 
     auto map_editor = map_editor_init{
-      .registry = map,
-      .camera_init =
-        orbital_camera_init{
-          .fov = (float)M_PI / 3,
-          .aspect = (float)map_editor_size.width / map_editor_size.height,
-          .near_clip = 0.1f,
-          .far_clip = 1000.f,
-          .position = Eigen::Vector3f{0.f, 10.f, -25.f},
-          .target = Eigen::Vector3f{0.f, 0.f, 0.f},
-        },
-      .renderer = resources.renderer.get(),
-      .resource_cache = resource_cache,
-      .position = {0, 0},
-      .size = map_editor_size,
-      .selection_outline_colour = std::array{1.f, 0.f, 0.f},
+      map,
+      orbital_camera_init{
+        .fov = (float)M_PI / 3,
+        .aspect = (float)map_editor_size.width / map_editor_size.height,
+        .near_clip = 0.1f,
+        .far_clip = 1000.f,
+        .position = Eigen::Vector3f{0.f, 10.f, -25.f},
+        .target = Eigen::Vector3f{0.f, 0.f, 0.f},
+      },
+      resources.renderer.get(),
+      resource_cache,
+      {0, 0},
+      map_editor_size,
+      std::array{1.f, 0.f, 0.f},
     }();
 
     auto config_asset_dir = project_config["asset_directory"];
@@ -348,7 +346,7 @@ void editor_app::on_construct_any(
     }
 }
 
-void editor_app::on_replace_any(
+void editor_app::on_update_any(
   entt::registry &registry,
   entt::entity entity,
   entt::meta_type const &meta_type)

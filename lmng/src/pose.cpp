@@ -31,11 +31,12 @@ void load_pose(
     {
         auto child = find_entity(registry, yaml_entity.first.as<std::string>());
 
-        registry.replace<transform>(
-          child,
-          construct_component_from_yaml(
-            registry, "Transform", yaml_entity.second["Transform"])
-            .cast<transform>());
+        auto transform_any = construct_component_from_yaml(
+          registry, "Transform", yaml_entity.second["Transform"]);
+
+        auto transform = transform_any.cast<lmng::transform>();
+
+        registry.replace<lmng::transform>(child, transform);
 
         load_pose(registry, child, yaml_entity.second["Children"]);
     }

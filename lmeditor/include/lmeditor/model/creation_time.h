@@ -12,6 +12,6 @@ struct creation_time
 
 inline void assign_creation_time(entt::registry &registry, entt::entity entity)
 {
-    registry.assign<creation_time>(entity, std::chrono::steady_clock::now());
+    registry.emplace<creation_time>(entity, std::chrono::steady_clock::now());
 }
 } // namespace lmeditor

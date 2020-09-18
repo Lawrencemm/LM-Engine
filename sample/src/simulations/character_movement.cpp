@@ -38,8 +38,8 @@ character_movement::character_movement(lmng::simulation_init const &init)
       swing_arms_animation{
         init.asset_cache.load<lmng::animation_data>("animation/swing_arms")}
 {
-    init.registry.assign<lmng::transform>(camera);
-    init.registry.assign<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
+    init.registry.emplace<lmng::transform>(camera);
+    init.registry.emplace<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
 }
 
 void character_movement::handle_input_event(
@@ -141,7 +141,7 @@ void character_movement::apply_movement_controls(
 void character_movement::control_animation(entt::registry &registry, float dt)
 {
     registry.view<lmng::character_controller, robot>().each(
-      [&](auto entity, auto &character_controller, auto) {
+      [&](auto entity, auto &character_controller) {
           auto current_velocity =
             physics->get_character_velocity(registry, entity);
 
@@ -222,8 +222,7 @@ void character_movement::move_robots(entt::registry &registry, float dt)
       .each([&](
               auto entity,
               auto const character_controller,
-              auto const transform,
-              auto) {
+              auto const transform) {
           auto ground_extents =
             registry.get<lmng::box_collider>(ground).extents;
           auto ground_transform = registry.get<lmng::transform>(ground);

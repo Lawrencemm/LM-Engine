@@ -53,12 +53,12 @@ TEST_CASE("Map serialisation with archetypes")
     auto parent = registry.create();
     auto child = registry.create();
 
-    registry.assign<lmng::parent>(child, parent);
-    registry.assign<lmng::name>(parent, "Parent");
-    registry.assign<lmng::transform>(
+    registry.emplace<lmng::parent>(child, parent);
+    registry.emplace<lmng::name>(parent, "Parent");
+    registry.emplace<lmng::transform>(
       parent, Eigen::Vector3f{1.f, 2.f, 3.f}, Eigen::Quaternionf::Identity());
-    registry.assign<lmng::name>(child, "Child");
-    registry.assign<lmng::archetype>(parent, "archetype");
+    registry.emplace<lmng::name>(child, "Child");
+    registry.emplace<lmng::archetype>(parent, "archetype");
 
     YAML::Node expected_yaml;
 

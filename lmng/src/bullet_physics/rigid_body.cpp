@@ -57,7 +57,7 @@ void bt_physics::create_rigid_bodies(entt::registry &registry)
         auto const &transform,
         auto const &rigid_body,
         auto const &box_collider) {
-          registry.assign<bt_rigid_body>(
+          registry.emplace<bt_rigid_body>(
             entity,
             create_box_rigid_body(entity, box_collider, transform, rigid_body));
       });

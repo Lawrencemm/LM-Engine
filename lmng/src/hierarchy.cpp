@@ -27,7 +27,7 @@ void on_parent_constructed(entt::registry &registry, entt::entity entity)
     }
     else
     {
-        auto &children = registry.assign<internal::children>(parent);
+        auto &children = registry.emplace<internal::children>(parent);
         children.entities.emplace_back(entity);
     }
 }
@@ -114,7 +114,7 @@ void reparent(
     }
 
     registry.remove_if_exists<parent>(child);
-    registry.assign<parent>(child, new_parent);
+    registry.emplace<parent>(child, new_parent);
 }
 
 void orphan_children(entt::registry &registry, entt::entity parent)

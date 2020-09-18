@@ -56,14 +56,14 @@ void visual::update(
     for (auto entity : box_render_observer)
     {
         add_box(renderer, entity);
-        registry.assign<box_mesh_tag>(entity);
+        registry.emplace<box_mesh_tag>(entity);
     }
     box_render_observer.clear();
 
     for (auto entity : box_collider_observer)
     {
         add_box_wireframe(renderer, entity);
-        registry.assign<box_collider_mesh_tag>(entity);
+        registry.emplace<box_collider_mesh_tag>(entity);
     }
     box_collider_observer.clear();
 

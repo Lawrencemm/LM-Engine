@@ -35,7 +35,7 @@ class editor_app : public lmng::any_component_listener
       entt::registry &registry,
       entt::entity entity,
       entt::meta_type const &meta_type) override;
-    void on_replace_any(
+    void on_update_any(
       entt::registry &registry,
       entt::entity entity,
       entt::meta_type const &meta_type) override;

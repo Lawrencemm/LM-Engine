@@ -33,7 +33,7 @@ void bt_physics::create_character_controllers(entt::registry &registry) const
           auto &ghost_transform = ghost->getWorldTransform();
           ghost_transform.setRotation(quat_to_bt(transform.rotation));
 
-          registry.assign<bt_character_controller>(
+          registry.emplace<bt_character_controller>(
             entity,
             std::move(ghost),
             std::move(collision_shape),

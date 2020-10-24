@@ -41,16 +41,16 @@ char const *get_type_name(entt::meta_type const &type)
     return type.prop("name"_hs.value()).value().cast<char const *>();
 }
 
-void assign_to_entity(
+void emplace_on_entity(
   entt::meta_any const &component,
   entt::registry &registry,
   entt::entity entity)
 {
-    auto func = component.type().func("assign_to_entity"_hs);
+    auto func = component.type().func("emplace_on_entity"_hs);
 
     assert(
       (fmt::format(
-         "Failed to lookup assign_to_entity meta function for component {}",
+         "Failed to lookup emplace_on_entity meta function for component {}",
          get_type_name(component.type())),
        func));
 
@@ -59,7 +59,7 @@ void assign_to_entity(
 
     assert(
       (fmt::format(
-         "Failed to invoke assign_to_entity meta function for component {}",
+         "Failed to invoke emplace_on_entity meta function for component {}",
          get_type_name(component.type())),
        result));
 }
@@ -207,9 +207,9 @@ any_component &any_component::set(
 }
 
 any_component &
-  any_component::assign(entt::registry &registry, entt::entity entity)
+  any_component::emplace(entt::registry &registry, entt::entity entity)
 {
-    assign_to_entity(any, registry, entity);
+    emplace_on_entity(any, registry, entity);
     return *this;
 }
 

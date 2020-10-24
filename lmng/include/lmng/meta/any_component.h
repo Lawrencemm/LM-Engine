@@ -20,7 +20,7 @@ void set_data(
   std::string const &string,
   entt::registry const &context);
 
-void assign_to_entity(
+void emplace_on_entity(
   entt::meta_any const &component,
   entt::registry &registry,
   entt::entity entity);
@@ -61,7 +61,7 @@ class any_component
       std::string const &from,
       entt::registry const &registry);
 
-    any_component &assign(entt::registry &registry, entt::entity entity);
+    any_component &emplace(entt::registry &registry, entt::entity entity);
 
     any_component &replace(entt::registry &registry, entt::entity entity);
 

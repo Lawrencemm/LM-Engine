@@ -122,7 +122,7 @@ entt::entity map_editor_controller::copy_entity(
     auto new_box = map.create(selected_box);
     lmng::visit_components(
       map, selected_box, [&](lmng::any_component component) {
-          component.assign(map, new_box);
+          component.emplace(map, new_box);
       });
     auto &transform = map.get<lmng::transform>(new_box);
     transform.position +=

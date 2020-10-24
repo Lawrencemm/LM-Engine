@@ -166,14 +166,14 @@ void save_registry_as_yaml(
     yaml["schema_version"] = "1";
 }
 
-void assign_components_from_yaml(
+void emplace_components_from_yaml(
   entt::registry &registry,
   entt::entity into_entity,
   YAML::Node const &components_yaml)
 {
     for (auto const &component_yaml : components_yaml)
     {
-        assign_to_entity(
+        emplace_on_entity(
           construct_component_from_yaml(
             registry, component_yaml.first, component_yaml.second),
           registry,
@@ -248,7 +248,7 @@ void create_entity_from_yaml(
     }
     else
     {
-        assign_components_from_yaml(registry, entity, yaml["components"]);
+        emplace_components_from_yaml(registry, entity, yaml["components"]);
     }
 
     create_children_from_yaml(registry, yaml["children"], asset_cache, entity);

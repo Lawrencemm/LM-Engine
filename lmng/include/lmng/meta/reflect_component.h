@@ -13,7 +13,7 @@
 namespace lmng
 {
 template <typename component_type>
-void assign_to_entity(
+void emplace_on_entity(
   component_type const &component,
   entt::registry &registry,
   entt::entity entity)
@@ -328,7 +328,7 @@ void disconnect_destroy(
       .prop("name"_hs.value(), name)                                           \
       .prop(entt::hashed_string{"is_component"})                               \
       .ctor<&lmng::construct<_type>>()                                         \
-      .func<&lmng::assign_to_entity<_type>>("assign_to_entity"_hs)             \
+      .func<&lmng::emplace_on_entity<_type>>("emplace_on_entity"_hs)           \
       .func<&lmng::replace_on_entity<_type>>("replace_on_entity"_hs)           \
       .func<&lmng::emplace_or_replace_on_entity<_type>>(                       \
         "emplace_or_replace_on_entity"_hs)                                     \

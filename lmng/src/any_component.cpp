@@ -117,7 +117,7 @@ std::string get_data(
 
     const entt::meta_any &data_any = as_string_func.invoke(
       {},
-      reinterpret_cast<char const *>(component.data()),
+      component.ref(),
       std::reference_wrapper(const_cast<entt::registry &>(context)));
 
     assert(
@@ -150,7 +150,7 @@ void set_data(
 
     auto res = from_string.invoke(
       {},
-      reinterpret_cast<char *>(component.data()),
+      component.ref(),
       std::reference_wrapper(const_cast<std::string &>(string)),
       std::reference_wrapper(const_cast<entt::registry &>(context)));
 

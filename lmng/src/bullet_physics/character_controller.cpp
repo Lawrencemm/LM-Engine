@@ -17,28 +17,25 @@ void bt_physics::check_invalid_character_controllers(
 
 void bt_physics::create_character_controllers(entt::registry &registry) const
 {
-    registry.view<transform, character_controller, box_collider>().each(
-      [&](
-        auto entity,
-        auto const &transform,
-        auto const &character_controller,
-        auto const &box_collider) {
-          auto collision_shape = create_bt_box_shape(box_collider);
+    for (auto [entity, transform, character_controller, box_collider] :
+         registry.view<transform, character_controller, box_collider>().proxy())
+    {
+        auto collision_shape = create_bt_box_shape(box_collider);
 
-          auto ghost = create_ghost_object(transform, collision_shape.get());
+        auto ghost = create_ghost_object(transform, collision_shape.get());
 
-          auto bt_controller =
-            create_character_controller(collision_shape.get(), ghost.get());
+        auto bt_controller =
+          create_character_controller(collision_shape.get(), ghost.get());
 
-          auto &ghost_transform = ghost->getWorldTransform();
-          ghost_transform.setRotation(quat_to_bt(transform.rotation));
+        auto &ghost_transform = ghost->getWorldTransform();
+        ghost_transform.setRotation(quat_to_bt(transform.rotation));
 
-          registry.emplace<bt_character_controller>(
-            entity,
-            std::move(ghost),
-            std::move(collision_shape),
-            std::move(bt_controller));
-      });
+        registry.emplace<bt_character_controller>(
+          entity,
+          std::move(ghost),
+          std::move(collision_shape),
+          std::move(bt_controller));
+    }
 }
 
 static Eigen::Vector3f const character_controller_up{0.f, 1.f, 0.f};
@@ -88,26 +85,26 @@ void bt_physics::set_character_velocity_intervals(
   entt::registry &entities,
   float dt) const
 {
-    entities.view<character_controller, bt_character_controller, transform>()
-      .each([&](
-              auto character,
-              character_controller &controller,
-              bt_character_controller &bt_controller,
-              transform const &transform) {
-          bt_controller.ghost->setWorldTransform(bt_transform(transform));
-          bt_controller.controller->setVelocityForTimeInterval(
-            vec_to_bt(controller.requested_velocity), dt);
-      });
+    for (auto [character, controller, bt_controller, transform] :
+         entities
+           .view<character_controller, bt_character_controller, transform>()
+           .proxy())
+    {
+        bt_controller.ghost->setWorldTransform(bt_transform(transform));
+        bt_controller.controller->setVelocityForTimeInterval(
+          vec_to_bt(controller.requested_velocity), dt);
+    }
 }
 
 void bt_physics::sync_character_transforms(entt::registry &entities) const
 {
-    entities.view<transform, bt_character_controller>().each(
-      [&](auto character, auto &transform, auto &bt_controller) {
-          auto &controller_transform = bt_controller.ghost->getWorldTransform();
-          set_from_bt(transform.position, controller_transform.getOrigin());
-          set_from_bt(transform.rotation, controller_transform.getRotation());
-      });
+    for (auto [character, transform, bt_controller] :
+         entities.view<transform, bt_character_controller>().proxy())
+    {
+        auto &controller_transform = bt_controller.ghost->getWorldTransform();
+        set_from_bt(transform.position, controller_transform.getOrigin());
+        set_from_bt(transform.rotation, controller_transform.getRotation());
+    }
 }
 
 Eigen::Vector3f bt_physics::get_character_velocity(

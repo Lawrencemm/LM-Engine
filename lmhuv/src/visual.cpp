@@ -84,11 +84,12 @@ void visual::add_box_meshes(
   entt::registry const &registry,
   lmgl::irenderer *renderer)
 {
-    registry.view<lmng::box_render const>().each(
-      [&](entt::entity entity, lmng::box_render const &box_component) {
-          box_meshes.emplace(
-            entity, create_box_mesh(renderer, entity, box_material));
-      });
+    for (auto [entity, box_render] :
+         registry.view<lmng::box_render const>().proxy())
+    {
+        box_meshes.emplace(
+          entity, create_box_mesh(renderer, entity, box_material));
+    }
 }
 
 visual::box_mesh visual::create_box_mesh(
@@ -128,23 +129,24 @@ void visual::add_to_frame(
         return;
     }
 
-    registry.view<lmng::camera const, lmng::transform const>().each(
-      [&](auto camera_entity, auto &camera_component, auto &transform) {
-          auto resolved_transform =
-            lmng::resolve_transform(registry, camera_entity);
-          lm::camera camera{lm::camera_init{
-            camera_component.field_of_view,
-            aspect_ratio,
-            camera_component.near_clip,
-            camera_component.far_clip,
-            resolved_transform.position,
-            resolved_transform.rotation,
-          }};
-          render_boxes(registry, camera, frame, viewport);
+    for (auto [camera_entity, camera_component, transform] :
+         registry.view<lmng::camera const, lmng::transform const>().proxy())
+    {
+        auto resolved_transform =
+          lmng::resolve_transform(registry, camera_entity);
+        lm::camera camera{lm::camera_init{
+          camera_component.field_of_view,
+          aspect_ratio,
+          camera_component.near_clip,
+          camera_component.far_clip,
+          resolved_transform.position,
+          resolved_transform.rotation,
+        }};
+        render_boxes(registry, camera, frame, viewport);
 
-          if (do_render_box_colliders)
-              render_box_colliders(registry, camera, frame, viewport);
-      });
+        if (do_render_box_colliders)
+            render_box_colliders(registry, camera, frame, viewport);
+    }
 }
 
 void visual::move_resources(lmgl::resource_sink &resource_sink)
@@ -192,22 +194,21 @@ void visual::render_box_colliders(
   lmgl::iframe *frame,
   lmgl::viewport const &viewport)
 {
-    registry.view<lmng::box_collider const, lmng::transform const>().each(
-      [&](
-        auto entity,
-        lmng::box_collider const &box,
-        lmng::transform const &transform) {
-          auto &box_mesh = box_collider_meshes.at(entity);
-          update_box_uniform(
-            frame,
-            box_mesh.ubuffer.get(),
-            camera,
-            lmng::resolve_transform(registry, entity),
-            box.extents,
-            {1.f, 1.f, 1.f},
-            light_direction);
-          frame->add({box_mesh.geometry.get()}, viewport);
-      });
+    for (auto [entity, box_collider, transform] :
+         registry.view<lmng::box_collider const, lmng::transform const>()
+           .proxy())
+    {
+        auto &box_mesh = box_collider_meshes.at(entity);
+        update_box_uniform(
+          frame,
+          box_mesh.ubuffer.get(),
+          camera,
+          lmng::resolve_transform(registry, entity),
+          box_collider.extents,
+          {1.f, 1.f, 1.f},
+          light_direction);
+        frame->add({box_mesh.geometry.get()}, viewport);
+    }
 }
 
 void visual::render_boxes(
@@ -216,22 +217,20 @@ void visual::render_boxes(
   lmgl::iframe *frame,
   lmgl::viewport const &viewport)
 {
-    registry.view<lmng::box_render const, lmng::transform const>().each(
-      [&](
-        auto entity,
-        lmng::box_render const &box,
-        lmng::transform const &transform) {
-          auto &box_mesh = box_meshes.at(entity);
-          update_box_uniform(
-            frame,
-            box_mesh.ubuffer.get(),
-            camera,
-            lmng::resolve_transform(registry, entity),
-            box.extents,
-            box.colour,
-            light_direction);
-          frame->add({box_mesh.geometry.get()}, viewport);
-      });
+    for (auto [entity, box_render, transform] :
+         registry.view<lmng::box_render const, lmng::transform const>().proxy())
+    {
+        auto &box_mesh = box_meshes.at(entity);
+        update_box_uniform(
+          frame,
+          box_mesh.ubuffer.get(),
+          camera,
+          lmng::resolve_transform(registry, entity),
+          box_render.extents,
+          box_render.colour,
+          light_direction);
+        frame->add({box_mesh.geometry.get()}, viewport);
+    }
 }
 
 ivisual_view &visual::set_camera_override(lm::camera const &camera)
@@ -244,11 +243,12 @@ void visual::add_box_collider_meshes(
   entt::registry const &registry,
   lmgl::irenderer &renderer)
 {
-    registry.view<lmng::box_collider const>().each(
-      [&](entt::entity entity, lmng::box_collider const &box_component) {
-          box_collider_meshes.emplace(
-            entity, create_box_mesh(&renderer, entity, box_wireframe_material));
-      });
+    for (auto [entity, box_component] :
+         registry.view<lmng::box_collider const>().proxy())
+    {
+        box_collider_meshes.emplace(
+          entity, create_box_mesh(&renderer, entity, box_wireframe_material));
+    }
 }
 
 void visual::recreate(entt::registry const &registry, lmgl::irenderer &renderer)

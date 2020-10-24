@@ -89,13 +89,12 @@ void entity_list_component::reset(
         }
     };
 
-    auto add_root_entity = [&](auto entity, auto &name_component) {
-        line_layouts.emplace_back(layout_factory.create(name_component.string));
+    for (auto [entity, name] :
+         registry.view<lmng::name const>(entt::exclude<lmng::parent>).proxy())
+    {
+        line_layouts.emplace_back(layout_factory.create(name.string));
         add_children(entity, 1);
-    };
-
-    registry.view<lmng::name const>(entt::exclude<lmng::parent>)
-      .each(add_root_entity);
+    }
 
     lmtk::layout_vertical(lmtk::vertical_layout{position.y, 12}, line_layouts);
 }

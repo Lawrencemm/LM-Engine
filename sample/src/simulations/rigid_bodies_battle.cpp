@@ -91,10 +91,10 @@ void rigid_bodies_battle::move_enemies(
     auto const &protagonist_transform =
       registry.get<lmng::transform>(protagonist);
 
-    auto enemy_view =
-      registry.view<enemy_component, lmng::rigid_body, lmng::transform>();
-
-    enemy_view.each([&](auto enemy, auto &rigid_body, auto &transform) {
+    for (auto [enemy, rigid_body, transform] :
+         registry.view<enemy_component, lmng::rigid_body, lmng::transform>()
+           .proxy())
+    {
         if (!physics->is_touched(registry, enemy))
             return;
 
@@ -102,5 +102,5 @@ void rigid_bodies_battle::move_enemies(
           (protagonist_transform.position - transform.position).normalized();
         physics->apply_force(
           registry, enemy, protagonist_component.move_force * to_protag);
-    });
+    }
 }

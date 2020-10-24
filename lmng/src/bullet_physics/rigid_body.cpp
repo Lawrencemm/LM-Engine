@@ -51,32 +51,31 @@ void bt_physics::check_invalid_rigid_bodies(entt::registry &registry) const
 
 void bt_physics::create_rigid_bodies(entt::registry &registry)
 {
-    registry.view<transform, rigid_body, box_collider>().each(
-      [&](
-        auto entity,
-        auto const &transform,
-        auto const &rigid_body,
-        auto const &box_collider) {
-          registry.emplace<bt_rigid_body>(
-            entity,
-            create_box_rigid_body(entity, box_collider, transform, rigid_body));
-      });
+    for (auto [entity, transform, rigid_body, box_collider] :
+         registry.view<lmng::transform, lmng::rigid_body, lmng::box_collider>()
+           .proxy())
+    {
+        registry.emplace<bt_rigid_body>(
+          entity,
+          create_box_rigid_body(entity, box_collider, transform, rigid_body));
+    }
 }
 
 void bt_physics::sync_rigid_body_transforms(entt::registry &entities) const
 {
-    entities.view<transform, bt_rigid_body>().each(
-      [&](auto entity, transform &transform, bt_rigid_body &rigid_body) {
-          auto bt_transform = rigid_body.rigid_body->getWorldTransform();
-          auto origin = bt_transform.getOrigin();
-          transform.position[0] = origin.getX();
-          transform.position[1] = origin.getY();
-          transform.position[2] = origin.getZ();
+    for (auto [entity, transform, rigid_body] :
+         entities.view<lmng::transform, bt_rigid_body>().proxy())
+    {
+        auto bt_transform = rigid_body.rigid_body->getWorldTransform();
+        auto origin = bt_transform.getOrigin();
+        transform.position[0] = origin.getX();
+        transform.position[1] = origin.getY();
+        transform.position[2] = origin.getZ();
 
-          auto rotation = bt_transform.getRotation();
-          transform.rotation = Eigen::Quaternionf{
-            rotation.getW(), rotation.getX(), rotation.getY(), rotation.getZ()};
-      });
+        auto rotation = bt_transform.getRotation();
+        transform.rotation = Eigen::Quaternionf{
+          rotation.getW(), rotation.getX(), rotation.getY(), rotation.getZ()};
+    }
 }
 
 void bt_physics::apply_impulse(

@@ -13,7 +13,7 @@ void load_archetype_data(
 {
     auto archetype_data = asset_cache.load<lmng::archetype_data>(asset_path);
 
-    assign_components_from_yaml(
+    emplace_components_from_yaml(
       registry, entity, archetype_data->yaml["components"]);
 
     create_children_from_yaml(

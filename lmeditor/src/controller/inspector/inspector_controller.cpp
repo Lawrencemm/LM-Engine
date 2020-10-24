@@ -44,9 +44,10 @@ void inspector_controller::create_entries(const entt::registry &registry)
       registry, entity, [&](lmng::any_component const &component) {
           entries.emplace_back(entry{component.any.type()});
 
-          component.any.type().data([&](entt::meta_data data) {
+          for (auto data : component.any.type().data())
+          {
               entries.emplace_back(entry{data.parent(), data});
-          });
+          };
       });
 }
 

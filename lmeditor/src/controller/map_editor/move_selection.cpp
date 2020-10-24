@@ -24,9 +24,10 @@ entt::entity map_editor_controller::nearest_entity(
 
     auto transform = lmng::resolve_transform(map, entity);
 
-    transforms.each([&](auto other_entity, auto &) {
+    for (auto other_entity : transforms)
+    {
         if (other_entity == entity)
-            return;
+            continue;
 
         Eigen::Vector3f to_other =
           lmng::resolve_transform(map, other_entity).position -
@@ -39,7 +40,7 @@ entt::entity map_editor_controller::nearest_entity(
             nearest_entity = other_entity;
             nearest_dot_dir = to_dot_dir;
         }
-    });
+    }
 
     return nearest_entity;
 }
@@ -58,7 +59,8 @@ entt::entity map_editor_controller::farthest_entity(
     float max_dot{-std::numeric_limits<float>::infinity()};
     entt::entity farthest{entt::null};
 
-    transforms.each([&](auto curr, auto &) {
+    for (auto curr : transforms)
+    {
         auto transform = lmng::resolve_transform(map, curr);
         auto direction_dot_position = transform.position.dot(direction);
 
@@ -67,7 +69,7 @@ entt::entity map_editor_controller::farthest_entity(
             max_dot = direction_dot_position;
             farthest = curr;
         }
-    });
+    }
 
     return farthest;
 }

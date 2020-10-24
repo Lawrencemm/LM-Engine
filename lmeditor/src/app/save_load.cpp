@@ -21,7 +21,7 @@ bool editor_app::on_map_saved(const std::string &project_path)
     change_state<gui_state>();
 
     lmng::connect_on_construct_any(map, *this);
-    lmng::connect_on_replace_any(map, *this);
+    lmng::connect_on_update_any(map, *this);
     lmng::connect_on_destroy_any(map, *this);
 
     return !visible_components.empty();
@@ -56,7 +56,7 @@ bool editor_app::on_map_selected(
 bool editor_app::load_map(std::filesystem::path const &path)
 {
     lmng::disconnect_on_construct_any(map, *this);
-    lmng::disconnect_on_replace_any(map, *this);
+    lmng::disconnect_on_update_any(map, *this);
     lmng::disconnect_on_destroy_any(map, *this);
 
     auto map_yaml = YAML::LoadFile(path.string());
@@ -66,7 +66,7 @@ bool editor_app::load_map(std::filesystem::path const &path)
       std::filesystem::relative(path, project_dir).replace_extension().string();
 
     lmng::connect_on_construct_any(map, *this);
-    lmng::connect_on_replace_any(map, *this);
+    lmng::connect_on_update_any(map, *this);
     lmng::connect_on_destroy_any(map, *this);
 
     return true;
@@ -105,8 +105,11 @@ void editor_app::save_map_async()
     auto p_age_entities = map.data<creation_time>();
     auto p_data = map.raw<creation_time>();
 
-    serialise_registry->assign<creation_time>(
-      p_age_entities, p_age_entities + map.size<creation_time>(), p_data);
+    serialise_registry->insert<creation_time>(
+      p_age_entities,
+      p_age_entities + map.size<creation_time>(),
+      p_data,
+      p_data + map.size<creation_time>());
 
     save_map_buffer_node.try_put(save_map_msg{std::move(serialise_registry)});
 }

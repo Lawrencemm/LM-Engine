@@ -3,7 +3,7 @@ cmake_find_package
 
 [requires]
 cereal/1.2.2@conan/stable
-entt/3.3.0
+entt/3.5.2
 bullet3/2.89
 yaml-cpp/0.6.3
 eigen/3.3.5@conan/stable

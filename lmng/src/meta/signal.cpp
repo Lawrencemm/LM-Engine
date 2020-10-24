@@ -14,13 +14,14 @@ static void connect_all_components(
   lmng::any_component_listener &listener,
   entt::hashed_string connect_func_name)
 {
-    entt::resolve([&](entt::meta_type const &component_type) {
+    for (auto const &component_type : entt::resolve())
+    {
         if (!component_type.prop(entt::hashed_string{"is_component"}))
             return;
 
         connect_component(
           registry, listener, component_type.func(connect_func_name));
-    });
+    };
 }
 
 static void disconnect_component(
@@ -37,13 +38,14 @@ static void disconnect_all_components(
   lmng::any_component_listener &listener,
   entt::hashed_string disconnect_func_name)
 {
-    entt::resolve([&](entt::meta_type const &component_type) {
+    for (auto const &component_type : entt::resolve())
+    {
         if (!component_type.prop(entt::hashed_string{"is_component"}))
             return;
 
         disconnect_component(
           registry, listener, component_type.func(disconnect_func_name));
-    });
+    };
 }
 
 namespace lmng
@@ -55,7 +57,7 @@ void connect_on_construct_any(
     connect_all_components(registry, listener, "connect_construct"_hs);
 }
 
-void connect_on_replace_any(
+void connect_on_update_any(
   entt::registry &registry,
   any_component_listener &listener)
 {
@@ -76,7 +78,7 @@ void disconnect_on_construct_any(
     disconnect_all_components(registry, listener, "disconnect_construct"_hs);
 }
 
-void disconnect_on_replace_any(
+void disconnect_on_update_any(
   entt::registry &registry,
   any_component_listener &listener)
 {

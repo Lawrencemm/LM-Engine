@@ -1,9 +1,10 @@
 #include <lmeditor/component/player.h>
+#include <lmng/meta/clone.h>
 
 namespace lmeditor
 {
 player::player(player_init const &init)
-    : registry{init.map.clone()},
+    : registry{lmng::clone(init.map)},
       position{init.position},
       size{init.size},
       simulation{init.project_plugin.create_simulation(

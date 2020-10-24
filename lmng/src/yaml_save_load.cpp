@@ -16,10 +16,11 @@ YAML::Node save_component_as_yaml(
 {
     YAML::Node component_yaml;
 
-    component.type().data([&](entt::meta_data data) {
+    for (auto data : component.type().data())
+    {
         component_yaml[lmng::get_data_name(data)] =
           get_data(component, data, registry);
-    });
+    };
 
     return component_yaml;
 }
@@ -165,14 +166,14 @@ void save_registry_as_yaml(
     yaml["schema_version"] = "1";
 }
 
-void assign_components_from_yaml(
+void emplace_components_from_yaml(
   entt::registry &registry,
   entt::entity into_entity,
   YAML::Node const &components_yaml)
 {
     for (auto const &component_yaml : components_yaml)
     {
-        assign_to_entity(
+        emplace_on_entity(
           construct_component_from_yaml(
             registry, component_yaml.first, component_yaml.second),
           registry,
@@ -180,14 +181,14 @@ void assign_components_from_yaml(
     }
 }
 
-void assign_or_replace_components_from_yaml(
+void emplace_or_replace_components_from_yaml(
   entt::registry &registry,
   entt::entity into_entity,
   YAML::Node const &components_yaml)
 {
     for (auto const &component_yaml : components_yaml)
     {
-        assign_or_replace_on_entity(
+        emplace_or_replace_on_entity(
           construct_component_from_yaml(
             registry, component_yaml.first, component_yaml.second),
           registry,
@@ -228,11 +229,11 @@ void create_entity_from_yaml(
 {
     auto entity = registry.create();
 
-    registry.assign<lmng::name>(entity, name);
+    registry.emplace<lmng::name>(entity, name);
 
     if (parent != entt::null)
     {
-        registry.assign<lmng::parent>(entity, parent);
+        registry.emplace<lmng::parent>(entity, parent);
     }
 
     auto archetype_yaml = yaml["archetype"];
@@ -241,13 +242,13 @@ void create_entity_from_yaml(
     {
         auto asset_path = archetype_yaml.as<std::string>();
         load_archetype_data(entity, registry, asset_path, asset_cache);
-        registry.assign<archetype>(entity, asset_path);
-        assign_or_replace_components_from_yaml(
+        registry.emplace<archetype>(entity, asset_path);
+        emplace_or_replace_components_from_yaml(
           registry, entity, yaml["components"]);
     }
     else
     {
-        assign_components_from_yaml(registry, entity, yaml["components"]);
+        emplace_components_from_yaml(registry, entity, yaml["components"]);
     }
 
     create_children_from_yaml(registry, yaml["children"], asset_cache, entity);
@@ -270,14 +271,14 @@ void populate_registry_from_yaml(
 }
 
 entt::meta_any construct_component_from_yaml(
-  const entt::registry &registry,
+  entt::registry const &registry,
   std::string const &component_type_name,
   YAML::Node const &component_yaml)
 {
     auto component_meta_type =
-      entt::resolve(entt::hashed_string{component_type_name.c_str()});
+      entt::resolve_id(entt::hashed_string{component_type_name.c_str()});
 
-    auto component = component_meta_type.ctor().invoke();
+    auto component = component_meta_type.ctor<>().invoke();
 
     for (auto const &data_yaml : component_yaml)
     {

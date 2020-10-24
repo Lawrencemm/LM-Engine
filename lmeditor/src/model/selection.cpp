@@ -6,7 +6,7 @@ namespace lmeditor
 void select(entt::registry &registry, entt::entity entity)
 {
     registry.clear<selected>();
-    registry.assign<selected>(entity);
+    registry.emplace<selected>(entity);
 }
 
 entt::entity get_selection(const entt::registry &registry)

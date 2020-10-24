@@ -7,10 +7,11 @@ entt::entity
 {
     entt::entity found_entity{entt::null};
 
-    registry.view<name const>().each([&](auto entity, auto &name_component) {
-        if (name_component.string == entity_name)
+    for (auto [entity, name] : registry.view<lmng::name const>().proxy())
+    {
+        if (name.string == entity_name)
             found_entity = entity;
-    });
+    }
 
     return found_entity;
 }

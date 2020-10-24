@@ -18,13 +18,13 @@ TEST_CASE("Entity list controller")
     auto parent = registry.create();
     auto child = registry.create();
 
-    registry.assign<lmng::name>(parent, "Parent");
-    registry.assign<lmng::name>(child, "Child");
+    registry.emplace<lmng::name>(parent, "Parent");
+    registry.emplace<lmng::name>(child, "Child");
 
-    registry.assign<lmng::parent>(child, parent);
+    registry.emplace<lmng::parent>(child, parent);
 
     auto other = registry.create();
-    registry.assign<lmng::name>(other, "Other");
+    registry.emplace<lmng::name>(other, "Other");
 
     REQUIRE(selected_view.empty());
 
@@ -73,7 +73,7 @@ TEST_CASE("Entity list controller")
 
     SPDLOG_INFO("Test: Creating an entity with the last entity selected");
     auto new_entity = registry.create();
-    registry.assign<lmng::name>(new_entity, "New entity");
+    registry.emplace<lmng::name>(new_entity, "New entity");
 
     REQUIRE(!selected_view.empty());
 }

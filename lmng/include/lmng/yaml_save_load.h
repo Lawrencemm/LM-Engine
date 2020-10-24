@@ -20,7 +20,7 @@ entt::meta_any construct_component_from_yaml(
   std::string const &component_type_name,
   YAML::Node const &component_yaml);
 
-void assign_components_from_yaml(
+void emplace_components_from_yaml(
   entt::registry &registry,
   entt::entity into_entity,
   YAML::Node const &components_yaml);

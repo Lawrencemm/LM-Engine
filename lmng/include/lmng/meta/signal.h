@@ -11,7 +11,7 @@ class any_component_listener
       entt::registry &registry,
       entt::entity entity,
       entt::meta_type const &meta_type) = 0;
-    virtual void on_replace_any(
+    virtual void on_update_any(
       entt::registry &registry,
       entt::entity entity,
       entt::meta_type const &meta_type) = 0;
@@ -25,7 +25,7 @@ void connect_on_construct_any(
   entt::registry &registry,
   any_component_listener &listener);
 
-void connect_on_replace_any(
+void connect_on_update_any(
   entt::registry &registry,
   any_component_listener &listener);
 
@@ -37,7 +37,7 @@ void disconnect_on_construct_any(
   entt::registry &registry,
   any_component_listener &listener);
 
-void disconnect_on_replace_any(
+void disconnect_on_update_any(
   entt::registry &registry,
   any_component_listener &listener);
 

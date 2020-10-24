@@ -22,7 +22,7 @@ entity_list_controller::entity_list_controller(entt::registry &registry)
         registry.on_destroy<lmng::name>()
           .connect<&entity_list_controller::on_name_destroyed>(this)},
       name_replaced_connection{
-        registry.on_replace<lmng::name>()
+        registry.on_update<lmng::name>()
           .connect<&entity_list_controller::on_name_replaced>(this)},
       selected_entity_index{0},
       named_entities_count{0}

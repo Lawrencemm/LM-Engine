@@ -14,10 +14,11 @@ namespace lmng
 {
 void animation_system::update(entt::registry &registry, float dt)
 {
-    registry.view<animation_state>().each(
-      [&](auto entity, animation_state &animation_state) {
-          update_animation(registry, entity, animation_state, dt);
-      });
+    for (auto [entity, animation_state] :
+         registry.view<animation_state>().proxy())
+    {
+        update_animation(registry, entity, animation_state, dt);
+    }
 }
 
 void animation_system::animate(
@@ -28,7 +29,7 @@ void animation_system::animate(
   float rate,
   anim_loop_type loop_type)
 {
-    registry.assign<animation_state>(
+    registry.emplace<animation_state>(
       skeleton_root, animation, rate, progress, loop_type);
 }
 

@@ -60,21 +60,21 @@ entt::entity map_editor_controller::add_cube(
 {
     auto new_cube = map.create();
 
-    auto &transform = map.assign<lmng::transform>(
+    auto &transform = map.emplace<lmng::transform>(
       new_cube, position, Eigen::Quaternionf::Identity());
 
-    auto &box = map.assign<lmng::box_render>(
+    auto &box = map.emplace<lmng::box_render>(
       new_cube,
       Eigen::Vector3f{extent, extent, extent},
       std::array{0.5f, 0.5f, 0.5f});
 
-    map.assign<lmng::box_collider>(
+    map.emplace<lmng::box_collider>(
       new_cube, Eigen::Vector3f{extent, extent, extent});
 
     auto &rigid_body =
-      map.assign<lmng::rigid_body>(new_cube, 1.f, 0.25f, 0.75f);
+      map.emplace<lmng::rigid_body>(new_cube, 1.f, 0.25f, 0.75f);
 
-    map.assign<lmng::name>(new_cube, get_unique_name(map, "Box"));
+    map.emplace<lmng::name>(new_cube, get_unique_name(map, "Box"));
 
     return new_cube;
 }
@@ -122,13 +122,13 @@ entt::entity map_editor_controller::copy_entity(
     auto new_box = map.create(selected_box);
     lmng::visit_components(
       map, selected_box, [&](lmng::any_component component) {
-          component.assign(map, new_box);
+          component.emplace(map, new_box);
       });
     auto &transform = map.get<lmng::transform>(new_box);
     transform.position +=
       2 *
       Eigen::Vector3f{direction.array() * get_selection_extents(map).array()};
-    map.assign<lmng::name>(new_box, lmng::name{new_name});
+    map.emplace<lmng::name>(new_box, lmng::name{new_name});
     return new_box;
 }
 
@@ -201,7 +201,7 @@ Eigen::Vector3f
 void map_editor_controller::select(entt::entity entity)
 {
     clear_selection();
-    map->assign<selected>(entity);
+    map->emplace<selected>(entity);
 }
 
 void map_editor_controller::clear_selection() const { map->clear<selected>(); }

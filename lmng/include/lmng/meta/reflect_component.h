@@ -132,23 +132,21 @@ void stream_data_in(
 
 template <auto member_ptr>
 void setter(
-  char *component,
+  typename get_owner_type<decltype(member_ptr)>::type &component,
   std::string const &str,
   entt::registry const &context)
 {
-    using component_type = typename get_owner_type<decltype(member_ptr)>::type;
-    auto typed_component = reinterpret_cast<component_type *>(component);
     std::istringstream stream{str};
-    stream_data_in(stream, typed_component->*member_ptr, context);
+    stream_data_in(stream, component.*member_ptr, context);
 }
 
 template <auto member_ptr>
-std::string getter(char const *component, entt::registry const &context)
+std::string getter(
+  typename get_owner_type<decltype(member_ptr)>::type const &component,
+  entt::registry const &context)
 {
-    using component_type = typename get_owner_type<decltype(member_ptr)>::type;
-    auto typed_component = reinterpret_cast<component_type const *>(component);
     std::ostringstream stream{};
-    stream_data_out(stream, typed_component->*member_ptr, context);
+    stream_data_out(stream, component.*member_ptr, context);
     return stream.str();
 }
 

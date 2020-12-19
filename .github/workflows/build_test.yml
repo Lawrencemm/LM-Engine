@@ -65,8 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
-      - uses: seanmiddleditch/gha-setup-ninja@v1~
-      - uses: ilammy/msvc-dev-cmd@v1.2.0
+      - uses: ilammy/msvc-dev-cmd@v1.5.0
       - name: Get Conan
         run: pip install conan && conan profile new default --detect
       - name: Add remotes to Conan

@@ -4,6 +4,8 @@ Made with [EnTT](https://github.com/skypjack/entt/) and
 
 Currently builds on Linux and Windows.
 
+Read the [design document](./DESIGN.md) for a detailed look at the goals of this project.
+
 ## Modules
 
 ### lmpl

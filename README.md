@@ -26,7 +26,7 @@ Instead of the user deciding when to save an asset, LM-Engine saves all changes
 as they are made. The user is expected to utilise version control to protect data 
 they don't want overwritten.
 
-### Data Driven
+### Data Oriented
 The core API for game logic is based on entity-component-system. 
 Mutation of game state is done through plain-old-data instead of interface methods
 and classes.

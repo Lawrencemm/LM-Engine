@@ -4,7 +4,32 @@ Made with [EnTT](https://github.com/skypjack/entt/) and
 
 Currently builds on Linux and Windows.
 
-Read the [design document](./DESIGN.md) for a detailed look at the goals of this project.
+This is _very_ work-in-progress. It exists now primarily as an example of how to
+construct an engine with the stated design goals.
+
+## Design Goals
+### Keyboard Centric
+Every action the editor can perform is accessible through a keyboard shortcut.
+Pressing F1 shows the list of currently accessible actions and their shortcuts.
+Users should not need to take their hands off the keyboard.
+
+### Plain Text Assets
+File formats for assets like maps and archetypes (prefabs) are human-readable
+with minimal noise. There are no GUIDs that change with every save of the asset. 
+There is only plain, meaningful data.
+
+This makes assets first-class citizens in source code management tools like git.
+They can be merged and have conflicts resolved like source code.
+
+### All Changes Saved
+Instead of the user deciding when to save an asset, LM-Engine saves all changes
+as they are made. The user is expected to utilise version control to protect data 
+they don't want overwritten.
+
+### Data Driven
+The core API for game logic is based on entity-component-system. 
+Mutation of game state is done through plain-old-data instead of interface methods
+and classes.
 
 ## Modules
 

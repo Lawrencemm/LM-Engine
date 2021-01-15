@@ -224,7 +224,7 @@ void copy_pool(entt::registry &dest, entt::registry const &src)
           p_entities,
           p_entities + src.size<component_type>(),
           p_data,
-          p_data + src.size());
+          p_data + src.size<component_type>());
     }
     else
     {

@@ -24,6 +24,8 @@ entities:
   Player:
     archetype: archetype/robot
     components:
+      Character Input:
+        Radians per dot: 0.0023
       Transform:
         Rotation: 0.0 -0.7071072 0.0 0.7071071
         Position: 7.34 1.1 1.7988538e-28

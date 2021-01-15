@@ -3,6 +3,7 @@
 #include <entt/entity/registry.hpp>
 
 #include <lmng/animation.h>
+#include <lmng/hierarchy.h>
 #include <lmng/physics.h>
 #include <lmng/simulation.h>
 #include <lmng/transform.h>
@@ -27,6 +28,7 @@ class character_movement
 
     lmng::physics physics;
     lmng::animation_system animation_system;
+    lmng::hierarchy_system hierarchy_system;
     entt::entity camera;
 
     struct character

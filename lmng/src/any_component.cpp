@@ -168,7 +168,7 @@ meta_type_map create_meta_type_map()
 
     for (auto const &meta_type : entt::resolve())
     {
-        map[meta_type.id()] = meta_type;
+        map[meta_type.type_id()] = meta_type;
     };
 
     return std::move(map);

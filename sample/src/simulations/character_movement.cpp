@@ -34,6 +34,7 @@ character_movement::character_movement(lmng::simulation_init const &init)
     : physics{lmng::create_physics(init.registry)},
       camera{init.registry.create()},
       animation_system{},
+      hierarchy_system{init.registry},
       ground{lmng::find_entity(init.registry, "Ground")},
       swing_arms_animation{
         init.asset_cache.load<lmng::animation_data>("animation/swing_arms")}

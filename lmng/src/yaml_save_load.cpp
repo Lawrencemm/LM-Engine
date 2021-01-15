@@ -40,6 +40,51 @@ std::vector<entt::entity>
     return std::move(children);
 }
 
+void save_component_for_archetypal_entity(
+  YAML::Node &components_yaml,
+  YAML::Node const &archetype_yaml,
+  entt::registry const &registry,
+  any_component const &component_any)
+{
+    if (
+      component_any.any.type() == entt::resolve<parent>() ||
+      component_any.any.type() == entt::resolve<lmng::archetype>() ||
+      component_any.any.type() == entt::resolve<name>())
+        return;
+
+    auto component_yaml = save_component_as_yaml(registry, component_any.any);
+
+    auto archetype_components_yaml = archetype_yaml["components"];
+
+    auto archetype_component_yaml =
+      archetype_components_yaml[component_any.name()];
+
+    if (!archetype_component_yaml)
+    {
+        // Archetype doesn't have the component, save it
+        components_yaml[component_any.name()] = component_yaml;
+    }
+    else
+    {
+        bool is_archetype_component_data_different{false};
+        for (auto const &archetype_field : archetype_component_yaml)
+        {
+            if (
+              component_yaml[archetype_field.first.as<std::string>()]
+                .as<std::string>() != archetype_field.second.as<std::string>())
+            {
+                is_archetype_component_data_different = true;
+                break;
+            }
+        }
+
+        if (is_archetype_component_data_different)
+        {
+            components_yaml[component_any.name()] = component_yaml;
+        }
+    }
+}
+
 YAML::Node save_archetypal_entity_as_yaml(
   entt::registry const &registry,
   entt::entity entity,
@@ -57,38 +102,8 @@ YAML::Node save_archetypal_entity_as_yaml(
       registry,
       entity,
       [&](lmng::any_component const &component_any) {
-          if (
-            component_any.any.type() == entt::resolve<parent>() ||
-            component_any.any.type() == entt::resolve<lmng::archetype>())
-              return;
-
-          auto component_yaml =
-            save_component_as_yaml(registry, component_any.any);
-
-          auto archetype_components_yaml = archetype_yaml["components"];
-
-          if (
-            auto archetype_component_yaml =
-              archetype_components_yaml[component_any.name()])
-          {
-              bool different{false};
-              for (auto const &archetype_field : archetype_component_yaml)
-              {
-                  if (
-                    component_yaml[archetype_field.first.as<std::string>()]
-                      .as<std::string>() !=
-                    archetype_field.second.as<std::string>())
-                  {
-                      different = true;
-                      break;
-                  }
-              }
-
-              if (different)
-              {
-                  components_yaml[component_any.name()] = component_yaml;
-              }
-          }
+          save_component_for_archetypal_entity(
+            components_yaml, archetype_yaml, registry, component_any);
       },
       type_map);
 

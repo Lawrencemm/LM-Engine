@@ -20,22 +20,32 @@ void bt_physics::create_character_controllers(entt::registry &registry) const
     for (auto [entity, transform, character_controller, box_collider] :
          registry.view<transform, character_controller, box_collider>().proxy())
     {
-        auto collision_shape = create_bt_box_shape(box_collider);
-
-        auto ghost = create_ghost_object(transform, collision_shape.get());
-
-        auto bt_controller =
-          create_character_controller(collision_shape.get(), ghost.get());
-
-        auto &ghost_transform = ghost->getWorldTransform();
-        ghost_transform.setRotation(quat_to_bt(transform.rotation));
-
-        registry.emplace<bt_character_controller>(
-          entity,
-          std::move(ghost),
-          std::move(collision_shape),
-          std::move(bt_controller));
+        create_bt_character_controller(
+          registry, entity, transform, box_collider);
     }
+}
+
+void bt_physics::create_bt_character_controller(
+  entt::registry &registry,
+  entt::entity entity,
+  lmng::transform const &transform,
+  lmng::box_collider const &box_collider) const
+{
+    auto collision_shape = create_bt_box_shape(box_collider);
+
+    auto ghost = create_ghost_object(transform, collision_shape.get());
+
+    auto bt_controller =
+      create_character_controller(collision_shape.get(), ghost.get());
+
+    auto &ghost_transform = ghost->getWorldTransform();
+    ghost_transform.setRotation(quat_to_bt(transform.rotation));
+
+    registry.emplace<bt_character_controller>(
+      entity,
+      std::move(ghost),
+      std::move(collision_shape),
+      std::move(bt_controller));
 }
 
 static Eigen::Vector3f const character_controller_up{0.f, 1.f, 0.f};
@@ -113,5 +123,16 @@ Eigen::Vector3f bt_physics::get_character_velocity(
 {
     return bt_to_vec(registry.get<bt_character_controller>(entity)
                        .controller->getLinearVelocity());
+}
+
+void bt_physics::on_character_controller_created(
+  entt::registry &registry,
+  entt::entity entity)
+{
+    create_bt_character_controller(
+      registry,
+      entity,
+      registry.get<lmng::transform>(entity),
+      registry.get<lmng::box_collider>(entity));
 }
 } // namespace lmng

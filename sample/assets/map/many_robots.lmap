@@ -1,0 +1,39 @@
+entities:
+  Ground:
+    components:
+      Box Render:
+        Colour: 0.5 0.5 0.5
+        Extents: 1000.0 0.1 1000.0
+      Transform:
+        Rotation: 0.0 0.0 0.0 1.0
+        Position: 0.0 0.0 0.0
+      Rigid Body:
+        Friction: 1
+        Restitution: 1
+        Mass: 0
+      Box Collider:
+        Extents: 1000.0 0.1 1000.0
+    children: ~
+  Camera:
+    components:
+      Transform:
+        Rotation: 0.19509 0.0 0.0 0.980785
+        Position: 0.0 25.0 -65.0
+      Camera:
+        Active: 1
+        Far clip: 1000
+        Near clip: 0.1
+        Field of view: 1.0472
+    children: ~
+  Robot spawner:
+    components:
+      Robot spawner:
+        Rows: 25
+        Columns: 25
+        Spacing: 2
+      Transform:
+        Position: 0.0 0.05 0.0
+        Rotation: 0.0 0.0 0.0 1.0
+    children: ~
+
+schema_version: 1

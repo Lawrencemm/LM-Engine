@@ -9,10 +9,12 @@
 
 #include "reflect_types.h"
 #include "simulations/character_movement.h"
+#include "simulations/many_characters.h"
 #include "simulations/rigid_bodies_battle.h"
 
 LMEDITOR_SIMULATION_PLUGIN(rigid_bodies_battle);
 LMEDITOR_SIMULATION_PLUGIN(character_movement);
+LMEDITOR_SIMULATION_PLUGIN(many_characters);
 
 using simulation_creation_fn =
   std::function<lmeditor::psimulation(lmng::simulation_init const &)>;
@@ -29,6 +31,12 @@ std::map<std::string, simulation_creation_fn> simulation_creation_map{
     "Character Movement",
     [](auto &init) {
         return lm::reference{std::make_unique<character_movement_plugin>(init)};
+    },
+  },
+  std::pair{
+    "Many Robots",
+    [](auto &init) {
+        return lm::reference{std::make_unique<many_characters_plugin>(init)};
     },
   },
 };

@@ -59,6 +59,12 @@ void remove_from_entity(entt::registry &registry, entt::entity entity)
     return registry.remove<component_type>(entity);
 }
 
+template <typename component_type>
+bool entity_has(entt::registry const &registry, entt::entity entity)
+{
+    return registry.has<component_type>(entity);
+}
+
 template <typename component_type> auto construct() { return component_type{}; }
 
 template <typename MemPtr> struct get_owner_type;
@@ -339,4 +345,5 @@ void disconnect_destroy(
       .func<&lmng::disconnect_construct<_type>>("disconnect_construct"_hs)     \
       .func<&lmng::disconnect_replace<_type>>("disconnect_replace"_hs)         \
       .func<&lmng::disconnect_destroy<_type>>("disconnect_destroy"_hs)         \
-      .func<&lmng::copy_pool<_type>>("copy_pool"_hs)
+      .func<&lmng::copy_pool<_type>>("copy_pool"_hs)                           \
+      .func<&lmng::entity_has<_type>>("entity_has"_hs)

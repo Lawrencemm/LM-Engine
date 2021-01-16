@@ -211,6 +211,28 @@ void emplace_or_replace_components_from_yaml(
     }
 }
 
+void emplace_unset_components_from_yaml(
+  entt::registry &registry,
+  entt::entity into_entity,
+  const YAML::Node &components_yaml)
+{
+    for (auto const &component_yaml : components_yaml)
+    {
+        if (has_component(
+              registry,
+              into_entity,
+              get_component_meta_type(component_yaml.first.as<std::string>())))
+        {
+            continue;
+        }
+        emplace_on_entity(
+          construct_component_from_yaml(
+            registry, component_yaml.first, component_yaml.second),
+          registry,
+          into_entity);
+    }
+}
+
 void create_entity_from_yaml(
   entt::registry &registry,
   std::string const &name,
@@ -290,8 +312,7 @@ entt::meta_any construct_component_from_yaml(
   std::string const &component_type_name,
   YAML::Node const &component_yaml)
 {
-    auto component_meta_type =
-      entt::resolve_id(entt::hashed_string{component_type_name.c_str()});
+    auto component_meta_type = get_component_meta_type(component_type_name);
 
     auto component = component_meta_type.ctor<>().invoke();
 

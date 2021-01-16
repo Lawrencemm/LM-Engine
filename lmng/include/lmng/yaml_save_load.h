@@ -25,6 +25,11 @@ void emplace_components_from_yaml(
   entt::entity into_entity,
   YAML::Node const &components_yaml);
 
+void emplace_unset_components_from_yaml(
+  entt::registry &registry,
+  entt::entity into_entity,
+  YAML::Node const &components_yaml);
+
 void create_children_from_yaml(
   entt::registry &registry,
   const YAML::Node &yaml,

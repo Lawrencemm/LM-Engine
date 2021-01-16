@@ -5,6 +5,11 @@
 
 namespace lmng
 {
+entt::meta_type get_component_meta_type(std::string const &component_type_name)
+{
+    return entt::resolve_id(entt::hashed_string{component_type_name.c_str()});
+}
+
 entt::meta_any get_component_any(
   entt::registry const &registry,
   entt::entity entity,
@@ -172,6 +177,33 @@ meta_type_map create_meta_type_map()
     };
 
     return std::move(map);
+}
+
+bool has_component(
+  entt::registry const &registry,
+  entt::entity entity,
+  entt::meta_type const &meta_type)
+{
+    auto func = meta_type.func("entity_has"_hs);
+
+    assert(
+      (fmt::format(
+         "Failed lookup of entity_has function on component {}",
+         get_type_name(meta_type)),
+       func));
+
+    auto result = func.invoke(
+      {},
+      std::reference_wrapper(const_cast<entt::registry &>(registry)),
+      entity);
+
+    assert(
+      (fmt::format(
+         "Failed invocation of entity_has function for component {}",
+         get_type_name(meta_type)),
+       result));
+
+    return result.cast<bool>();
 }
 
 any_component::any_component(

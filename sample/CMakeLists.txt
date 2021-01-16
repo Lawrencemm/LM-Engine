@@ -18,6 +18,7 @@ set(
   src/simulations/rigid_bodies_battle.cpp
   src/reflect_types.cpp
   src/simulations/character_movement.cpp
+  src/simulations/many_characters.cpp
   src/system/robot_system.cpp
 )
 

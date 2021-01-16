@@ -2,6 +2,7 @@
 #include "components/enemy.h"
 #include "components/protagonist.h"
 #include "components/robot.h"
+#include "components/robot_spawner.h"
 #include <lmng/meta/reflect_component.h>
 
 void reflect_types_cpp()
@@ -16,4 +17,9 @@ void reflect_types_cpp()
       .REFLECT_MEMBER(character_input, radians_per_dot, "Radians per dot");
 
     REFLECT_TYPE(robot, "Robot");
+
+    REFLECT_TYPE(robot_spawner_component, "Robot spawner")
+      .REFLECT_MEMBER(robot_spawner_component, rows, "Rows")
+      .REFLECT_MEMBER(robot_spawner_component, columns, "Columns")
+      .REFLECT_MEMBER(robot_spawner_component, spacing, "Spacing");
 }

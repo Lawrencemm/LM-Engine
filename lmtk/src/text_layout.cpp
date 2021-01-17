@@ -33,10 +33,22 @@ lmgl::material text_layout::create_material(lmgl::irenderer &renderer)
       .vshader_spirv = lm::raw_array_proxy(vshader_data),
       .pshader_spirv = lm::raw_array_proxy(pshader_data),
       .index_type = lmgl::index_type::two_bytes,
-      .vertex_input_types =
-        {
-          lmgl::input_type::float_2,
-          lmgl::input_type::float_2,
+      .vertex_bindings =
+        std::array{
+          lmgl::vertex_binding{.size = sizeof(float) * 2},
+          lmgl::vertex_binding{.size = sizeof(float) * 2}},
+      .vertex_inputs =
+        std::array{
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_2,
+            .binding = 0,
+            .offset = 0,
+          },
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_2,
+            .binding = 1,
+            .offset = 0,
+          },
         },
       .uniform_size = sizeof(text_render_uniform),
       .texture = true,

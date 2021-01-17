@@ -2,21 +2,24 @@
 #include "vulkan_renderer.h"
 #include <lmgl/material.h>
 
-#include <lmlib/enumerate.h>
+#include <range/v3/view/enumerate.hpp>
+#include <range/v3/view/iota.hpp>
 
 vk::IndexType itype_to_vk_itype[] = {
   vk::IndexType::eUint16,
   vk::IndexType::eUint32,
 };
 
-vk::Format lm_format_to_vk_format[] = {vk::Format::eR32G32Sfloat,
-                                       vk::Format::eR32G32B32Sfloat,
-                                       vk::Format::eR32G32B32A32Sfloat};
+vk::Format lm_format_to_vk_format[] = {
+  vk::Format::eR32G32Sfloat,
+  vk::Format::eR32G32B32Sfloat,
+  vk::Format::eR32G32B32A32Sfloat};
 
 vk::StencilOp lm_stencil_op_to_vk[] = {vk::StencilOp::eIncrementAndClamp};
 
-vk::PolygonMode lm_polygon_mode_to_vk[] = {vk::PolygonMode::eFill,
-                                           vk::PolygonMode::eLine};
+vk::PolygonMode lm_polygon_mode_to_vk[] = {
+  vk::PolygonMode::eFill,
+  vk::PolygonMode::eLine};
 
 vk::PolygonMode get_vk_polygon_mode(lmgl::polygon_mode mode)
 {
@@ -102,19 +105,40 @@ material vulkan_renderer::create_material(material_init const &init)
     std::vector<vk::VertexInputBindingDescription> bindings;
     std::vector<vk::VertexInputAttributeDescription> attributes;
 
-    for (auto const &[i, input_type] : lm::enumerate(init.vertex_input_types))
+    for (auto const &[i, binding] :
+         ranges::views::enumerate(init.vertex_bindings))
     {
         bindings.emplace_back(
           vk::VertexInputBindingDescription{}
             .setBinding(i)
-            .setStride(input_type_to_stride[(int)input_type])
-            .setInputRate(vk::VertexInputRate::eVertex));
+            .setStride(binding.size)
+            .setInputRate(
+              binding.input_rate == vertex_input_rate::vertex
+                ? vk::VertexInputRate::eVertex
+                : vk::VertexInputRate::eInstance));
+    }
+    uint32_t location{0};
+    for (auto const input : init.vertex_inputs)
+    {
+        if (input.type == input_type::mat_4)
+        {
+            for (auto i : ranges::views::ints(0, 4))
+            {
+                attributes.emplace_back(
+                  vk::VertexInputAttributeDescription{}
+                    .setBinding(input.binding)
+                    .setFormat(vk::Format::eR32G32B32A32Sfloat)
+                    .setLocation(location++)
+                    .setOffset(input.offset + i * 4 * sizeof(float)));
+            }
+            continue;
+        }
         attributes.emplace_back(
           vk::VertexInputAttributeDescription{}
-            .setBinding(i)
-            .setFormat(lm_format_to_vk_format[(int)input_type])
-            .setLocation(i)
-            .setOffset(0));
+            .setBinding(input.binding)
+            .setFormat(lm_format_to_vk_format[(int)input.type])
+            .setLocation(location++)
+            .setOffset(input.offset));
     }
     auto vertex_input_state_create_info_ =
       vk::PipelineVertexInputStateCreateInfo{}

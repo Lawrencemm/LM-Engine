@@ -23,8 +23,5 @@ void update_box_uniform(
   lmgl::iframe *frame,
   lmgl::ibuffer *buffer,
   lm::camera const &camera,
-  lmng::transform const &transform,
-  Eigen::Vector3f const &extents,
-  std::array<float, 3> colour,
   Eigen::Vector3f const &light_direction);
 } // namespace lmhuv

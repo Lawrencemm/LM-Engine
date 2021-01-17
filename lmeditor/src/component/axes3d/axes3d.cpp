@@ -23,15 +23,17 @@ axes::axes(const axes_init &init) : renderer{init.renderer}
 
 void axes::init_geometry(const axes_init &init)
 {
-    positions = std::array{std::array{-init.extent, 0.f, 0.f},
-                           std::array{init.extent, 0.f, 0.f},
-                           std::array{0.f, 0.f, -init.extent},
-                           std::array{0.f, 0.f, init.extent}};
+    positions = std::array{
+      std::array{-init.extent, 0.f, 0.f},
+      std::array{init.extent, 0.f, 0.f},
+      std::array{0.f, 0.f, -init.extent},
+      std::array{0.f, 0.f, init.extent}};
 
-    colours = std::array{init.x_axis_colour,
-                         init.x_axis_colour,
-                         init.z_axis_colour,
-                         init.z_axis_colour};
+    colours = std::array{
+      init.x_axis_colour,
+      init.x_axis_colour,
+      init.z_axis_colour,
+      init.z_axis_colour};
 
     index_data = {0, 1, 2, 3};
 }
@@ -57,10 +59,22 @@ void axes::init_rendering(const axes_init &init)
       .pshader_spirv = lm::raw_array_proxy(frag_shader),
       .index_type = lmgl::index_type::two_bytes,
       .topology = lmgl::topology::line_list,
-      .vertex_input_types =
-        {
-          lmgl::input_type::float_3,
-          lmgl::input_type::float_3,
+      .vertex_bindings =
+        std::array{
+          lmgl::vertex_binding{.size = sizeof(float) * 3},
+          lmgl::vertex_binding{.size = sizeof(float) * 3}},
+      .vertex_inputs =
+        std::array{
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_3,
+            .binding = 0,
+            .offset = 0,
+          },
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_3,
+            .binding = 1,
+            .offset = 0,
+          },
         },
       .uniform_size = sizeof(Eigen::Matrix4f),
     });

@@ -1,7 +1,4 @@
 #include <lmhuv/box.h>
-#include <lmlib/camera.h>
-#include <lmng/shapes.h>
-#include <lmng/transform.h>
 
 namespace lmhuv
 {

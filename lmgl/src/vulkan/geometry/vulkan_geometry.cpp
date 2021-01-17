@@ -19,7 +19,8 @@ vulkan_geometry::vulkan_geometry(
     : vulkan_element{renderer},
       material{reinterpret_cast<vulkan_material *>(init.material)},
       index_buffer{dynamic_cast<vulkan_buffer *>(init.index_buffer)},
-      line_width{init.line_width}
+      line_width{init.line_width},
+      instance_count{init.instance_count}
 {
     for (auto &buffer : init.vertex_buffers)
     {
@@ -112,6 +113,7 @@ vulkan_frame_geometry::vulkan_frame_geometry(
       index_type{
         reinterpret_cast<vulkan_material *>(geometry.material)->index_type},
       n_indices{geometry.n_indices},
+      instance_count{geometry.instance_count},
       line_width{geometry.line_width},
       viewport{viewport},
       scissor{scissor}
@@ -154,9 +156,11 @@ void vulkan_frame_geometry::render(vulkan_frame &context)
     command_buffer->setScissor(0, 1, &scissor);
 
     if (indices_buffer)
-        command_buffer->drawIndexed((uint32_t)n_indices, 1, 0, 0, 0);
+        command_buffer->drawIndexed(
+          (uint32_t)n_indices, (uint32_t)instance_count, 0, 0, 0);
     else
-        command_buffer->draw((uint32_t)n_indices, 1, 0, 0);
+        command_buffer->draw(
+          (uint32_t)n_indices, (uint32_t)instance_count, 0, 0);
 }
 
 vulkan_geometry &vulkan_geometry::set_n_indices(uint32_t n_indices)

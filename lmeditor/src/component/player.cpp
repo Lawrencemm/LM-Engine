@@ -40,6 +40,7 @@ lmtk::component_interface &player::update(
   lmtk::input_state const &input_state)
 {
     simulation->update(registry, clock.tick(), input_state);
+    visual_view->update(registry, renderer, resource_sink);
     return *this;
 }
 

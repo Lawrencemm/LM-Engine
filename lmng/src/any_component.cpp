@@ -147,7 +147,7 @@ void set_data(
     entt::meta_func from_string =
       component.type().func(entt::hashed_string{from_string_name.c_str()});
 
-    SPDLOG_INFO(
+    SPDLOG_TRACE(
       "{} -> {} ({})",
       string,
       get_data_name(data),

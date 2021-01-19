@@ -95,6 +95,8 @@ set_target_properties(
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
 )
 
+lm_runtime_sync(sample_standalone)
+
 add_executable(
   test_sample
 
@@ -110,5 +112,7 @@ target_link_libraries(
   sample_interface
   Catch2::Catch2
 )
+
+lm_runtime_sync(test_sample)
 
 LM_PACKAGE(sample_standalone ${CMAKE_CURRENT_SOURCE_DIR}/packaged)

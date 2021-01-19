@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(workspace)
 
+include(cmake/utils.cmake)
+
 set(
   LM_ENGINE_LOGGING_LEVEL
   0
@@ -64,5 +66,12 @@ add_subdirectory(lmhuv)
 add_subdirectory(lmeditor)
 
 include(cmake/package_project.cmake)
+include(cmake/utils.cmake)
 
 add_subdirectory(sample)
+
+SUBDIRLIST(PROJECT_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/projects)
+
+foreach(subdir ${PROJECT_SUBDIRS})
+  add_subdirectory(projects/${subdir})
+endforeach()

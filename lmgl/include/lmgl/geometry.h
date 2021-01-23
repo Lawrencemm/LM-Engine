@@ -34,5 +34,6 @@ struct geometry_init
     ibuffer *uniform_buffer{nullptr};
     itexture *texture{nullptr};
     float line_width{1.f};
+    size_t instance_count{1};
 };
 } // namespace lmgl

@@ -8,15 +8,13 @@
 #include <lmlib/concat.h>
 #include <lmng/shapes.h>
 
-LOAD_RESOURCE(box_vshader_data, shaders_box_vert_spv);
-LOAD_RESOURCE(box_pshader_data, shaders_box_frag_spv);
+LOAD_RESOURCE(box_vshader_data, shaders_box_instanced_vert_spv);
+LOAD_RESOURCE(box_pshader_data, shaders_box_instanced_frag_spv);
 LOAD_RESOURCE(box_flat_pshader_data, shaders_box_flat_frag_spv);
 
 struct uniform_data
 {
-    std::array<float, 4> colour;
-    Eigen::Matrix4f model;
-    Eigen::Matrix4f mvp;
+    Eigen::Matrix4f vp;
     Eigen::Vector3f camera_dir;
 };
 
@@ -28,10 +26,33 @@ lmgl::material box_material_init::operator()()
       .vshader_spirv = lm::raw_array_proxy(box_vshader_data),
       .pshader_spirv = lm::raw_array_proxy(box_pshader_data),
       .index_type = get_mesh_index_type(),
-      .vertex_input_types =
-        {
-          lmgl::input_type::float_3,
-          lmgl::input_type::float_3,
+      .vertex_bindings =
+        std::array{
+          lmgl::vertex_binding{.size = sizeof(float) * 3},
+          lmgl::vertex_binding{.size = sizeof(float) * 3},
+          lmgl::vertex_binding{
+            .size = sizeof(float) * 4 * 5,
+            .input_rate = lmgl::vertex_input_rate::instance,
+          }},
+      .vertex_inputs =
+        std::array{
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_3,
+            .binding = 0,
+          },
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_3,
+            .binding = 1,
+          },
+          lmgl::vertex_input{
+            .type = lmgl::input_type::float_3,
+            .binding = 2,
+          },
+          lmgl::vertex_input{
+            .type = lmgl::input_type::mat_4,
+            .binding = 2,
+            .offset = 4 * sizeof(float),
+          },
         },
       .uniform_size = sizeof(uniform_data),
       .write_stencil = write_stencil,
@@ -51,20 +72,13 @@ void update_box_uniform(
   lmgl::iframe *frame,
   lmgl::ibuffer *buffer,
   lm::camera const &camera,
-  lmng::transform const &transform,
-  Eigen::Vector3f const &extents,
-  std::array<float, 3> colour,
   Eigen::Vector3f const &light_direction)
 {
-    auto model = get_box_world_matrix(transform, extents);
-
     lmgl::add_buffer_update(
       frame,
       buffer,
       uniform_data{
-        lm::concat(colour, 1.f),
-        model,
-        camera.view_matrix() * model,
+        camera.view_matrix(),
         light_direction,
       });
 }

@@ -18,6 +18,8 @@ set(
   src/simulations/rigid_bodies_battle.cpp
   src/reflect_types.cpp
   src/simulations/character_movement.cpp
+  src/simulations/many_characters.cpp
+  src/system/robot_system.cpp
 )
 
 
@@ -82,7 +84,7 @@ add_executable(
 
   src/test_sample.cpp
 
-  src/simulations/character_movement.cpp
+  ${SAMPLE_SOURCES}
 )
 
 target_link_libraries(

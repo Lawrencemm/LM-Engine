@@ -22,6 +22,9 @@ void world_tick_callback(btDynamicsWorld *world, btScalar dt)
 }
 
 bt_physics::bt_physics(entt::registry &registry)
+    : character_controller_created_signal{
+        registry.on_construct<character_controller>()
+          .connect<&bt_physics::on_character_controller_created>(this)}
 {
     create_broadphase();
     create_collision_config();

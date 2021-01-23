@@ -40,7 +40,7 @@ class vulkan_geometry : public virtual igeometry, public vulkan_element
     vulkan_material *material;
     std::vector<const vulkan_buffer *> vbuffers;
     lm::reference<vulkan_buffer>::pointer index_buffer;
-    size_t n_indices;
+    size_t n_indices, instance_count;
 
     bool hidden{false};
     void create_descriptor_sets(const geometry_init &init);
@@ -67,7 +67,7 @@ class vulkan_frame_geometry : public vulkan_frame_element
     vk::PipelineLayout pipeline_layout_;
     std::vector<const vulkan_buffer *> vbuffers;
     vulkan_buffer *indices_buffer;
-    size_t n_indices;
+    size_t n_indices, instance_count;
     vk::IndexType index_type;
     float line_width;
     vk::Viewport viewport;

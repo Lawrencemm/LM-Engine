@@ -2,16 +2,16 @@
 #include "rendering/shapes.h"
 #include <lmhuv.h>
 #include <lmhuv/box.h>
+#include <lmlib/concat.h>
 #include <lmng/camera.h>
 #include <lmng/physics.h>
 
 namespace lmhuv::internal
 {
-struct box_mesh_tag
+struct instance_data
 {
-};
-struct box_collider_mesh_tag
-{
+    std::array<float, 4> colour;
+    Eigen::Matrix4f model;
 };
 
 visual::visual(visual_view_init const &init)
@@ -23,24 +23,7 @@ visual::visual(visual_view_init const &init)
       light_direction{Eigen::Vector3f{0.2f, 0.6f, -0.75f}.normalized()},
       aspect_ratio{init.aspect_ratio},
       do_render_box_colliders{init.render_box_colliders},
-      box_render_observer{
-        init.registry,
-        entt::collector.group<lmng::box_render>()},
-      box_collider_observer{
-        init.registry,
-        entt::collector.group<lmng::box_collider>()},
-      box_render_destroyed_connection{
-        init.registry.on_destroy<lmng::box_render>()
-          .connect<&entt::registry::remove_if_exists<box_mesh_tag>>()},
-      box_collider_destroyed_connection{
-        init.registry.on_destroy<lmng::box_collider>()
-          .connect<&entt::registry::remove_if_exists<box_collider_mesh_tag>>()},
-      box_mesh_tag_destroyed_connection{
-        init.registry.on_destroy<box_mesh_tag>()
-          .connect<&visual::handle_box_mesh_tag_destroyed>(this)},
-      box_collider_mesh_tag_destroyed_connection{
-        init.registry.on_destroy<box_collider_mesh_tag>()
-          .connect<&visual::handle_box_collider_mesh_tag_destroyed>(this)}
+      boxes_ubuffer{create_box_ubuffer(init.renderer)}
 {
     std::tie(box_vpositions, box_vnormals, box_indices, n_box_indices) =
       lmhuv::create_box_buffers(init.renderer);
@@ -53,66 +36,91 @@ void visual::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink)
 {
-    for (auto entity : box_render_observer)
+    std::vector<instance_data> instances_data;
+    for (auto [entity, box_render, transform] :
+         registry.view<lmng::box_render const, lmng::transform const>().proxy())
     {
-        add_box(renderer, entity);
-        registry.emplace<box_mesh_tag>(entity);
+        instances_data.emplace_back(instance_data{
+          .colour = lm::concat(box_render.colour, 1.f),
+          .model = get_box_world_matrix(
+            lmng::resolve_transform(registry, entity), box_render.extents)});
     }
-    box_render_observer.clear();
 
-    for (auto entity : box_collider_observer)
+    if (!instances_data.empty())
     {
-        add_box_wireframe(renderer, entity);
-        registry.emplace<box_collider_mesh_tag>(entity);
-    }
-    box_collider_observer.clear();
-
-    for (auto entity : destroyed_box_meshes)
-    {
-        destroy_box(renderer, entity, resource_sink);
-    }
-    destroyed_box_meshes.clear();
-
-    for (auto entity : destroyed_box_collider_meshes)
-    {
-        destroy_box_collider_mesh(renderer, entity, resource_sink);
-    }
-    destroyed_box_collider_meshes.clear();
-}
-
-void visual::add_box_meshes(
-  entt::registry const &registry,
-  lmgl::irenderer *renderer)
-{
-    for (auto [entity, box_render] :
-         registry.view<lmng::box_render const>().proxy())
-    {
-        box_meshes.emplace(
-          entity, create_box_mesh(renderer, entity, box_material));
-    }
-}
-
-visual::box_mesh visual::create_box_mesh(
-  lmgl::irenderer *renderer,
-  entt::entity &entity,
-  lmgl::material material)
-{
-    auto ubuffer = create_box_ubuffer(renderer);
-    auto geometry = renderer->create_geometry(lmgl::geometry_init{
-      .material = material,
-      .vertex_buffers =
+        // Recreate the buffer for per-instance data
+        if (box_instances_vbuffer)
         {
-          box_vpositions.get(),
-          box_vnormals.get(),
-        },
-      .index_buffer = box_indices.get(),
-      .uniform_buffer = ubuffer.get(),
-    });
-    geometry->set_n_indices(n_box_indices);
-    return box_mesh{
-      std::move(ubuffer),
-      std::move(geometry),
-    };
+            resource_sink.add(box_instances_vbuffer);
+        }
+        box_instances_vbuffer = renderer->create_buffer(lmgl::buffer_init{
+          .usage = lmgl::render_buffer_usage::vertex,
+          .data = lm::raw_array_proxy(instances_data),
+        });
+
+        if (boxes_geometry)
+        {
+            resource_sink.add(boxes_geometry);
+        }
+        // Create a new geometry referencing the new instances data buffer
+        boxes_geometry = renderer->create_geometry(lmgl::geometry_init{
+          .material = box_material,
+          .vertex_buffers =
+            {
+              box_vpositions.get(),
+              box_vnormals.get(),
+              box_instances_vbuffer.get(),
+            },
+          .index_buffer = box_indices.get(),
+          .uniform_buffer = boxes_ubuffer.get(),
+          .instance_count = instances_data.size(),
+        });
+        boxes_geometry->set_n_indices(n_box_indices);
+    }
+
+    if (!do_render_box_colliders)
+        return;
+
+    instances_data.clear();
+    for (auto [entity, box_collider, transform] :
+         registry.view<lmng::box_collider const, lmng::transform const>()
+           .proxy())
+    {
+        instances_data.emplace_back(instance_data{
+          .colour = std::array{1.f, 1.f, 1.f, 1.f},
+          .model = get_box_world_matrix(transform, box_collider.extents)});
+    }
+
+    if (!instances_data.empty())
+    {
+        if (box_collider_instances_vbuffer)
+        {
+            resource_sink.add(box_collider_instances_vbuffer);
+        }
+        box_collider_instances_vbuffer =
+          renderer->create_buffer(lmgl::buffer_init{
+            .usage = lmgl::render_buffer_usage::vertex,
+            .data = lm::raw_array_proxy(instances_data),
+          });
+
+        if (box_colliders_geometry)
+        {
+            resource_sink.add(box_colliders_geometry);
+        }
+        box_colliders_geometry = renderer->create_geometry(lmgl::geometry_init{
+          .material = box_wireframe_material,
+          .vertex_buffers =
+            {
+              box_vpositions.get(),
+              box_vnormals.get(),
+              box_collider_instances_vbuffer.get(),
+            },
+          .index_buffer = box_indices.get(),
+          .uniform_buffer = boxes_ubuffer.get(),
+          .instance_count = instances_data.size(),
+        });
+        box_colliders_geometry->set_n_indices(n_box_indices);
+    }
 }
 
 void visual::add_to_frame(
@@ -122,16 +130,24 @@ void visual::add_to_frame(
 {
     if (camera_override)
     {
-        render_boxes(registry, camera_override.value(), frame, viewport);
-        if (do_render_box_colliders)
-            render_box_colliders(
-              registry, camera_override.value(), frame, viewport);
+        update_box_uniform(
+          frame, boxes_ubuffer.get(), camera_override.value(), light_direction);
+        if (boxes_geometry)
+        {
+            frame->add({boxes_geometry.get()}, viewport);
+        }
+
+        if (do_render_box_colliders && box_colliders_geometry)
+        {
+            frame->add({box_colliders_geometry.get()}, viewport);
+        }
         return;
     }
 
     for (auto [camera_entity, camera_component, transform] :
          registry.view<lmng::camera const, lmng::transform const>().proxy())
     {
+
         auto resolved_transform =
           lmng::resolve_transform(registry, camera_entity);
         lm::camera camera{lm::camera_init{
@@ -142,10 +158,16 @@ void visual::add_to_frame(
           resolved_transform.position,
           resolved_transform.rotation,
         }};
-        render_boxes(registry, camera, frame, viewport);
+        update_box_uniform(frame, boxes_ubuffer.get(), camera, light_direction);
 
-        if (do_render_box_colliders)
-            render_box_colliders(registry, camera, frame, viewport);
+        if (boxes_geometry)
+        {
+            frame->add({boxes_geometry.get()}, viewport);
+        }
+        if (do_render_box_colliders && box_colliders_geometry)
+        {
+            frame->add({box_colliders_geometry.get()}, viewport);
+        }
     }
 }
 
@@ -156,81 +178,12 @@ void visual::move_resources(lmgl::resource_sink &resource_sink)
       box_vnormals,
       box_indices,
       box_material,
-      box_wireframe_material);
-
-    for (auto &[entity, box_mesh] : box_meshes)
-        resource_sink.add(box_mesh.ubuffer, box_mesh.geometry);
-
-    for (auto &[entity, box_collider_mesh] : box_collider_meshes)
-        resource_sink.add(
-          box_collider_mesh.ubuffer, box_collider_mesh.geometry);
-}
-
-void visual::add_box(lmgl::irenderer *renderer, entt::entity entity)
-{
-    box_meshes.emplace(entity, create_box_mesh(renderer, entity, box_material));
-}
-
-void visual::add_box_wireframe(lmgl::irenderer *renderer, entt::entity entity)
-{
-    box_collider_meshes.emplace(
-      entity, create_box_mesh(renderer, entity, box_wireframe_material));
-}
-
-void visual::destroy_box(
-  lmgl::irenderer *renderer,
-  entt::entity entity,
-  lmgl::resource_sink &resource_sink)
-{
-    auto &mesh = box_meshes.at(entity);
-    resource_sink.add(mesh.ubuffer);
-    resource_sink.add(mesh.geometry);
-    box_meshes.erase(entity);
-}
-
-void visual::render_box_colliders(
-  entt::registry const &registry,
-  lm::camera const &camera,
-  lmgl::iframe *frame,
-  lmgl::viewport const &viewport)
-{
-    for (auto [entity, box_collider, transform] :
-         registry.view<lmng::box_collider const, lmng::transform const>()
-           .proxy())
-    {
-        auto &box_mesh = box_collider_meshes.at(entity);
-        update_box_uniform(
-          frame,
-          box_mesh.ubuffer.get(),
-          camera,
-          lmng::resolve_transform(registry, entity),
-          box_collider.extents,
-          {1.f, 1.f, 1.f},
-          light_direction);
-        frame->add({box_mesh.geometry.get()}, viewport);
-    }
-}
-
-void visual::render_boxes(
-  entt::registry const &registry,
-  lm::camera const &camera,
-  lmgl::iframe *frame,
-  lmgl::viewport const &viewport)
-{
-    for (auto [entity, box_render, transform] :
-         registry.view<lmng::box_render const, lmng::transform const>().proxy())
-    {
-        auto &box_mesh = box_meshes.at(entity);
-        update_box_uniform(
-          frame,
-          box_mesh.ubuffer.get(),
-          camera,
-          lmng::resolve_transform(registry, entity),
-          box_render.extents,
-          box_render.colour,
-          light_direction);
-        frame->add({box_mesh.geometry.get()}, viewport);
-    }
+      box_wireframe_material,
+      boxes_ubuffer,
+      box_instances_vbuffer,
+      box_collider_instances_vbuffer,
+      boxes_geometry,
+      box_colliders_geometry);
 }
 
 ivisual_view &visual::set_camera_override(lm::camera const &camera)
@@ -239,48 +192,8 @@ ivisual_view &visual::set_camera_override(lm::camera const &camera)
     return *this;
 }
 
-void visual::add_box_collider_meshes(
-  entt::registry const &registry,
-  lmgl::irenderer &renderer)
-{
-    for (auto [entity, box_component] :
-         registry.view<lmng::box_collider const>().proxy())
-    {
-        box_collider_meshes.emplace(
-          entity, create_box_mesh(&renderer, entity, box_wireframe_material));
-    }
-}
-
 void visual::recreate(entt::registry const &registry, lmgl::irenderer &renderer)
 {
-    add_box_meshes(registry, &renderer);
-    if (do_render_box_colliders)
-        add_box_collider_meshes(registry, renderer);
-}
-
-void visual::destroy_box_collider_mesh(
-  lmgl::irenderer *renderer,
-  entt::entity entity,
-  lmgl::resource_sink &resource_sink)
-{
-    auto &mesh = box_collider_meshes.at(entity);
-    resource_sink.add(mesh.ubuffer);
-    resource_sink.add(mesh.geometry);
-    box_collider_meshes.erase(entity);
-}
-
-void visual::handle_box_mesh_tag_destroyed(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    destroyed_box_meshes.emplace_back(entity);
-}
-
-void visual::handle_box_collider_mesh_tag_destroyed(
-  entt::registry &registry,
-  entt::entity entity)
-{
-    destroyed_box_collider_meshes.emplace_back(entity);
 }
 } // namespace lmhuv::internal
 

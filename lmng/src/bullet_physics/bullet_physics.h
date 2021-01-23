@@ -71,12 +71,22 @@ class bt_physics : public iphysics
     void set_character_velocity_intervals(entt::registry &entities, float dt)
       const;
 
+    void on_character_controller_created(
+      entt::registry &registry,
+      entt::entity entity);
+
   private:
     std::unique_ptr<btBroadphaseInterface> broadphase;
     std::unique_ptr<btCollisionConfiguration> collision_configuration;
     std::unique_ptr<btDispatcher> dispatcher;
     std::unique_ptr<btConstraintSolver> solver;
     std::unique_ptr<btDiscreteDynamicsWorld> physics_world;
+    entt::scoped_connection character_controller_created_signal;
+    void create_bt_character_controller(
+      entt::registry &registry,
+      entt::entity entity,
+      const transform &transform,
+      const box_collider &box_collider) const;
 };
 
 template <typename view_type>

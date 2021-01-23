@@ -3,6 +3,7 @@
 #include "asset_cache.h"
 #include <entt/entt.hpp>
 #include <filesystem>
+#include <lmng/transform.h>
 #include <string>
 #include <yaml-cpp/yaml.h>
 
@@ -42,6 +43,12 @@ class yaml_archetype_loader : public asset_loader_interface<archetype_data>
   private:
     std::filesystem::path project_dir;
 };
+
+entt::entity instantiate_archetype(
+  entt::registry &registry,
+  std::string const &archetype_asset_path,
+  asset_cache &asset_cache,
+  lmng::transform const &initial_transform);
 } // namespace lmng
 
 inline std::ostream &

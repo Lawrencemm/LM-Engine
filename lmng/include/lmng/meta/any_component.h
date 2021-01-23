@@ -4,6 +4,8 @@
 
 namespace lmng
 {
+entt::meta_type get_component_meta_type(std::string const &component_type_name);
+
 entt::meta_any get_component_any(
   entt::registry const &registry,
   entt::entity entity,
@@ -40,6 +42,11 @@ void remove_from_entity(
   entt::registry &registry,
   entt::entity entity);
 
+bool has_component(
+  entt::registry const &registry,
+  entt::entity entity,
+  entt::meta_type const &meta_type);
+
 char const *get_type_name(entt::meta_type const &type);
 char const *get_data_name(entt::meta_data const &data);
 
@@ -54,7 +61,7 @@ class any_component
     char const *name() const;
 
     std::string
-    get(entt::meta_data const &data, entt::registry const &registry) const;
+      get(entt::meta_data const &data, entt::registry const &registry) const;
 
     any_component &set(
       entt::meta_data const &data,
@@ -81,11 +88,11 @@ void visit_components(
   meta_type_map type_map = create_meta_type_map())
 {
     registry.visit(entity, [&](auto type_id) {
-      auto found_meta_type = type_map.find(type_id);
+        auto found_meta_type = type_map.find(type_id);
 
-      if (found_meta_type != type_map.end())
-          function(any_component{registry, entity, found_meta_type->second});
+        if (found_meta_type != type_map.end())
+            function(any_component{registry, entity, found_meta_type->second});
     });
 }
 
-}
+} // namespace lmng

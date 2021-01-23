@@ -1,6 +1,7 @@
 #include <lmlib/application.h>
 #include <lmlib/enumerate.h>
 #include <lmlib/range.h>
+#include <fmt/format.h>
 
 #include "vulkan_exceptions.h"
 #include "vulkan_renderer.h"
@@ -58,7 +59,7 @@ std::vector<const char *> vulkan_renderer::getInstanceLayers() const
     auto layers = vk::enumerateInstanceLayerProperties();
     std::vector<const char *> enabledLayers;
 #if !defined(NDEBUG)
-    enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+    enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
     // enabledLayers.push_back("VK_LAYER_LUNARG_api_dump");
 #endif
     return enabledLayers;
@@ -161,8 +162,10 @@ VkBool32 receiveVkDebugMsg(
       flags & (uint32_t)vk::DebugReportFlagBitsEXT::eError ||
       flags & (uint32_t)vk::DebugReportFlagBitsEXT::eWarning)
     {
-        throw std::runtime_error(
-          std::string("Vulkan ") + pLayerPrefix + ": " + pMessage + "\n\n");
+        auto formatted_msg =
+          fmt::format("Vulkan {}: {}\n\n", pLayerPrefix, pMessage);
+        std::cout << formatted_msg;
+        throw std::runtime_error(formatted_msg);
     }
     return VK_FALSE;
 }

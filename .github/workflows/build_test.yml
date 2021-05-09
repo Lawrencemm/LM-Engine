@@ -11,7 +11,7 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v1
@@ -33,8 +33,8 @@ jobs:
         run: conan config install conan/config/common
       - name: Conan install
         env:
-          CC: gcc-8
-          CXX: g++-8
+          CC: gcc-10
+          CXX: g++-10
         run: mkdir build &&
           conan install .
           -if build
@@ -42,8 +42,8 @@ jobs:
           -s build_type=${{ matrix.configuration }}
       - name: Configure
         env:
-          CC: gcc-8
-          CXX: g++-8
+          CC: gcc-10
+          CXX: g++-10
         run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
       - name: Build
         run: cmake --build build -j $(nproc --all)

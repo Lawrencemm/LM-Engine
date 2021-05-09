@@ -47,7 +47,7 @@ set(
 
   include
   ${TBB_INCLUDE_DIRS}
-  ${eigen_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS}
   ${fmt_INCLUDE_DIRS}
 )
 

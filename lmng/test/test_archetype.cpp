@@ -60,12 +60,16 @@ TEST_CASE("Map serialisation with archetypes")
     registry.emplace<lmng::name>(child, "Child");
     registry.emplace<lmng::archetype>(parent, "archetype");
 
-    YAML::Node expected_yaml;
+    YAML::Node expected_yaml, expected_parent_yaml, expected_components_yaml,
+      expected_transform_yaml;
 
-    YAML::Node expected_parent_yaml;
+    expected_transform_yaml["Rotation"] = "0 0 0 1";
+    expected_transform_yaml["Position"] = "1 2 3";
+
+    expected_components_yaml["Transform"] = expected_transform_yaml;
 
     expected_parent_yaml["archetype"] = "archetype";
-    expected_parent_yaml["components"] = YAML::Node{};
+    expected_parent_yaml["components"] = expected_components_yaml;
     expected_parent_yaml["children"] = YAML::Node{};
 
     expected_yaml["Parent"] = expected_parent_yaml;

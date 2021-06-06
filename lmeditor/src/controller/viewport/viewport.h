@@ -4,7 +4,7 @@
 
 namespace lmeditor
 {
-class viewport_init;
+struct viewport_init;
 class viewport
 {
   public:

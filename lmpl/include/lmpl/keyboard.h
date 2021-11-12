@@ -128,7 +128,7 @@ enum class key_code
     RightShift = 229,
     RightAlt = 230,
     RightGUI = 231,
-    n_keys
+    n_keys = 256
 };
 
 std::string get_keycode_string(key_code code);

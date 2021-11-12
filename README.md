@@ -60,9 +60,6 @@ Example 3D game made with the engine.
 ## Requirements
 * Python 3
 * The [Conan](https://conan.io/) package manager
-    * You may need to run 
-    `conan profile update settings.compiler.libcxx=libstdc++11 default`
-    to set the standard library Conan uses by default.
 * [CMake](https://cmake.org/)
 * Vulkan graphics drivers
 * Linux
@@ -77,11 +74,11 @@ Example 3D game made with the engine.
 
 ## Setup
 On the command line, in the repository root directory, run:
-* `python init.py`
+* This may override your Conan config. If you need to keep your config,
+  set the environment variable CONAN_USER_HOME to a directory of your
+  choice while running these commands.
+* `conan profile update settings.compiler.libcxx=libstdc++11 default`
 * `conan config install conan/config/common`
-    * This may override your Conan config. If you need to keep your config,
-    set the environment variable CONAN_USER_HOME to a directory of your 
-    choice while running these commands.
 * `mkdir build && conan install . -if build --build missing`
 
 You may now run a regular CMake config/build in the build directory. See 

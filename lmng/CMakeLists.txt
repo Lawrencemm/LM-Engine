@@ -54,7 +54,7 @@ endif()
 add_executable(
   test_lmng
   test/test_lmng.cpp
-  test/test_pose
+  test/test_pose.cpp
   test/test_hierarchy.cpp
   test/test_archetype.cpp
 )

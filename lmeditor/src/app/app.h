@@ -28,7 +28,7 @@ class editor_app : public lmng::any_component_listener
     explicit editor_app(const std::filesystem::path &project_dir);
     editor_app(editor_app const &) = delete;
     editor_app(editor_app &&) = delete;
-    void main() { flow_graph.enter(); }
+    void main();
     ~editor_app() = default;
 
     void on_construct_any(

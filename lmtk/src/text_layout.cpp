@@ -103,6 +103,9 @@ text_layout &text_layout::render(
 void text_layout::move_text_resources(lmgl::resource_sink &sink)
 {
     sink.add(vposbuffer);
+    sink.add(tcoordbuffer);
+    sink.add(ibuffer);
+    sink.add(geometry_);
 }
 
 void text_layout::move_resources(lmgl::resource_sink &sink)

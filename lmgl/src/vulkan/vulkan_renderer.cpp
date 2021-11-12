@@ -48,7 +48,7 @@ void vulkan_renderer::initInstance()
 #if !defined(NDEBUG)
     // addDebugReportCallback(instanceCreateInfo);
 #endif
-    vk_instance.reset(vk::createInstance(instanceCreateInfo));
+    vk_instance = vk::createInstanceUnique(instanceCreateInfo);
 #if !defined(NDEBUG)
     createDebugReportCallback();
 #endif

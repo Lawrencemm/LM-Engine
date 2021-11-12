@@ -24,6 +24,7 @@ using namespace tbb::flow;
 namespace lmeditor
 {
 editor_app::editor_app(const std::filesystem::path &project_dir)
+    try
     : project_dir{project_dir},
       resources{},
       resource_cache{lmtk::resource_cache_init{
@@ -158,6 +159,11 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     map.on_construct<lmng::name>().connect<&assign_creation_time>();
 
     task_group.wait();
+}
+catch (std::exception const &e)
+{
+    std::cerr << e.what() << std::endl;
+    throw std::runtime_error{fmt::format("app initialisation failed: {}", e.what())};
 }
 
 void editor_app::assign_view_key(
@@ -368,5 +374,17 @@ void editor_app::on_destroy_any(
         SPDLOG_INFO("Serialising map async");
         save_map_async();
     }
+}
+
+void editor_app::main()
+try
+{
+    flow_graph.enter();
+}
+catch (std::exception const &e)
+{
+    std::cerr << e.what() << std::endl;
+    throw std::runtime_error{
+      fmt::format("App main function failed with exception {}", e.what())};
 }
 } // namespace lmeditor

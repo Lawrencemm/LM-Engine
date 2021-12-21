@@ -49,7 +49,7 @@ lmtk::font font_loader_internal::create_font(lmtk::font_init const &init)
       DWRITE_FONT_WEIGHT_REGULAR,
       DWRITE_FONT_STYLE_NORMAL,
       DWRITE_FONT_STRETCH_NORMAL,
-      init.pixel_size,
+      (FLOAT)init.pixel_size,
       L"en-us",
       &pTextFormat_));
 
@@ -152,7 +152,7 @@ lmtk::font font_loader_internal::create_font(lmtk::font_init const &init)
     auto error = FT_New_Memory_Face(
       ft_library,
       (FT_Byte const *)fragment_start,
-      font_file_size,
+      (FT_Long)font_file_size,
       0,
       &freetype_font_face);
 

@@ -39,7 +39,7 @@ class visual : public ivisual_view
     lmgl::buffer box_vpositions, box_vnormals, box_indices,
       box_instances_vbuffer, box_collider_instances_vbuffer, boxes_ubuffer;
     lmgl::geometry boxes_geometry, box_colliders_geometry;
-    size_t n_box_indices;
+    uint32_t n_box_indices;
 
     Eigen::Vector3f light_direction;
     float aspect_ratio;

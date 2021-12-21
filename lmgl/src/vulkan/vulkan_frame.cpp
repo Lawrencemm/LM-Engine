@@ -52,8 +52,8 @@ vulkan_frame::vulkan_frame(
         vk::Viewport{}
           .setMinDepth(0)
           .setMaxDepth(1.f)
-          .setWidth(stage->currentExtent.width)
-          .setHeight(stage->currentExtent.height),
+          .setWidth((float)stage->currentExtent.width)
+          .setHeight((float)stage->currentExtent.height),
       },
       scissor{{0, 0}, stage->currentExtent}
 {

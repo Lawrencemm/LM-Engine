@@ -30,7 +30,7 @@ float distance(Eigen::Vector2f point, Eigen::Vector2f box_extents)
         return -distance;
     }
 
-    return boost::geometry::distance(point, box);
+    return (float)boost::geometry::distance(point, box);
 }
 
 std::pair<segment2f, float>
@@ -50,7 +50,7 @@ std::pair<segment2f, float>
         double segment_distance = boost::geometry::distance(segment, point);
         if (segment_distance < min_distance)
         {
-            min_distance = segment_distance;
+            min_distance = (float)segment_distance;
             closest = segment;
         }
     }

@@ -133,7 +133,7 @@ void text_layout::recreate(
 
         float x0 = char_metrics.topleft_pos.x + hpos;
         float x1 = x0 + char_metrics.size.width;
-        float y0 = char_metrics.topleft_pos.y;
+        float y0 = (float)char_metrics.topleft_pos.y;
         float y1 = y0 - char_metrics.size.height;
 
         vertices.emplace_back(Eigen::Vector2f{x0, y0});
@@ -154,7 +154,7 @@ void text_layout::recreate(
         tcoords.emplace_back(Eigen::Vector2f{tx1, ty1});
         tcoords.emplace_back(Eigen::Vector2f{tx1, ty0});
 
-        unsigned short first_v = i * 4;
+        unsigned short first_v = (unsigned short)i * 4;
 
         indices.emplace_back(first_v);
         indices.emplace_back(first_v + 1);

@@ -377,7 +377,7 @@ void vulkan_renderer::create_render_pass()
 
     auto renderPassCreateInfo =
       vk::RenderPassCreateInfo{}
-        .setAttachmentCount(render_pass_attachments.size())
+        .setAttachmentCount((uint32_t)render_pass_attachments.size())
         .setPAttachments(render_pass_attachments.data())
         .setSubpassCount(1)
         .setPSubpasses(&subpassDescription);

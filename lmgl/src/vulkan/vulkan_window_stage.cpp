@@ -92,7 +92,7 @@ void vulkan_window_stage::create_images()
 
     colour_images = renderer->vk_device->getSwapchainImagesKHR(*swapchain);
 
-    image_count = colour_images.size();
+    image_count = (uint32_t)colour_images.size();
 
     // Craete depth images, views and colour image views.
     for (auto i : lm::range(colour_images.size()))

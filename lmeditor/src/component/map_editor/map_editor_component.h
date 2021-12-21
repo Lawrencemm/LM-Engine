@@ -74,7 +74,7 @@ class map_editor_component : public component_interface
     lmgl::buffer box_vpositions, box_vnormals, box_indices;
     lmgl::buffer selection_outline_ubuffer;
     lmgl::geometry selection_stencil_geometry, selection_outline_geometry;
-    size_t n_box_indices;
+    uint32_t n_box_indices;
     lm::point2i position;
     lm::size2i size;
 

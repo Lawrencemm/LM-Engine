@@ -135,7 +135,7 @@ std::string get_keycode_string(key_code code);
 
 class key_state
 {
-    friend class std::hash<lmpl::key_state>;
+    friend struct std::hash<lmpl::key_state>;
     using bitset_type = std::bitset<(size_t)key_code::n_keys>;
     bitset_type map;
 

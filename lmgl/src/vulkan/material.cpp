@@ -61,7 +61,7 @@ material vulkan_renderer::create_material(material_init const &init)
 
     auto descriptor_set_layout = vk_device->createDescriptorSetLayoutUnique(
       vk::DescriptorSetLayoutCreateInfo{}
-        .setBindingCount(uniform_bindings.size())
+        .setBindingCount((uint32_t)uniform_bindings.size())
         .setPBindings(uniform_bindings.data()));
 
     auto pipeline_layout = vk_device->createPipelineLayoutUnique(
@@ -110,8 +110,8 @@ material vulkan_renderer::create_material(material_init const &init)
     {
         bindings.emplace_back(
           vk::VertexInputBindingDescription{}
-            .setBinding(i)
-            .setStride(binding.size)
+            .setBinding((uint32_t)i)
+            .setStride((uint32_t)binding.size)
             .setInputRate(
               binding.input_rate == vertex_input_rate::vertex
                 ? vk::VertexInputRate::eVertex

@@ -1,7 +1,7 @@
 #include "lmeditor/component/command_help.h"
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/find.hpp>
-#include <range/v3/span.hpp>
+#include <range/v3/view/span.hpp>
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/tail.hpp>

@@ -102,7 +102,7 @@ std::tuple<lmgl::buffer, lmgl::buffer, lmgl::buffer, unsigned int>
         {
             points.emplace_back(mesh.point(vh));
             normals.emplace_back(mesh.normal(fh));
-            indices.emplace_back(i * 3 + j++);
+            indices.emplace_back((int)i * 3 + j++);
         }
     }
 
@@ -119,7 +119,7 @@ std::tuple<lmgl::buffer, lmgl::buffer, lmgl::buffer, unsigned int>
         .usage = lmgl::index,
         .data = lm::raw_array_proxy(indices),
       }),
-      indices.size(),
+      (uint32_t)indices.size(),
     };
 }
 } // namespace lmhuv

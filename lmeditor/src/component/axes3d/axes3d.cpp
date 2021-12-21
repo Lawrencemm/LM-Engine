@@ -91,7 +91,7 @@ void axes::init_rendering(const axes_init &init)
     };
 
     render_geometry = renderer->create_geometry(geo_init);
-    render_geometry->set_n_indices(index_data.size());
+    render_geometry->set_n_indices((uint32_t)index_data.size());
 }
 
 void axes::on_render(lmgl::iframe *frame, lm::camera const &camera)

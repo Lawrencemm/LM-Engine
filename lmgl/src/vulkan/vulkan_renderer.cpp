@@ -336,13 +336,24 @@ void vulkan_renderer::populate_whole_texture(
 
     main_queue.submit(submitInfo, complete_fence.get());
 
+    vk::Result fence_result;
+
     fence_wait_thread.run([this,
                            complete_fence = std::move(complete_fence),
                            b = std::move(staging_buffer),
                            m = std::move(staging_memory),
-                           cbs = std::move(cmd_buffers)] {
-        vk_device->waitForFences({complete_fence.get()}, VK_TRUE, UINT64_MAX);
-    });
+                           cbs = std::move(cmd_buffers),
+                           &fence_result] {
+          fence_result = vk_device->waitForFences(
+            {complete_fence.get()}, VK_TRUE, UINT64_MAX);
+      });
+
+    if (fence_result != vk::Result::eSuccess)
+    {
+        throw std::runtime_error{
+          "Error waiting for Vulkan fence during populate_whole_texture: " +
+          vk::to_string(fence_result)};
+    }
 }
 
 void vulkan_renderer::create_render_pass()
@@ -377,7 +388,7 @@ void vulkan_renderer::create_render_pass()
 
     auto renderPassCreateInfo =
       vk::RenderPassCreateInfo{}
-        .setAttachmentCount(render_pass_attachments.size())
+        .setAttachmentCount((uint32_t)render_pass_attachments.size())
         .setPAttachments(render_pass_attachments.data())
         .setSubpassCount(1)
         .setPSubpasses(&subpassDescription);

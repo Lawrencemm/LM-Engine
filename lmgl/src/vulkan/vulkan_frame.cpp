@@ -188,8 +188,15 @@ lm::size2u vulkan_frame::size()
 
 void vulkan_frame::wait_complete()
 {
-    stage->renderer->vk_device->waitForFences(
+    auto result = stage->renderer->vk_device->waitForFences(
       1, &complete_fence.get(), VK_TRUE, UINT64_MAX);
+
+    if (result != vk::Result::eSuccess)
+    {
+        throw std::runtime_error{
+          "Error while waiting for Vulkan frame complete fence: " +
+          vk::to_string(result)};
+    }
 }
 
 void vulkan_renderer::submit_frame(vulkan_frame *frame)
@@ -216,11 +223,18 @@ void vulkan_renderer::submit_frame(vulkan_frame *frame)
                             .setPSwapchains(&*frame->stage->swapchain)
                             .setPImageIndices(&frame->swapchain_image_index);
 
-    main_queue.presentKHR(presentInfoKHR);
+    auto result = main_queue.presentKHR(presentInfoKHR);
     {
         std::unique_lock lck{frame->stage->image_acquire_mutex};
         frame->stage->acquired_image_count--;
         frame->stage->image_acquire_cv.notify_one();
+    }
+    if (result != vk::Result::eSuccess)
+    {
+        throw std::runtime_error{
+            "Error calling presentKHR on main Vulkan queue:"
+            + vk::to_string(result)
+        };
     }
 }
 } // namespace lmgl

@@ -18,7 +18,6 @@
 #include <lmtk/text_layout.h>
 #include <set>
 #include <tbb/flow_graph.h>
-#include <tbb/task_scheduler_init.h>
 
 namespace lmeditor
 {

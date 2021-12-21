@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 #include <tbb/flow_graph.h>
-#include <tbb/task_scheduler_init.h>
 
 #include <lmgl/renderer.h>
 #include <lmlib/flow_graph.h>

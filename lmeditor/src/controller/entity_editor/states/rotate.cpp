@@ -1,4 +1,4 @@
-#include "../map_editor_controller.h"
+#include "../entity_editor_controller.h"
 #include <lmlib/math_constants.h>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/concat.hpp>
@@ -6,10 +6,10 @@
 namespace lmeditor
 {
 template <int axis, int sign>
-map_editor_controller::command create_rotate_command(char const *name)
+entity_editor_controller::command create_rotate_command(char const *name)
 {
-    return map_editor_controller::command{
-      [](map_editor_controller::command_args const &args) {
+    return entity_editor_controller::command{
+      [](entity_editor_controller::command_args const &args) {
           float amount{0.1f * lm::pi};
 
           if (args.key_down_event.input_state.key_state.shift())
@@ -32,15 +32,15 @@ map_editor_controller::command create_rotate_command(char const *name)
     };
 }
 
-map_editor_controller::command quit_rotate_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command quit_rotate_command{
+  [](entity_editor_controller::command_args const &args) {
       args.controller.leave_state();
       return true;
   },
   "Stop rotating entity",
 };
 
-map_editor_controller::command_list rotate_commands{
+entity_editor_controller::command_list rotate_commands{
   {{lmpl::key_code::K},
    create_rotate_command<0, 1>("Rotate around x axis (positive)")},
   {{lmpl::key_code::I},
@@ -56,10 +56,10 @@ map_editor_controller::command_list rotate_commands{
   {{lmpl::key_code::Q}, quit_rotate_command},
 };
 
-map_editor_controller::rotate_state::rotate_state(
-  map_editor_controller::select_state &,
-  map_editor_controller &)
-    : commands{ranges::views::concat(map_editor_controller::viewport_commands, rotate_commands) | ranges::to<command_list>()},
+entity_editor_controller::rotate_state::rotate_state(
+  entity_editor_controller::select_state &,
+  entity_editor_controller &)
+    : commands{ranges::views::concat(entity_editor_controller::viewport_commands, rotate_commands) | ranges::to<command_list>()},
       key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }

@@ -1,4 +1,4 @@
-#include "../map_editor_controller.h"
+#include "../entity_editor_controller.h"
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/concat.hpp>
 
@@ -14,10 +14,10 @@ void do_scale(
 }
 
 template <int axis, int sign>
-map_editor_controller::command create_scale_command(char const *name)
+entity_editor_controller::command create_scale_command(char const *name)
 {
-    return map_editor_controller::command{
-      [](map_editor_controller::command_args const &args) {
+    return entity_editor_controller::command{
+      [](entity_editor_controller::command_args const &args) {
           Eigen::Vector3f *pextents{nullptr};
 
           auto selected_box = args.controller.get_selection();
@@ -45,15 +45,15 @@ map_editor_controller::command create_scale_command(char const *name)
     };
 }
 
-map_editor_controller::command quit_scale_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command quit_scale_command{
+  [](entity_editor_controller::command_args const &args) {
       args.controller.leave_state();
       return true;
   },
   "Stop scaling entity",
 };
 
-map_editor_controller::command_list scale_commands{
+entity_editor_controller::command_list scale_commands{
   {{lmpl::key_code::I}, create_scale_command<1, 1>("Scale up (y)")},
   {{lmpl::key_code::K}, create_scale_command<1, -1>("Scale down (y)")},
   {{lmpl::key_code::J}, create_scale_command<0, -1>("Scale down (x)")},
@@ -63,10 +63,10 @@ map_editor_controller::command_list scale_commands{
   {{lmpl::key_code::Q}, quit_scale_command},
 };
 
-map_editor_controller::scale_state::scale_state(
-  map_editor_controller::select_state &,
-  map_editor_controller &)
-    : commands{ranges::views::concat(map_editor_controller::viewport_commands, scale_commands) | ranges::to<command_list>()},
+entity_editor_controller::scale_state::scale_state(
+  entity_editor_controller::select_state &,
+  entity_editor_controller &)
+    : commands{ranges::views::concat(entity_editor_controller::viewport_commands, scale_commands) | ranges::to<command_list>()},
       key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }

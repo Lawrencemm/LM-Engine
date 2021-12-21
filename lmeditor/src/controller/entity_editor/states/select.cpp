@@ -1,11 +1,11 @@
-#include "../map_editor_controller.h"
+#include "../entity_editor_controller.h"
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/concat.hpp>
 
 namespace lmeditor
 {
-map_editor_controller::command delete_selected_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command delete_selected_command{
+  [](entity_editor_controller::command_args const &args) {
       if (args.controller.have_selection())
       {
           auto selected_box = args.controller.get_selection();
@@ -20,14 +20,14 @@ map_editor_controller::command delete_selected_command{
   "Delete selected",
 };
 
-map_editor_controller::command add_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command add_command{
+  [](entity_editor_controller::command_args const &args) {
       Eigen::Vector3f add_pos = Eigen::Vector3f::Zero();
       if (args.controller.have_selection())
       {
           args.controller
-            .template enter_state<map_editor_controller::add_adjacent_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::add_adjacent_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -41,8 +41,8 @@ map_editor_controller::command add_command{
   "Add entity",
 };
 
-map_editor_controller::command deselect_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command deselect_command{
+  [](entity_editor_controller::command_args const &args) {
       if (args.controller.have_selection())
       {
           args.controller.clear_selection();
@@ -53,13 +53,13 @@ map_editor_controller::command deselect_command{
   "Clear selection",
 };
 
-map_editor_controller::command translate_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command translate_command{
+  [](entity_editor_controller::command_args const &args) {
       if (args.controller.have_selection())
       {
           args.controller
-            .template enter_state<map_editor_controller::translate_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::translate_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -69,14 +69,14 @@ map_editor_controller::command translate_command{
   "Translate entity",
 };
 
-map_editor_controller::command copy_entity_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command copy_entity_command{
+  [](entity_editor_controller::command_args const &args) {
       Eigen::Vector3f add_pos = Eigen::Vector3f::Zero();
       if (args.controller.have_selection())
       {
           args.controller
-            .template enter_state<map_editor_controller::copy_entity_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::copy_entity_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -86,13 +86,13 @@ map_editor_controller::command copy_entity_command{
   "Copy entity",
 };
 
-map_editor_controller::command reparent_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command reparent_command{
+  [](entity_editor_controller::command_args const &args) {
       if (args.controller.have_selection())
       {
           args.controller
-            .template enter_state<map_editor_controller::reparent_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::reparent_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -102,8 +102,8 @@ map_editor_controller::command reparent_command{
   "Reparent entity",
 };
 
-map_editor_controller::command scale_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command scale_command{
+  [](entity_editor_controller::command_args const &args) {
       auto selected_box = args.controller.get_selection();
       if (
         args.controller.have_selection() &&
@@ -111,8 +111,8 @@ map_editor_controller::command scale_command{
          args.map.has<lmng::box_collider>(selected_box)))
       {
           args.controller
-            .template enter_state<map_editor_controller::scale_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::scale_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -122,13 +122,13 @@ map_editor_controller::command scale_command{
   "Scale entity",
 };
 
-map_editor_controller::command rotate_command{
-  [](map_editor_controller::command_args const &args) {
+entity_editor_controller::command rotate_command{
+  [](entity_editor_controller::command_args const &args) {
       if (args.controller.have_selection())
       {
           args.controller
-            .template enter_state<map_editor_controller::rotate_state>(
-              std::get<map_editor_controller::select_state>(
+            .template enter_state<entity_editor_controller::rotate_state>(
+              std::get<entity_editor_controller::select_state>(
                 args.controller.state));
           return true;
       }
@@ -138,7 +138,7 @@ map_editor_controller::command rotate_command{
   "Rotate entity",
 };
 
-map_editor_controller::command_list select_commands{
+entity_editor_controller::command_list select_commands{
   {{lmpl::key_code::X}, delete_selected_command},
   {{lmpl::key_code::A}, add_command},
   {{lmpl::key_code::N}, deselect_command},
@@ -149,9 +149,9 @@ map_editor_controller::command_list select_commands{
   {{lmpl::key_code::LeftShift, lmpl::key_code::R}, rotate_command},
 };
 
-map_editor_controller::select_state::select_state(
-  map_editor_controller &map_editor)
-    : commands{ranges::views::concat(map_editor_controller::move_selection_commands, map_editor_controller::viewport_commands, select_commands) | ranges::to<command_list>()},
+entity_editor_controller::select_state::select_state(
+  entity_editor_controller &controller)
+    : commands{ranges::views::concat(entity_editor_controller::move_selection_commands, entity_editor_controller::viewport_commands, select_commands) | ranges::to<command_list>()},
       key_command_map{ranges::views::all(commands) | ranges::to<command_map>()}
 {
 }

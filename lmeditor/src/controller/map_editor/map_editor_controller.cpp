@@ -7,7 +7,7 @@
 #include <lmng/name.h>
 #include <lmng/physics.h>
 #include <range/v3/algorithm/find_if.hpp>
-#include <range/v3/to_container.hpp>
+#include <range/v3/range/conversion.hpp>
 #include <range/v3/view/join.hpp>
 
 namespace lmeditor

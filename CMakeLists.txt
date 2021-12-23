@@ -4,7 +4,7 @@ project(workspace)
 
 set(
   LM_ENGINE_LOGGING_LEVEL
-  6
+  0
   CACHE STRING
   "spdlog logging level for all lm-engine projects, see spdlog logging levels documentation."
 )

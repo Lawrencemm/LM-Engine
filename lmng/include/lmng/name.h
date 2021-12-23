@@ -19,6 +19,9 @@ inline std::string get_name(entt::registry const &registry, entt::entity entity)
                           : std::to_string(to_integral(entity));
 }
 
+// Gets the name including parents in parent.child.grandchild format
+std::string resolve_name(entt::registry const &registry, entt::entity entity);
+
 entt::entity
   find_entity(entt::registry const &registry, std::string const &name);
 } // namespace lmng

@@ -29,6 +29,11 @@ template <typename scalar_type> struct size2
         return size2{(width * ratio_x.num) / ratio_x.den,
                      (height * ratio_y.num) / ratio_y.den};
     }
+    template <typename ratio_scalar_type = scalar_type>
+    ratio_scalar_type ratio()
+    {
+        return (ratio_scalar_type)width / (ratio_scalar_type)height;
+    }
 
     size2 proportion(Ratio ratio) { return proportion(ratio, ratio); }
 

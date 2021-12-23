@@ -180,30 +180,30 @@ void log_component_signal(
   char const *event_indicator)
 {
     SPDLOG_INFO(
-      "{} {} {} ({}) {{{}}}",
+      "{} ({}) <{}> {} {{{}}}",
+      resolve_name(registry, entity),
+      std::to_string(to_integral(entity)),
       get_type_name(entt::resolve<component_type>()),
       event_indicator,
-      get_name(registry, entity),
-      std::to_string(to_integral(entity)),
       output_data_for_log<component_type>(registry, entity));
 }
 
 template <typename component_type>
 void log_assign(entt::registry &registry, entt::entity entity)
 {
-    log_component_signal<component_type>(registry, entity, "->");
+    log_component_signal<component_type>(registry, entity, "=");
 }
 
 template <typename component_type>
 void log_replace(entt::registry &registry, entt::entity entity)
 {
-    log_component_signal<component_type>(registry, entity, "/->");
+    log_component_signal<component_type>(registry, entity, "/=");
 }
 
 template <typename component_type>
 void log_destroy(entt::registry &registry, entt::entity entity)
 {
-    log_component_signal<component_type>(registry, entity, "X");
+    log_component_signal<component_type>(registry, entity, "<delete>");
 }
 
 template <typename component_type>

@@ -34,6 +34,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
           .typeface_name = "Arial",
           .pixel_size = 24,
         }}},
+      asset_cache{project_dir / "assets"},
       flow_graph(
         resources,
         [&](auto &ev) { return on_input_event(ev); },
@@ -60,10 +61,6 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       state{gui_state{*this}}
 {
     make_edge(save_map_buffer_node, save_map_node);
-
-    asset_cache.emplace_loader<lmng::yaml_pose_loader>(project_dir);
-    asset_cache.emplace_loader<lmng::yaml_animation_loader>(project_dir);
-    asset_cache.emplace_loader<lmng::yaml_archetype_loader>(project_dir);
 
     YAML::Node project_config =
       YAML::LoadFile((project_dir / "lmproj.yml").string());
@@ -153,8 +150,6 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     components.emplace_back(std::move(entity_list));
 
     refit_visible_components();
-
-    lmng::connect_component_logging(map);
 
     map.on_construct<lmng::name>().connect<&assign_creation_time>();
 

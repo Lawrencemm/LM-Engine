@@ -46,10 +46,6 @@ class character_movement
       float dt,
       lmtk::input_state const &input_state);
 
-    void camera_follow_character(
-      entt::registry &registry,
-      character const &character);
-
     entt::entity ground;
     lmng::animation swing_arms_animation;
 };

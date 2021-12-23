@@ -40,8 +40,13 @@ character_movement::character_movement(lmng::simulation_init const &init)
       swing_arms_animation{
         init.asset_cache.load<lmng::animation_data>("animation/swing_arms")}
 {
-    init.registry.emplace<lmng::transform>(camera);
+    const character &player = get_player_character(init.registry);
+
+    auto camera_transform = lmng::transform{Eigen::Vector3f{0.f, 2.5f, -7.5f}};
+    lmng::look_at(camera_transform, {});
+    init.registry.emplace<lmng::transform>(camera, camera_transform);
     init.registry.emplace<lmng::camera>(camera, 1.1f, 0.1f, 1000.f, true);
+    init.registry.emplace<lmng::parent>(camera, player.entity);
 }
 
 void character_movement::handle_input_event(
@@ -67,21 +72,6 @@ void character_movement::update(
     physics->step(registry, dt);
 
     animation_system.update(registry, dt);
-
-    camera_follow_character(registry, character);
-}
-
-void character_movement::camera_follow_character(
-  entt::registry &registry,
-  character_movement::character const &character)
-{
-    auto &camera_transform = registry.get<lmng::transform>(camera);
-
-    camera_transform.position =
-      character.transform.position +
-      character.transform.rotation * Eigen::Vector3f{0.f, 2.5f, -7.5f};
-
-    lmng::look_at(camera_transform, character.transform);
 }
 
 void character_movement::apply_movement_controls(

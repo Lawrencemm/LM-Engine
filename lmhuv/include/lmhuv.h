@@ -41,7 +41,7 @@ struct visual_view_init
 {
     entt::registry &registry;
     lmgl::irenderer *renderer;
-    float aspect_ratio;
+    float aspect_ratio{1.f};
     bool render_box_colliders{false};
 
     pvisual_view unique();

@@ -5,8 +5,11 @@
 #include <lmng/name.h>
 #include <lmng/transform.h>
 #include <lmng/yaml_save_load.h>
+#include <lmng/loaders/archetype.h>
 #include <range/v3/action/sort.hpp>
 #include <yaml-cpp/yaml.h>
+#include <lmng/logging.h>
+#include <spdlog/spdlog.h>
 
 namespace lmng
 {
@@ -246,6 +249,11 @@ void create_children_from_yaml(
   asset_cache &asset_cache,
   const entt::entity &entity)
 {
+    if (!yaml)
+    {
+        return;
+    }
+    SPDLOG_INFO("Creating children of entity from YAML");
     for (auto const &child_yaml : yaml)
     {
         create_entity_from_yaml(
@@ -264,6 +272,7 @@ void create_entity_from_yaml(
   asset_cache &asset_cache,
   entt::entity parent)
 {
+    SPDLOG_INFO("Creating entity {} from YAML", name);
     auto entity = registry.create();
 
     registry.emplace<lmng::name>(entity, name);
@@ -289,6 +298,7 @@ void create_entity_from_yaml(
     }
 
     create_children_from_yaml(registry, yaml["children"], asset_cache, entity);
+    SPDLOG_INFO("Finished creating entity {} from YAML", name);
 }
 
 void populate_registry_from_yaml(
@@ -296,6 +306,7 @@ void populate_registry_from_yaml(
   entt::registry &registry,
   asset_cache &asset_cache)
 {
+    SPDLOG_INFO("Populating registry from YAML");
     for (auto const &entity_yaml : yaml["entities"])
     {
         create_entity_from_yaml(
@@ -305,6 +316,7 @@ void populate_registry_from_yaml(
           asset_cache,
           entt::null);
     }
+    SPDLOG_INFO("Finished populating registry from YAML");
 }
 
 entt::meta_any construct_component_from_yaml(
@@ -341,6 +353,7 @@ entt::registry
   create_registry_from_yaml(YAML::Node const &yaml, asset_cache &asset_cache)
 {
     entt::registry registry;
+    connect_component_logging(registry);
     populate_registry_from_yaml(yaml, registry, asset_cache);
     return std::move(registry);
 }

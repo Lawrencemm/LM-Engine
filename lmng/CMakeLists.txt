@@ -21,6 +21,9 @@ add_library(
   src/archetype.cpp
   src/meta/clone.cpp
   src/meta/signal.cpp
+  src/loaders/archetype.cpp
+  src/asset_cache.cpp
+  src/loaders/animation.cpp
 )
 
 target_include_directories(

@@ -2,7 +2,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <lmlib/camera.h>
 #include <lmng/yaml_save_load.h>
 
 sample_app::sample_app()
@@ -13,27 +12,17 @@ sample_app::sample_app()
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); },
       },
+      asset_cache{"../sample/assets"},
       registry{lmng::create_registry_from_yaml(
-        YAML::LoadFile("../sample/character_movement.lmap"),
+        YAML::LoadFile("../sample/assets/map/character_movement.lmap"),
         asset_cache)},
       simulation{lmng::simulation_init{registry, asset_cache}},
-      visual_view{lmhuv::create_visual_view(lmhuv::visual_view_init{
+      visual_view{lmhuv::visual_view_init{
         registry,
         resources.renderer.get(),
-      })}
+        resources.window->get_size_client().ratio<float>(),
+      }.unique()}
 {
-    auto window_size = resources.window->get_size_client();
-
-    visual_view->set_camera_override(lm::camera{lm::camera_init{
-      .fov = (float)M_PI / 3,
-      .aspect =
-        (float)window_size.width / window_size.height,
-      .near_clip = 0.1f,
-      .far_clip = 1000.f,
-      .position = {0.f, 10.f, -25.f},
-      .rotation = Eigen::Quaternionf{Eigen::AngleAxisf{
-        (float)M_PI / 8.f, Eigen::Vector3f::UnitX()}},
-    }});
 }
 
 bool sample_app::on_input_event(lmtk::input_event const &variant)
@@ -45,6 +34,7 @@ bool sample_app::on_input_event(lmtk::input_event const &variant)
 bool sample_app::on_new_frame(lmgl::iframe *pIframe)
 {
     simulation.update(registry, clock.tick(), resources.input_state);
+    visual_view->update(registry, resources.renderer.get(), resources.resource_sink);
     visual_view->add_to_frame(
       registry, pIframe, lmgl::viewport{resources.window->get_size_client()});
     return true;

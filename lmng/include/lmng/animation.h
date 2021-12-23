@@ -1,6 +1,5 @@
 #pragma once
 
-#include "asset_cache.h"
 #include "transform.h"
 #include <entt/fwd.hpp>
 #include <filesystem>
@@ -80,29 +79,5 @@ class animation_system
       keyframe_list::iterator const &prev_keyframe,
       keyframe_list::iterator const &next_keyframe,
       float delta);
-};
-
-class yaml_pose_loader : public asset_loader_interface<pose_data>
-{
-  public:
-    explicit yaml_pose_loader(std::filesystem::path const &project_dir);
-
-    std::shared_ptr<pose_data>
-      load(asset_cache &cache, std::string const &asset_path) override;
-
-  private:
-    std::filesystem::path project_dir;
-};
-
-class yaml_animation_loader : public asset_loader_interface<animation_data>
-{
-  public:
-    explicit yaml_animation_loader(std::filesystem::path const &project_dir);
-
-    std::shared_ptr<animation_data>
-      load(asset_cache &cache, std::string const &asset_path) override;
-
-  private:
-    std::filesystem::path project_dir;
 };
 } // namespace lmng

@@ -11,6 +11,7 @@ target_link_libraries(
   INTERFACE
   lmng
   lmtk
+  spdlog::spdlog
 )
 
 set(
@@ -70,6 +71,7 @@ target_link_libraries(
 
   sample_interface
   lmhuv
+  SDL2::SDL2
 )
 
 target_compile_definitions(
@@ -77,6 +79,12 @@ target_compile_definitions(
 
   PRIVATE
   SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
+target_include_directories(
+  sample_standalone
+  PRIVATE
+  ${SDL2_INCLUDE_DIRS}
 )
 
 add_executable(
@@ -94,3 +102,5 @@ target_link_libraries(
   sample_interface
   Catch2::Catch2
 )
+
+LM_PACKAGE(sample_standalone)

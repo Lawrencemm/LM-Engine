@@ -4,6 +4,7 @@
 
 #include <lmng/yaml_save_load.h>
 
+
 sample_app::sample_app()
     : resources{},
       flow_graph{
@@ -12,9 +13,9 @@ sample_app::sample_app()
         [&](auto frame) { return on_new_frame(frame); },
         [&]() { on_quit(); },
       },
-      asset_cache{"../sample/assets"},
+      asset_cache{"../assets"},
       registry{lmng::create_registry_from_yaml(
-        YAML::LoadFile("../sample/assets/map/character_movement.lmap"),
+        YAML::LoadFile("../assets/map/character_movement.lmap"),
         asset_cache)},
       simulation{lmng::simulation_init{registry, asset_cache}},
       visual_view{lmhuv::visual_view_init{

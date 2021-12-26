@@ -31,6 +31,5 @@ OpenMesh:shared=True
 bin, embed-resource -> ./bin
 bin, embed-resource.exe -> ./bin
 bin, glslangValidator* -> ./bin
-bin, *.dll -> .
-., *.dll -> .
+bin, *.dll -> ./bin
 cmake, embed-resource.cmake -> ./scripts

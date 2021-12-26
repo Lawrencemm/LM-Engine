@@ -87,6 +87,21 @@ target_include_directories(
   ${SDL2_INCLUDE_DIRS}
 )
 
+set_target_properties(
+  sample_standalone
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
+)
+
+add_custom_command(
+  TARGET sample_standalone
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND}
+  -Dsrc_dir="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+  -Ddst_dir="${CMAKE_CURRENT_SOURCE_DIR}/bin"
+  -P "${CMAKE_SOURCE_DIR}/cmake/update_directory.cmake"
+)
+
 add_executable(
   test_sample
 
@@ -103,4 +118,4 @@ target_link_libraries(
   Catch2::Catch2
 )
 
-LM_PACKAGE(sample_standalone)
+LM_PACKAGE(sample_standalone ${CMAKE_CURRENT_SOURCE_DIR}/packaged)

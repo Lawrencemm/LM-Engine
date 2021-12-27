@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(sample)
 
+set(CMAKE_INSTALL_RPATH "\$ORIGIN")
+
 add_library(
   sample_interface
   INTERFACE
@@ -91,15 +93,6 @@ set_target_properties(
   sample_standalone
   PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
-)
-
-add_custom_command(
-  TARGET sample_standalone
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND}
-  -Dsrc_dir="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-  -Ddst_dir="${CMAKE_CURRENT_SOURCE_DIR}/bin"
-  -P "${CMAKE_SOURCE_DIR}/cmake/update_directory.cmake"
 )
 
 add_executable(

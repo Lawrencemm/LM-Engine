@@ -5,8 +5,8 @@ cmake_find_package
 entt/3.5.2
 bullet3/2.89
 yaml-cpp/0.6.3
-vulkan-loader/1.2.172
-glslang/8.13.3559
+vulkan-loader/1.2.198.0
+glslang/11.7.0
 eigen/3.3.9
 tbb/2020.1
 range-v3/0.11.0
@@ -32,4 +32,5 @@ bin, embed-resource -> ./bin
 bin, embed-resource.exe -> ./bin
 bin, glslangValidator* -> ./bin
 bin, *.dll -> ./bin
+lib, *.so* -> ./bin
 cmake, embed-resource.cmake -> ./scripts

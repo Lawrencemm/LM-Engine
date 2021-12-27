@@ -1,8 +1,19 @@
 macro(LM_PACKAGE TARGET INSTALL_BASE)
-  install(TARGETS ${TARGET} RUNTIME DESTINATION ${INSTALL_BASE}/bin)
+  install(
+    TARGETS ${TARGET}
+    RUNTIME_DEPENDENCIES
+    RUNTIME DESTINATION ${INSTALL_BASE}/bin
+    LIBRARY DESTINATION ${INSTALL_BASE}/bin
+  )
   install(DIRECTORY assets/ DESTINATION ${INSTALL_BASE}/assets)
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${INSTALL_BASE}/bin)
   include(InstallRequiredSystemLibraries)
+  install(CODE
+      "
+      file(GLOB SOS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/*.so*)
+      file(COPY \${SOS}\ DESTINATION ${INSTALL_BASE}/bin)
+    "
+  )
   install(CODE
       "
       file(GLOB DLLS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/*.dll)

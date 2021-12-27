@@ -1,7 +1,10 @@
 macro(LM_PACKAGE TARGET INSTALL_BASE)
+  list(APPEND pre_exclude_regexes api-ms-*)
+  list(APPEND pre_exclude_regexes ext-ms-*)
+  list(APPEND pre_exclude_regexes hvsifiletrust.dll)
   install(
     TARGETS ${TARGET}
-    RUNTIME_DEPENDENCIES
+    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES ${pre_exclude_regexes}
     RUNTIME DESTINATION ${INSTALL_BASE}/bin
     LIBRARY DESTINATION ${INSTALL_BASE}/bin
   )

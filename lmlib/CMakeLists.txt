@@ -133,12 +133,6 @@ target_link_libraries(
 
 set_property(TARGET lmlib PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-install(
-  TARGETS lmlib
-  LIBRARY DESTINATION bin
-  RUNTIME DESTINATION bin
-)
-
 # Testing
 add_executable(
   test_lmlib

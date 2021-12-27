@@ -220,9 +220,3 @@ target_include_directories(
   ${INCLUDE_DIRS}
   include
 )
-
-install(
-  TARGETS lmpl
-  LIBRARY DESTINATION bin
-  RUNTIME DESTINATION bin
-)

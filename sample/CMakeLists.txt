@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(sample)
 
+set(CMAKE_INSTALL_RPATH "\$ORIGIN")
+
 add_library(
   sample_interface
   INTERFACE
@@ -11,6 +13,7 @@ target_link_libraries(
   INTERFACE
   lmng
   lmtk
+  spdlog::spdlog
 )
 
 set(
@@ -70,6 +73,7 @@ target_link_libraries(
 
   sample_interface
   lmhuv
+  SDL2::SDL2
 )
 
 target_compile_definitions(
@@ -77,6 +81,18 @@ target_compile_definitions(
 
   PRIVATE
   SPDLOG_ACTIVE_LEVEL=${LM_ENGINE_LOGGING_LEVEL}
+)
+
+target_include_directories(
+  sample_standalone
+  PRIVATE
+  ${SDL2_INCLUDE_DIRS}
+)
+
+set_target_properties(
+  sample_standalone
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
 )
 
 add_executable(
@@ -94,3 +110,5 @@ target_link_libraries(
   sample_interface
   Catch2::Catch2
 )
+
+LM_PACKAGE(sample_standalone ${CMAKE_CURRENT_SOURCE_DIR}/packaged)

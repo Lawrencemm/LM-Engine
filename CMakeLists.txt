@@ -9,8 +9,8 @@ set(
   "spdlog logging level for all lm-engine projects, see spdlog logging levels documentation."
 )
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /permissive-")
@@ -46,6 +46,7 @@ find_package(yaml-cpp REQUIRED)
 find_package(clara REQUIRED)
 find_package(range-v3 REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(SDL2 REQUIRED)
 
 add_executable(glslangValidator IMPORTED)
 set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/bin/glslangValidator)
@@ -61,4 +62,7 @@ add_subdirectory(lmpl)
 add_subdirectory(lmtk)
 add_subdirectory(lmhuv)
 add_subdirectory(lmeditor)
+
+include(cmake/package_project.cmake)
+
 add_subdirectory(sample)

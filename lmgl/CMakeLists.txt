@@ -92,12 +92,6 @@ target_include_directories(
   include
 )
 
-install(
-  TARGETS lmgl
-  LIBRARY DESTINATION bin
-  RUNTIME DESTINATION bin
-)
-
 add_executable(
   test_lmgl
 

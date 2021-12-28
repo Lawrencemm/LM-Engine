@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 project(sample)
 
@@ -115,4 +115,4 @@ target_link_libraries(
 
 lm_runtime_sync(test_sample)
 
-LM_PACKAGE(sample_standalone ${CMAKE_CURRENT_SOURCE_DIR}/packaged)
+LM_PACKAGE(sample_standalone)

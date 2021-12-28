@@ -1,7 +1,7 @@
 #include "app.h"
 #include <fmt/format.h>
 #include <lmeditor/component/asset_list.h>
-#include <lmeditor/component/command_help.h>
+#include <lmeditor/component/command_palette.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/component/player.h>
@@ -252,9 +252,9 @@ lmtk::component editor_app::create_map_saver()
     return std::move(saver);
 }
 
-lmtk::component editor_app::create_command_help()
+lmtk::component editor_app::create_command_palette()
 {
-    return command_help_init{
+    return command_palette_init{
       .renderer = *resources.renderer,
       .resource_cache = resource_cache,
       .commands = visible_components.front()->get_command_descriptions(),

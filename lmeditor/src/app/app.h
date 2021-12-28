@@ -103,7 +103,7 @@ class editor_app : public lmng::any_component_listener
 
     lmtk::component create_simulation_selector();
     lmtk::component create_map_saver();
-    lmtk::component create_command_help();
+    lmtk::component create_command_palette();
     lmtk::component create_pose_loader();
     lmtk::component create_pose_saver(std::string initial_project_path);
     lmtk::component create_player();

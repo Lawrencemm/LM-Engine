@@ -1,4 +1,4 @@
-#include "lmeditor/component/command_help.h"
+#include "lmeditor/component/command_palette.h"
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/view/span.hpp>
@@ -12,13 +12,13 @@
 
 namespace lmeditor
 {
-lmtk::component command_help_init::unique()
+lmtk::component command_palette_init::unique()
 {
-    return std::make_unique<command_help>(*this);
+    return std::make_unique<command_palette>(*this);
 }
 
 std::vector<std::array<lmtk::text_layout, 3>>
-  create_command_rows(command_help_init const &init)
+  create_command_rows(command_palette_init const &init)
 {
     std::vector<std::array<lmtk::text_layout, 3>> rows;
     lmtk::text_layout_factory layout_factory{
@@ -39,7 +39,7 @@ std::vector<std::array<lmtk::text_layout, 3>>
     return std::move(rows);
 }
 
-command_help::command_help(command_help_init const &init)
+command_palette::command_palette(command_palette_init const &init)
     : filter{lmtk::char_field_init{
         .renderer = init.renderer,
         .resource_cache = init.resource_cache,
@@ -53,7 +53,7 @@ command_help::command_help(command_help_init const &init)
     lmtk::table{rows, get_table_origin()};
 }
 
-lmtk::component_interface &command_help::update(
+lmtk::component_interface &command_palette::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
@@ -62,7 +62,7 @@ lmtk::component_interface &command_help::update(
     return *this;
 }
 
-bool command_help::add_to_frame(lmgl::iframe *frame)
+bool command_palette::add_to_frame(lmgl::iframe *frame)
 {
     filter.add_to_frame(frame);
 
@@ -90,22 +90,24 @@ bool command_help::add_to_frame(lmgl::iframe *frame)
     return false;
 }
 
-lm::size2i command_help::get_size()
+lm::size2i command_palette::get_size()
 {
     throw std::runtime_error{"Not implemented."};
 }
 
-lm::point2i command_help::get_position()
+lm::point2i command_palette::get_position()
 {
     throw std::runtime_error{"Not implemented."};
 }
 
-command_help &command_help::set_rect(lm::point2i position, lm::size2i size)
+command_palette &
+  command_palette::set_rect(lm::point2i position, lm::size2i size)
 {
     throw std::runtime_error{"Not implemented."};
 }
 
-command_help &command_help::move_resources(lmgl::resource_sink &resource_sink)
+command_palette &
+  command_palette::move_resources(lmgl::resource_sink &resource_sink)
 {
     for (auto &row : rows)
         for (auto &layout : row)
@@ -114,12 +116,12 @@ command_help &command_help::move_resources(lmgl::resource_sink &resource_sink)
     return *this;
 }
 
-bool command_help::handle(lmtk::input_event const &input_event)
+bool command_palette::handle(lmtk::input_event const &input_event)
 {
     return filter.handle(input_event);
 }
 
-lm::point2i command_help::get_table_origin()
+lm::point2i command_palette::get_table_origin()
 {
     return {0, filter.get_size().height + 15};
 }

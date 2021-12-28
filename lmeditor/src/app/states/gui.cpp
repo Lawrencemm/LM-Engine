@@ -58,7 +58,7 @@ bool editor_app::gui_state::handle(
             switch (key_down_event.key)
             {
             case lmpl::key_code::F1:
-                app.change_state(modal_state{app.create_command_help()});
+                app.change_state(modal_state{app.create_command_palette()});
                 return true;
 
             case lmpl::key_code::P:

@@ -9,19 +9,19 @@
 
 namespace lmeditor
 {
-struct command_help_init;
-class command_help : public lmtk::component_interface
+struct command_palette_init;
+class command_palette : public lmtk::component_interface
 {
   public:
-    explicit command_help(lmeditor::command_help_init const &init);
+    explicit command_palette(lmeditor::command_palette_init const &init);
 
     bool add_to_frame(lmgl::iframe *frame) override;
     bool handle(lmtk::input_event const &input_event) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
-    command_help &set_rect(lm::point2i position, lm::size2i size) override;
+    command_palette &set_rect(lm::point2i position, lm::size2i size) override;
 
-    command_help &move_resources(lmgl::resource_sink &resource_sink) override;
+    command_palette &move_resources(lmgl::resource_sink &resource_sink) override;
 
     lmtk::component_interface &update(
       lmgl::irenderer *renderer,
@@ -37,7 +37,7 @@ class command_help : public lmtk::component_interface
     lm::point2i get_table_origin();
 };
 
-struct command_help_init
+struct command_palette_init
 {
     lmgl::irenderer &renderer;
     lmtk::resource_cache const &resource_cache;

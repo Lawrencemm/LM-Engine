@@ -4,7 +4,7 @@
 #include <chrono>
 #include <entt/entt.hpp>
 #include <filesystem>
-#include <lmeditor/component/command_help.h>
+#include <lmeditor/component/command_palette.h>
 #include <lmeditor/component/map_editor.h>
 #include <lmgl/lmgl.h>
 #include <lmhuv.h>

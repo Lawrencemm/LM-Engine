@@ -85,5 +85,8 @@ You may now run a regular CMake config/build in the build directory. See
 documentation of CMake and Conan for using different configurations/settings.
 
 ## Running the Editor
-Run the `Editor` executable in the build directory with the `--project-dir` 
-argument set to the `sample` project directory eg. `./Editor --project-dir ../sample`.
+Run the `Editor` executable in the build `bin` directory with the `--project-dir` 
+argument set to the `sample` project directory eg. 
+* `cd build/bin` 
+* `./Editor --project-dir ../../sample`.
+  * `Editor.exe --project-dir ../../sample` on Windows

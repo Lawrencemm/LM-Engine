@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 project(sample)
 
@@ -95,6 +95,8 @@ set_target_properties(
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
 )
 
+lm_runtime_sync(sample_standalone)
+
 add_executable(
   test_sample
 
@@ -111,4 +113,6 @@ target_link_libraries(
   Catch2::Catch2
 )
 
-LM_PACKAGE(sample_standalone ${CMAKE_CURRENT_SOURCE_DIR}/packaged)
+lm_runtime_sync(test_sample)
+
+LM_PACKAGE(sample_standalone)

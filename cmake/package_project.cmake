@@ -1,32 +1,53 @@
-macro(LM_PACKAGE TARGET INSTALL_BASE)
-  list(APPEND pre_exclude_regexes api-ms-*)
-  list(APPEND pre_exclude_regexes ext-ms-*)
-  list(APPEND pre_exclude_regexes hvsifiletrust.dll)
+macro(LM_PACKAGE TARGET)
   install(
     TARGETS ${TARGET}
-    RUNTIME_DEPENDENCIES PRE_EXCLUDE_REGEXES ${pre_exclude_regexes}
-    RUNTIME DESTINATION ${INSTALL_BASE}/bin
-    LIBRARY DESTINATION ${INSTALL_BASE}/bin
+    COMPONENT ${TARGET}_package
+    EXCLUDE_FROM_ALL
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION bin
   )
-  install(DIRECTORY assets/ DESTINATION ${INSTALL_BASE}/assets)
-  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${INSTALL_BASE}/bin)
+  install(DIRECTORY assets/ DESTINATION assets COMPONENT ${TARGET}_package EXCLUDE_FROM_ALL)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION bin)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT ${TARGET}_package)
   include(InstallRequiredSystemLibraries)
-  install(CODE
+  if (WIN32)
+    install(CODE
       "
-      file(GLOB SOS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/*.so*)
-      file(COPY \${SOS}\ DESTINATION ${INSTALL_BASE}/bin)
+        file(
+          GET_RUNTIME_DEPENDENCIES
+          RESOLVED_DEPENDENCIES_VAR _CMAKE_DEPS
+          EXECUTABLES \$<TARGET_FILE:${TARGET}>
+          PRE_EXCLUDE_REGEXES api-ms-* ext-ms-* hvsifiletrust.dll
+          POST_EXCLUDE_REGEXES \".*system32/.*\\\\.dll\"
+          DIRECTORIES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+        )
+        file(COPY \${_CMAKE_DEPS}\ DESTINATION \${CMAKE_INSTALL_PREFIX}/bin)
+      "
+      COMPONENT ${TARGET}_package
+      EXCLUDE_FROM_ALL
+    )
+  else()
+    install(CODE "
+      file(GET_RUNTIME_DEPENDENCIES
+        EXECUTABLES $<TARGET_FILE:${TARGET}>
+        RESOLVED_DEPENDENCIES_VAR _r_deps
+        UNRESOLVED_DEPENDENCIES_VAR _u_deps
+      )
+      foreach(_file \${_r_deps})
+        file(INSTALL
+          DESTINATION \"\${CMAKE_INSTALL_PREFIX}/bin\"
+          TYPE SHARED_LIBRARY
+          FOLLOW_SYMLINK_CHAIN
+          FILES \"\${_file}\"
+        )
+      endforeach()
+      list(LENGTH _u_deps _u_length)
+      if(\"\${_u_length}\" GREATER 0)
+        message(WARNING \"Unresolved dependencies detected!\")
+      endif()
     "
+    COMPONENT ${TARGET}_package
+    EXCLUDE_FROM_ALL
   )
-  install(CODE
-      "
-      file(GLOB DLLS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/*.dll)
-      file(COPY \${DLLS}\ DESTINATION ${INSTALL_BASE}/bin)
-    "
-  )
-  install(CODE
-      "
-    file(GLOB PDBS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/*.pdb)
-    file(COPY \${PDBS}\ DESTINATION ${INSTALL_BASE}/bin)
-      "
-  )
+  endif()
 endmacro()

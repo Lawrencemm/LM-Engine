@@ -90,3 +90,14 @@ argument set to the `sample` project directory eg.
 * `cd build/bin` 
 * `./Editor --project-dir ../../sample`.
   * `Editor.exe --project-dir ../../sample` on Windows
+
+## Adding Projects
+To create your own project, create a directory in a `projects` subdirectory in 
+the repository root. As a starting point, copy the `sample` directory contents
+there and rename the CMake targets in CMakeLists.txt.
+
+## Packaging Standalone Builds
+To create a separate directory containing just what's needed to run a game 
+(assets and binaries), use the LM_PACKAGE CMake macro (as seen in sample/CMakeLists.txt),
+then run:
+* `cmake --install <cmake_build_directory> --component <game_target_name>_package --prefix <chosen_output_dir>`

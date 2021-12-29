@@ -31,7 +31,9 @@ class command_palette : public lmtk::component_interface
 
   private:
     lmtk::char_field filter;
+    std::array<lmtk::text_layout, 3> table_header;
     std::vector<std::array<lmtk::text_layout, 3>> rows;
+    std::vector<std::pair<size_t, double>> sorted_rows;
     std::vector<command_description> commands;
 
     lm::point2i get_table_origin();

@@ -71,6 +71,7 @@ target_link_libraries(
   yaml-cpp::yaml-cpp
   clara::clara
   Boost::Boost
+  rapidfuzz::rapidfuzz
 )
 
 if (UNIX)

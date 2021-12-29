@@ -35,7 +35,7 @@ vk::PrimitiveTopology gtype_to_vk_ptype[] = {
 
 namespace lmgl
 {
-material vulkan_renderer::create_material(material_init const &init)
+material vulkan_renderer::create_material(material_init const &init, std::source_location creator_source_location)
 {
     std::vector<vk::DescriptorSetLayoutBinding> uniform_bindings;
 
@@ -68,6 +68,8 @@ material vulkan_renderer::create_material(material_init const &init)
       vk::PipelineLayoutCreateInfo{}
         .setPSetLayouts(&descriptor_set_layout.get())
         .setSetLayoutCount(1));
+
+    set_debug_name(pipeline_layout, creator_source_location);
 
     auto v_shader_create_info =
       vk::ShaderModuleCreateInfo{}

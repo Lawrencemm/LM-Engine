@@ -51,6 +51,8 @@ void vulkan_renderer::initInstance()
     vk_instance = vk::createInstanceUnique(instanceCreateInfo);
 #if !defined(NDEBUG)
     createDebugReportCallback();
+    dispatch.vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vk_instance->getProcAddr("vkSetDebugUtilsObjectNameEXT");
+
 #endif
 }
 
@@ -83,6 +85,7 @@ std::vector<const char *> vulkan_renderer::getInstanceExtensions() const
 
 #ifndef NDEBUG
     enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
     return enabledExtensions;
 }

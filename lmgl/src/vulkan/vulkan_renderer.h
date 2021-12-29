@@ -1,7 +1,7 @@
 #pragma once
 
 #include <queue>
-
+#include <fmt/format.h>
 #include <vulkan/vulkan.hpp>
 
 #include <lmlib/remote_executor.h>
@@ -23,7 +23,7 @@ class vulkan_renderer : public irenderer
     geometry create_geometry(const geometry_init &init) override;
     buffer create_buffer(const buffer_init &init) override;
     texture create_texture(const texture_init &init) override;
-    material create_material(material_init const &init) override;
+    material create_material(material_init const &init, std::source_location location) override;
     irenderer &destroy_material(material) override;
 
     // Utility functions for Vulkan initialisation.
@@ -66,5 +66,24 @@ class vulkan_renderer : public irenderer
       vk::Extent3D extent,
       lm::array_proxy<char const> data);
     stage create_texture_stage(itexture *itexture) override;
+
+    struct Dispatch : vk::DispatchLoaderBase
+    {
+        PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT;
+    } dispatch;
+
+    template <typename UniqueHandle>
+    void set_debug_name(UniqueHandle const &handle, std::source_location creator_source_location)
+    {
+#ifndef NDEBUG
+        using vk_c_type = typename UniqueHandle::element_type::CType;
+        auto vk_object = (vk_c_type)handle.get();
+
+        vk::DebugUtilsObjectNameInfoEXT info{
+          handle.get().objectType, (uint64_t)vk_object, creator_source_location.function_name()};
+
+        vk_device->setDebugUtilsObjectNameEXT(info, dispatch);
+#endif
+    }
 };
 } // namespace lmgl

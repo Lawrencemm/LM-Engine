@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <source_location>
 
 #include <lmgl/frame.h>
 #include <lmlib/reference.h>
@@ -28,7 +29,7 @@ enum class text_alignment
 class text_layout
 {
   public:
-    static lmgl::material create_material(lmgl::irenderer &renderer);
+    static lmgl::material create_material(lmgl::irenderer &renderer, std::source_location location = std::source_location::current());
 
     explicit text_layout(text_layout_init const &init);
     text_layout &render(

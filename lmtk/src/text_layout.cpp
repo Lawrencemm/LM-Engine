@@ -27,7 +27,7 @@ struct text_render_uniform
     std::array<float, 3> colour;
 };
 
-lmgl::material text_layout::create_material(lmgl::irenderer &renderer)
+lmgl::material text_layout::create_material(lmgl::irenderer &renderer, std::source_location creator_source_location)
 {
     return renderer.create_material(lmgl::material_init{
       .vshader_spirv = lm::raw_array_proxy(vshader_data),
@@ -53,7 +53,7 @@ lmgl::material text_layout::create_material(lmgl::irenderer &renderer)
       .uniform_size = sizeof(text_render_uniform),
       .texture = true,
       .do_depth_test = false,
-    });
+    }, creator_source_location);
 }
 
 text_layout::text_layout(text_layout_init const &init)

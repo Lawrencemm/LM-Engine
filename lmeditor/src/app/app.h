@@ -40,7 +40,7 @@ class editor_app : public lmng::any_component_listener, public lmtk::app
       entt::meta_type const &meta_type) override;
 
   protected:
-    bool on_event(const lmtk::event &event) override;
+    lmtk::component_state on_event(const lmtk::event &event) override;
 
   public:
     void on_destroy_any(
@@ -52,7 +52,7 @@ class editor_app : public lmng::any_component_listener, public lmtk::app
     struct gui_state
     {
         explicit gui_state(editor_app &app);
-        bool handle(editor_app &app, lmtk::event const &event);
+        lmtk::component_state handle(editor_app &app, lmtk::event const &event);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);
@@ -61,7 +61,7 @@ class editor_app : public lmng::any_component_listener, public lmtk::app
     {
         lmtk::component modal;
 
-        bool handle(editor_app &app, lmtk::event const &event);
+        lmtk::component_state handle(editor_app &app, lmtk::event const &event);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);

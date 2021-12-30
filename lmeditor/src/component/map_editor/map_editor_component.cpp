@@ -115,7 +115,7 @@ lm::size2i map_editor_component::get_size() { return size; }
 
 lm::point2i map_editor_component::get_position() { return position; }
 
-bool map_editor_component::handle(const lmtk::event &event)
+lmtk::component_state map_editor_component::handle(const lmtk::event &event)
 {
     return event >>
            lm::variant_visitor{
@@ -138,9 +138,13 @@ bool map_editor_component::handle(const lmtk::event &event)
                    lmgl::viewport{position, size});
                  render_selection_outline(&draw_event.frame, *controller.map);
                  render_state_text(&draw_event.frame);
-                 return false;
+                 return lmtk::component_state{};
              },
-             [&](auto const &event) { return controller.handle(event); },
+             [&](auto const &event)
+             {
+                 return controller.handle(event) ? lmtk::component_state{0.f}
+                                                 : lmtk::component_state{};
+             },
            };
 }
 std::vector<command_description>

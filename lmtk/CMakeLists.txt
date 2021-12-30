@@ -54,6 +54,7 @@ target_link_libraries(
   scope_guard::scope_guard
   Boost::Boost
   EnTT::EnTT
+  SDL2::SDL2
 )
 
 target_compile_definitions(

@@ -70,9 +70,9 @@ command_palette::command_palette(command_palette_init const &init)
     sorted_rows.reserve(rows.size());
 }
 
-bool command_palette::draw(lmtk::draw_event const &draw_event)
+lmtk::component_state command_palette::draw(lmtk::draw_event const &draw_event)
 {
-    filter.handle(draw_event);
+    auto filter_state = filter.handle(draw_event);
 
     auto filter_value = filter.get_value();
 
@@ -87,7 +87,7 @@ bool command_palette::draw(lmtk::draw_event const &draw_event)
             for (auto &text_layout : row)
                 text_layout.render(&draw_event.frame);
 
-        return false;
+        return filter_state;
     }
 
     sorted_rows.clear();
@@ -137,7 +137,7 @@ bool command_palette::draw(lmtk::draw_event const &draw_event)
         for (auto &text_layout : row)
             text_layout.render(&draw_event.frame);
 
-    return false;
+    return filter_state;
 }
 
 lm::size2i command_palette::get_size()
@@ -169,7 +169,7 @@ command_palette &
     return *this;
 }
 
-bool command_palette::handle(lmtk::event const &event)
+lmtk::component_state command_palette::handle(lmtk::event const &event)
 {
     return event >> lm::variant_visitor{
                       [&](lmtk::draw_event const &draw_event)

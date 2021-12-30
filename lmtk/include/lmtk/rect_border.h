@@ -39,7 +39,7 @@ class rect_border : public component_interface
         sink.add(ubuffer);
         return *this;
     }
-    bool handle(const event &event) override;
+    lmtk::component_state handle(const event &event) override;
 
   private:
     lm::point2i position;

@@ -15,7 +15,7 @@ class command_palette : public lmtk::component_interface
   public:
     explicit command_palette(lmeditor::command_palette_init const &init);
 
-    bool handle(lmtk::event const &event) override;
+    lmtk::component_state handle(lmtk::event const &event) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     command_palette &set_rect(lm::point2i position, lm::size2i size) override;
@@ -24,7 +24,7 @@ class command_palette : public lmtk::component_interface
       move_resources(lmgl::resource_sink &resource_sink) override;
 
   private:
-    bool draw(const lmtk::draw_event &draw_event);
+    lmtk::component_state draw(const lmtk::draw_event &draw_event);
 
   private:
     lmtk::char_field filter;

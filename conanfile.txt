@@ -27,6 +27,7 @@ catch2/2.13.0
 [options]
 yaml-cpp:shared=True
 OpenMesh:shared=True
+sdl:shared=True
 
 [imports]
 bin, embed-resource -> ./bin

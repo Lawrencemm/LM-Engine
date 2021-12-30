@@ -6,7 +6,8 @@
 
 namespace lmeditor
 {
-bool editor_app::gui_state::handle(editor_app &app, lmtk::event const &event)
+lmtk::component_state
+  editor_app::gui_state::handle(editor_app &app, lmtk::event const &event)
 {
     if (
       event >>
@@ -120,7 +121,7 @@ bool editor_app::gui_state::handle(editor_app &app, lmtk::event const &event)
         },
         [](auto) { return false; },
       })
-        return true;
+        return lmtk::component_state{0.f};
 
     return app.visible_components.front()->handle(event);
 }

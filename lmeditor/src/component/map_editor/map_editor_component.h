@@ -36,7 +36,7 @@ class map_editor_component : public component_interface
     std::vector<command_description> get_command_descriptions() override;
 
   private:
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
 
   private:
     void set_state_text(

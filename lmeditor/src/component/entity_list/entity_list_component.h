@@ -31,7 +31,7 @@ class entity_list_component : public component_interface
 
     lmtk::text_layout &selected_line();
     void update_selection_background();
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
     std::vector<command_description> get_command_descriptions() override;
 
     entity_list_controller controller;

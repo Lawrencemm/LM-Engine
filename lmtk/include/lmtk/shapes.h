@@ -16,7 +16,7 @@ class rect : public component_interface
 {
   public:
     static lmgl::material create_material(lmgl::irenderer *renderer);
-    bool handle(const event &event) override;
+    lmtk::component_state handle(const event &event) override;
 
     explicit rect(
       lmgl::irenderer &renderer,

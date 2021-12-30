@@ -13,7 +13,7 @@ class asset_list_component : public asset_list_interface
 
     std::vector<command_description> get_command_descriptions() override;
 
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;

@@ -167,7 +167,7 @@ void inspector_component::update_selection_background()
       {size.width, lines[controller.selected_entry_index].get_size().height});
 }
 
-bool inspector_component::handle(const lmtk::event &event)
+lmtk::component_state inspector_component::handle(const lmtk::event &event)
 {
     return event >>
            lm::variant_visitor{
@@ -186,9 +186,13 @@ bool inspector_component::handle(const lmtk::event &event)
                  {
                      line.render(&draw_event.frame, position, size);
                  }
-                 return false;
+                 return lmtk::component_state{};
              },
-             [&](auto const &event) { return controller.handle(event); },
+             [&](auto const &event)
+             {
+                 return controller.handle(event) ? lmtk::component_state{0.f}
+                                                 : lmtk::component_state{};
+             },
            };
 }
 

@@ -41,7 +41,7 @@ saver &saver::set_rect(lm::point2i position, lm::size2i size)
     return *this;
 }
 
-bool saver::handle(const lmtk::event &event)
+lmtk::component_state saver::handle(const lmtk::event &event)
 {
     bool saved{false};
 
@@ -67,7 +67,8 @@ bool saver::handle(const lmtk::event &event)
                };
 
     if (saved)
-        return someone_is_dirty;
+        return someone_is_dirty ? lmtk::component_state{0.f}
+                                : lmtk::component_state{};
 
     return field.handle(event);
 }

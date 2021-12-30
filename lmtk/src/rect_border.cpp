@@ -60,7 +60,7 @@ void rect_border::set_thickness(float thickness)
 
 lm::size2i rect_border::get_size() { return size; }
 lm::point2i rect_border::get_position() { return position; }
-bool rect_border::handle(const event &event)
+lmtk::component_state rect_border::handle(const event &event)
 {
     event >>
       lm::variant_visitor{
@@ -83,6 +83,6 @@ bool rect_border::handle(const event &event)
         },
         [](auto) {},
       };
-    return false;
+    return {};
 }
 } // namespace lmtk

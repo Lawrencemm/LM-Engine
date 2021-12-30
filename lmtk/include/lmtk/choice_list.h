@@ -28,7 +28,7 @@ class choice_list : public component_interface
     component_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    bool handle(lmtk::event const &event) override;
+    lmtk::component_state handle(lmtk::event const &event) override;
 
     entt::sink<bool(unsigned, std::string const &)> on_selected();
 

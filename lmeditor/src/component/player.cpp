@@ -28,7 +28,7 @@ std::vector<command_description> player::get_command_descriptions()
     return std::vector<command_description>();
 }
 
-bool player::handle(const lmtk::event &event)
+lmtk::component_state player::handle(const lmtk::event &event)
 {
     return event >>
            lm::variant_visitor{
@@ -42,12 +42,12 @@ bool player::handle(const lmtk::event &event)
                  visual_view->add_to_frame(
                    registry, &draw_event.frame, lmgl::viewport{position, size});
 
-                 return true;
+                 return lmtk::component_state{0.f};
              },
              [&](auto const &event)
              {
                  simulation->handle_input_event(event, registry);
-                 return true;
+                 return lmtk::component_state{0.f};
              },
            };
 }

@@ -70,11 +70,15 @@ std::vector<command_description>
     return std::vector<command_description>();
 }
 
-bool asset_list_component::handle(const lmtk::event &event)
+lmtk::component_state asset_list_component::handle(const lmtk::event &event)
 {
     return event >> lm::variant_visitor{
                       [&](lmtk::key_down_event const &key_down_message)
-                      { return handle_key_down(key_down_message); },
+                      {
+                          return handle_key_down(key_down_message)
+                                   ? lmtk::component_state{0.f}
+                                   : lmtk::component_state{};
+                      },
                       [&](lmtk::draw_event const &draw_event)
                       {
                           for (auto &layout : line_layouts)
@@ -90,9 +94,9 @@ bool asset_list_component::handle(const lmtk::event &event)
                           for (auto &layout : line_layouts)
                               layout.render(&draw_event.frame, position, size);
 
-                          return false;
+                          return lmtk::component_state{};
                       },
-                      [](auto &) { return false; },
+                      [](auto &) { return lmtk::component_state{}; },
                     };
 }
 

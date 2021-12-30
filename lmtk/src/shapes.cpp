@@ -62,7 +62,7 @@ rect &rect::move_resources(lmgl::resource_sink &sink)
     sink.add(ubuffer);
     return *this;
 }
-bool rect::handle(const event &event)
+lmtk::component_state rect::handle(const event &event)
 {
     event >>
       lm::variant_visitor{
@@ -81,6 +81,6 @@ bool rect::handle(const event &event)
         },
         [](auto) {},
       };
-    return false;
+    return {};
 }
 } // namespace lmtk

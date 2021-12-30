@@ -15,7 +15,7 @@ class player : public component_interface
     explicit player(player_init const &init);
 
     std::vector<command_description> get_command_descriptions() override;
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     lmtk::component_interface &

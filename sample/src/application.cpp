@@ -20,7 +20,7 @@ sample_app::sample_app()
 {
 }
 
-bool sample_app::on_event(const lmtk::event &event)
+lmtk::component_state sample_app::on_event(const lmtk::event &event)
 {
     event >>
       lm::variant_visitor{
@@ -38,5 +38,5 @@ bool sample_app::on_event(const lmtk::event &event)
         [&](auto const &event)
         { simulation.handle_input_event(event, registry); },
       };
-    return true;
+    return {0.f};
 }

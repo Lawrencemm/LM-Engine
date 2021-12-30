@@ -12,7 +12,7 @@ class inspector_component : public inspector_interface
   public:
     explicit inspector_component(inspector_init const &init);
 
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
 
     void display(
       entt::registry const &registry,

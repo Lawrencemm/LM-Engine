@@ -22,7 +22,7 @@ struct saver : public saver_interface
 
     saver &move_resources(lmgl::resource_sink &resource_sink) override;
 
-    bool handle(const lmtk::event &event) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
 
     entt::sink<bool(const std::string &)> on_save() override;
 };

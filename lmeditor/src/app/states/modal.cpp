@@ -3,7 +3,8 @@
 
 namespace lmeditor
 {
-bool editor_app::modal_state::handle(editor_app &app, lmtk::event const &event)
+lmtk::component_state
+  editor_app::modal_state::handle(editor_app &app, lmtk::event const &event)
 {
     if (
       event >>
@@ -20,8 +21,6 @@ bool editor_app::modal_state::handle(editor_app &app, lmtk::event const &event)
                 return false;
             }
         },
-        [&](lmtk::draw_event const &draw_event)
-        { return modal->handle(draw_event); },
         [&](lmtk::quit_event const &)
         {
             modal->move_resources(app.resources.resource_sink);
@@ -29,7 +28,7 @@ bool editor_app::modal_state::handle(editor_app &app, lmtk::event const &event)
         },
         [](auto) { return false; },
       })
-        return true;
+        return lmtk::component_state{0.f};
 
     return modal->handle(event);
 }

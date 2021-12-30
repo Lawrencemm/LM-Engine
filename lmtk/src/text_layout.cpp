@@ -205,7 +205,10 @@ void text_layout::set_text(
     move_text_resources(sink);
 
     if (text.empty())
+    {
+        pixel_width = 0;
         return;
+    }
 
     recreate(renderer, font, text);
 }

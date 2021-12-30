@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 #include <tbb/flow_graph.h>
+#include <SDL.h>
 
 #include <lmgl/renderer.h>
 #include <lmlib/flow_graph.h>
@@ -17,6 +18,7 @@ namespace lmtk
 {
 app_resources::app_resources()
 {
+    static auto sdl_result = SDL_Init(SDL_INIT_TIMER);
     using namespace tbb::flow;
 
     graph init_graph;
@@ -149,14 +151,19 @@ app::app()
         app_lifetime_graph,
         1,
         [](auto) {
-            SPDLOG_INFO("New frame limiting recreate stage");
             return -1;
         }},
       wait_for_frame_node{
         app_lifetime_graph,
-        [&](request_frame_msg) {
+        [&](request_frame_msg)
+        {
             return set_promise_on_exception(
-              [&]() { return new_frame_msg{wait_for_frame()}; }, done_promise);
+              [&]()
+              {
+                  auto frame = wait_for_frame();
+                  return new_frame_msg{frame};
+              },
+              done_promise);
         },
       },
       render_frame_node{
@@ -196,7 +203,6 @@ app::app()
         app_lifetime_graph,
         1,
         [](auto) {
-            SPDLOG_INFO("Recreate stage limiting new frame");
             return -1;
         }},
       recreate_stage_node{
@@ -205,7 +211,6 @@ app::app()
         [this](recreate_stage_msg) {
             return set_promise_on_exception(
               [&]() {
-                  SPDLOG_DEBUG("Recreating stage concurrently");
                   this->resources.stage =
                     this->resources.renderer->create_stage(
                       {this->resources.window.get()});
@@ -242,14 +247,12 @@ app::app()
 
 std::shared_ptr<lmgl::iframe> app::wait_for_frame()
 {
-    SPDLOG_DEBUG("Waiting for frame concurrently");
     auto frame = resources.stage->wait_for_frame();
     return std::move(frame);
 }
 
 void app::render_frame(lmgl::iframe *frame) const
 {
-    SPDLOG_DEBUG("Rendering frame concurrently");
     frame->clear_colour({0.05f, 0.05f, 0.05f, 1.f});
     frame->build();
     frame->submit();
@@ -261,7 +264,6 @@ void app::handle_app_msg(appmsg &msg, app::proc_msg_ports_type &output_ports)
       lm::variant_visitor{
         [&](new_frame_msg const &new_frame_msg)
         {
-            SPDLOG_DEBUG("New frame message received");
             if (quitting)
                 return;
 
@@ -275,22 +277,26 @@ void app::handle_app_msg(appmsg &msg, app::proc_msg_ports_type &output_ports)
               resources.resource_sink,
               *resources.resource_cache,
               resources.input_state};
-            if (on_event(event))
-                get_frame_async(output_ports);
+
+            auto state = on_event(event);
+            if (state.request_draw_in)
+            {
+                SPDLOG_INFO(
+                  "new frame message handler returned request for frame in {}",
+                  state.request_draw_in.value());
+                float dt = state.request_draw_in.value();
+                schedule_request_frame(dt);
+            }
 
             start_render_async(output_ports, new_frame_msg.frame);
         },
         [&](frame_complete_msg const &frame_complete_msg) {
-            SPDLOG_DEBUG(
-              "Frame complete message received",
-              recreate_stage_limiter_node.my_count - 1);
             recreate_stage_limiter_node.decrement.try_put(1);
 
             resources.resource_sink.free_frame(
               frame_complete_msg.frame.get(), resources.renderer.get());
         },
         [&](stage_recreated_msg const &stage_recreated_msg) {
-            SPDLOG_DEBUG("Stage recreated message received");
 
             stage_recreate_pending = false;
             on_event(resize_event{*resources.window});
@@ -312,36 +318,81 @@ void app::handle_app_msg(appmsg &msg, app::proc_msg_ports_type &output_ports)
                       resources.renderer.get());
                 },
                 [&](lmpl::repaint_message) {
-                    SPDLOG_DEBUG("Repaint message received");
                     get_window_msg_async(output_ports);
                     get_frame_async(output_ports);
                 },
                 [&](lmpl::resize_message const &resize_message) {
-                    SPDLOG_DEBUG("Resize message received");
                     stage_recreate_pending = true;
                     remove_edge(frame_request_buffer_node, frame_limiter_node);
                     recreate_stage_async(output_ports);
                     get_window_msg_async(output_ports);
                 },
                 [&](auto msg) {
-                    bool dirty{false};
+                    lmtk::component_state state;
                     auto input_event =
                       lmtk::create_input_event(msg, resources.input_state);
 
                     if (input_event)
                     {
-                        dirty = on_event(input_event.value());
+                        state = on_event(input_event.value());
                     }
 
                     get_window_msg_async(output_ports);
 
-                    if (dirty)
+                    if (state.request_draw_in)
                     {
-                        get_frame_async(output_ports);
+                        SPDLOG_INFO(
+                          "window message handler returned request for frame "
+                          "in {}",
+                          state.request_draw_in.value());
+                        schedule_request_frame(state.request_draw_in.value());
                     }
                 },
               };
         }};
+}
+
+uint32_t app::sdl_frame_timer_callback(uint32_t interval, void *param)
+{
+    SPDLOG_INFO("Frame request timer activated");
+    auto app = (lmtk::app *)param;
+    app->frame_request_buffer_node.try_put({});
+    return 0;
+}
+
+void app::schedule_request_frame(float dt)
+{
+    using namespace std::chrono;
+    SDL_RemoveTimer(frame_schedule_timer_id);
+    if (dt == 0.f)
+    {
+        frame_request_buffer_node.try_put({});
+    }
+    else
+    {
+        auto dt_duration = duration<float>{dt};
+        auto new_frame_request =
+          std::chrono::steady_clock::now() +
+          duration_cast<steady_clock::duration>(dt_duration);
+
+        auto milliseconds = std::chrono::duration_cast<
+          std::chrono::duration<uint32_t, std::milli>>(
+          new_frame_request - steady_clock::now());
+
+        frame_schedule_timer_id =
+          SDL_AddTimer(milliseconds.count(), sdl_frame_timer_callback, this);
+
+        SPDLOG_INFO(
+          "Frame request timer added for {} milliseconds",
+          milliseconds.count());
+
+        if (frame_schedule_timer_id == 0)
+        {
+            throw std::runtime_error{fmt::format(
+              "Failed to schedule SDL timer for new frame.\nSDL Error:\n{}",
+              SDL_GetError())};
+        }
+    }
 }
 
 void app::get_window_msg_async(app::proc_msg_ports_type &output_ports) const
@@ -351,7 +402,6 @@ void app::get_window_msg_async(app::proc_msg_ports_type &output_ports) const
 
 void app::get_frame_async(app::proc_msg_ports_type &output_ports)
 {
-    SPDLOG_INFO("Request new frame requested");
     lm::try_put<proc_msg_outputs_type>(output_ports, request_frame_msg{});
 }
 
@@ -359,13 +409,11 @@ void app::start_render_async(
   app::proc_msg_ports_type &output_ports,
   std::shared_ptr<lmgl::iframe> frame)
 {
-    SPDLOG_INFO("Start render requested");
     lm::try_put<proc_msg_outputs_type>(output_ports, render_frame_msg{frame});
 }
 
 void app::recreate_stage_async(app::proc_msg_ports_type &output_ports)
 {
-    SPDLOG_INFO("Recreate stage requested");
     lm::try_put<proc_msg_outputs_type>(output_ports, recreate_stage_msg{});
 }
 
@@ -380,6 +428,6 @@ void app::enter()
 
 app::~app() {}
 
-bool app::on_event(const event &) { return false; }
+lmtk::component_state app::on_event(const event &) { return {}; }
 
 } // namespace lmtk

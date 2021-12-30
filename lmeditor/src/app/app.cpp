@@ -156,7 +156,7 @@ void editor_app::assign_view_key(
           lmpl::get_keycode_string(code))};
 }
 
-bool editor_app::on_event(const lmtk::event &event)
+lmtk::component_state editor_app::on_event(const lmtk::event &event)
 {
     event >>
       lm::variant_visitor{

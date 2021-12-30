@@ -71,7 +71,7 @@ component_interface &
     return *this;
 }
 
-bool choice_list::handle(lmtk::event const &event)
+lmtk::component_state choice_list::handle(lmtk::event const &event)
 {
     return event >>
            lm::variant_visitor{
@@ -87,25 +87,26 @@ bool choice_list::handle(lmtk::event const &event)
                        { is_someone_dirty = is_someone_dirty || handler_ret; },
                        selection_index,
                        lines[selection_index]);
-                     return is_someone_dirty;
+                     return is_someone_dirty ? lmtk::component_state{0.f}
+                                             : lmtk::component_state{};
                  }
 
                  case lmpl::key_code::I:
                      if (selection_index == 0)
-                         return false;
+                         return lmtk::component_state{};
 
                      selection_index -= 1;
-                     return true;
+                     return lmtk::component_state{0.f};
 
                  case lmpl::key_code::K:
                      if (selection_index + 1 == line_layouts.size())
-                         return false;
+                         return lmtk::component_state{};
 
                      selection_index += 1;
-                     return true;
+                     return lmtk::component_state{0.f};
 
                  default:
-                     return false;
+                     return lmtk::component_state{};
                  }
              },
              [&](lmtk::draw_event const &draw_event)
@@ -118,9 +119,9 @@ bool choice_list::handle(lmtk::event const &event)
                  {
                      layout.render(&draw_event.frame);
                  }
-                 return false;
+                 return lmtk::component_state{};
              },
-             [](auto &) { return false; },
+             [](auto &) { return lmtk::component_state{}; },
            };
 }
 

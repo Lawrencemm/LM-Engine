@@ -14,7 +14,7 @@ class sample_app : public lmtk::app
 
   protected:
   private:
-    bool on_event(const lmtk::event &event) override;
+    lmtk::component_state on_event(const lmtk::event &event) override;
 
   protected:
     lmng::asset_cache asset_cache;

@@ -103,7 +103,7 @@ entity_list_component &
     return *this;
 }
 
-bool entity_list_component::handle(const lmtk::event &event)
+lmtk::component_state entity_list_component::handle(const lmtk::event &event)
 {
     return event >> lm::variant_visitor{
                       [&](lmtk::draw_event const &draw_event)
@@ -122,10 +122,14 @@ bool entity_list_component::handle(const lmtk::event &event)
                           for (auto &layout : line_layouts)
                               layout.render(&draw_event.frame, position, size);
 
-                          return false;
+                          return lmtk::component_state{};
                       },
                       [&](auto const &event)
-                      { return controller.handle(event); }};
+                      {
+                          return controller.handle(event)
+                                   ? lmtk::component_state{0.f}
+                                   : lmtk::component_state{};
+                      }};
 }
 
 std::vector<command_description>

@@ -7,11 +7,14 @@
 
 namespace lmtk
 {
+struct component_state
+{
+    std::optional<float> request_draw_in;
+};
 class component_interface
 {
   public:
-    /// Return true if you want to render again immediately.
-    virtual bool handle(lmtk::event const &event) = 0;
+    virtual lmtk::component_state handle(lmtk::event const &event) = 0;
 
     virtual lm::size2i get_size() = 0;
     virtual lm::point2i get_position() = 0;

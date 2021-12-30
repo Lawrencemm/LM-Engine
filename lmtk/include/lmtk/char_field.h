@@ -3,6 +3,7 @@
 #include "component.h"
 #include "text_editor.h"
 #include "text_layout.h"
+#include "shapes.h"
 
 namespace lmtk
 {
@@ -12,7 +13,7 @@ class char_field : public component_interface
   public:
     explicit char_field(char_field_init const &init);
 
-    bool handle(event const &event) override;
+    lmtk::component_state handle(event const &event) override;
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;
@@ -25,9 +26,12 @@ class char_field : public component_interface
 
     [[nodiscard]] std::string get_value() const { return editor.text; }
 
+    float get_seconds_to_next_blink();
+
     bool dirty{false};
     ifont const *font;
     text_layout layout;
+    rect cursor;
     text_editor editor;
 };
 

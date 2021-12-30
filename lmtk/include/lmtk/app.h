@@ -3,6 +3,7 @@
 #include "font.h"
 #include "event.h"
 #include "lmgl/resource_sink.h"
+#include "component.h"
 #include <future>
 #include <lmgl/fwd_decl.h>
 #include <lmlib/flow_graph.h>
@@ -109,6 +110,7 @@ class app
     std::promise<void> done_promise;
     bool quitting{false};
     bool stage_recreate_pending{false};
+    int frame_schedule_timer_id{-1};
 
     void handle_app_msg(appmsg &msg, proc_msg_ports_type &output_ports);
 
@@ -121,6 +123,8 @@ class app
     void render_frame(lmgl::iframe *frame) const;
     void recreate_stage_async(proc_msg_ports_type &output_ports);
 
+    static uint32_t sdl_frame_timer_callback(uint32_t interval, void *param);
+
   public:
     app();
     app(app const &) = delete;
@@ -130,6 +134,7 @@ class app
 
   protected:
     app_resources resources;
-    virtual bool on_event(lmtk::event const &event);
+    virtual lmtk::component_state on_event(lmtk::event const &event);
+    void schedule_request_frame(float dt);
 };
 } // namespace lmtk

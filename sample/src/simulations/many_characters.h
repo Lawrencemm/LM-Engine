@@ -7,7 +7,7 @@
 #include <lmng/physics.h>
 #include <lmng/simulation.h>
 #include <lmng/transform.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 #include <yaml-cpp/node/node.h>
 
 #include "../components/character_input.h"
@@ -18,7 +18,7 @@ class many_characters
     explicit many_characters(lmng::simulation_init const &init);
 
     void handle_input_event(
-      lmtk::input_event const &input_event,
+      lmtk::event const &input_event,
       entt::registry &registry);
 
     void update(

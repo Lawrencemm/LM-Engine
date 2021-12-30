@@ -1,14 +1,14 @@
 #pragma once
-#include "input_event.h"
+#include "event.h"
 #include "lmgl/resource_sink.h"
 #include <lmgl/lmgl.h>
 
 #include "resource_cache.h"
-#include "widget.h"
+#include "component.h"
 
 namespace lmtk
 {
-class rect_border : public widget_interface
+class rect_border : public component_interface
 {
   public:
     lm::point2i get_position() override;
@@ -25,8 +25,6 @@ class rect_border : public widget_interface
     rect_border(rect_border const &) = delete;
     rect_border(rect_border &&) = default;
 
-    bool add_to_frame(lmgl::iframe *frame) override;
-
     void set_thickness(float thickness);
 
     rect_border &set_rect(lm::point2i position, lm::size2i size) override
@@ -41,6 +39,7 @@ class rect_border : public widget_interface
         sink.add(ubuffer);
         return *this;
     }
+    bool handle(const event &event) override;
 
   private:
     lm::point2i position;

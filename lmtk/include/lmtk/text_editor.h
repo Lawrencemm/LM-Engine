@@ -8,7 +8,7 @@ class text_editor
 {
   public:
     explicit text_editor(std::string initial);
-    bool handle(input_event const &event);
+    bool handle(event const &event);
 
     std::string text;
 };

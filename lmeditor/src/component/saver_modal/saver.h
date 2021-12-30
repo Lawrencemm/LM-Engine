@@ -3,12 +3,9 @@
 #include <lmeditor/component/saver.h>
 #include <lmtk/char_field.h>
 #include <lmtk/text_layout.h>
-#include <lmtk/widget.h>
 
 namespace lmeditor
 {
-class editor_app_resources;
-
 struct saver : public saver_interface
 {
     entt::sigh<bool(std::string const &)> save_signal;
@@ -16,8 +13,6 @@ struct saver : public saver_interface
     lmtk::char_field field;
 
     explicit saver(saver_init const &init);
-
-    bool add_to_frame(lmgl::iframe *frame) override;
 
     lm::size2i get_size() override { return lm::size2i(); }
 
@@ -27,13 +22,7 @@ struct saver : public saver_interface
 
     saver &move_resources(lmgl::resource_sink &resource_sink) override;
 
-    bool handle(const lmtk::input_event &input_event) override;
-
-    lmtk::component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+    bool handle(const lmtk::event &event) override;
 
     entt::sink<bool(const std::string &)> on_save() override;
 };

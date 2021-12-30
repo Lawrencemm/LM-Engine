@@ -1,5 +1,6 @@
 #include <lmeditor/component/player.h>
 #include <lmng/meta/clone.h>
+#include "lmlib/variant_visitor.h"
 
 namespace lmeditor
 {
@@ -27,40 +28,41 @@ std::vector<command_description> player::get_command_descriptions()
     return std::vector<command_description>();
 }
 
-bool player::handle(const lmtk::input_event &input_event)
+bool player::handle(const lmtk::event &event)
 {
-    simulation->handle_input_event(input_event, registry);
-    return false;
-}
+    return event >>
+           lm::variant_visitor{
+             [&](lmtk::draw_event const &draw_event)
+             {
+                 simulation->update(
+                   registry, clock.tick(), draw_event.input_state);
+                 visual_view->update(
+                   registry, &draw_event.renderer, draw_event.resource_sink);
 
-lmtk::component_interface &player::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
-{
-    simulation->update(registry, clock.tick(), input_state);
-    visual_view->update(registry, renderer, resource_sink);
-    return *this;
-}
+                 visual_view->add_to_frame(
+                   registry, &draw_event.frame, lmgl::viewport{position, size});
 
-bool player::add_to_frame(lmgl::iframe *frame)
-{
-    visual_view->add_to_frame(registry, frame, lmgl::viewport{position, size});
-
-    return true;
+                 return true;
+             },
+             [&](auto const &event)
+             {
+                 simulation->handle_input_event(event, registry);
+                 return true;
+             },
+           };
 }
 
 lm::size2i player::get_size() { return size; }
 lm::point2i player::get_position() { return position; }
 
-lmtk::widget_interface &player::set_rect(lm::point2i position, lm::size2i size)
+lmtk::component_interface &
+  player::set_rect(lm::point2i position, lm::size2i size)
 {
     throw std::runtime_error{"Not implemented: resizing player"};
     return *this;
 }
 
-lmtk::widget_interface &
+lmtk::component_interface &
   player::move_resources(lmgl::resource_sink &resource_sink)
 {
     visual_view->move_resources(resource_sink);

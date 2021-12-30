@@ -3,7 +3,7 @@
 #include <entt/fwd.hpp>
 #include <lmeditor/model/command.h>
 #include <lmng/name.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 
 namespace lmeditor
 {
@@ -18,7 +18,7 @@ class entity_list_controller
 
     entt::entity get_selection(entt::registry const &registry);
 
-    bool handle(lmtk::input_event const &input_event);
+    bool handle(lmtk::event const &event);
 
     entity_list_controller &display(entt::registry const &registry);
 

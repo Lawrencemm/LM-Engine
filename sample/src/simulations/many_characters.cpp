@@ -58,7 +58,7 @@ void many_characters::spawn_robots(lmng::simulation_init const &init) const
 }
 
 void many_characters::handle_input_event(
-  lmtk::input_event const &input_event,
+  lmtk::event const &input_event,
   entt::registry &registry)
 {
 }

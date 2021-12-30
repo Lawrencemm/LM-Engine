@@ -1,4 +1,5 @@
 #include "lmeditor/component/command_palette.h"
+#include "lmlib/variant_visitor.h"
 #include <range/v3/action/push_back.hpp>
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/find.hpp>
@@ -69,19 +70,9 @@ command_palette::command_palette(command_palette_init const &init)
     sorted_rows.reserve(rows.size());
 }
 
-lmtk::component_interface &command_palette::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+bool command_palette::draw(lmtk::draw_event const &draw_event)
 {
-    filter.update(renderer, resource_sink, resource_cache, input_state);
-    return *this;
-}
-
-bool command_palette::add_to_frame(lmgl::iframe *frame)
-{
-    filter.add_to_frame(frame);
+    filter.handle(draw_event);
 
     auto filter_value = filter.get_value();
 
@@ -94,7 +85,7 @@ bool command_palette::add_to_frame(lmgl::iframe *frame)
 
         for (auto &row : table_rows)
             for (auto &text_layout : row)
-                text_layout.render(frame);
+                text_layout.render(&draw_event.frame);
 
         return false;
     }
@@ -144,7 +135,7 @@ bool command_palette::add_to_frame(lmgl::iframe *frame)
 
     for (auto &row : table_rows)
         for (auto &text_layout : row)
-            text_layout.render(frame);
+            text_layout.render(&draw_event.frame);
 
     return false;
 }
@@ -178,9 +169,12 @@ command_palette &
     return *this;
 }
 
-bool command_palette::handle(lmtk::input_event const &input_event)
+bool command_palette::handle(lmtk::event const &event)
 {
-    return filter.handle(input_event);
+    return event >> lm::variant_visitor{
+                      [&](lmtk::draw_event const &draw_event)
+                      { return draw(draw_event); },
+                      [&](auto const &event) { return filter.handle(event); }};
 }
 
 lm::point2i command_palette::get_table_origin()

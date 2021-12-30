@@ -66,7 +66,7 @@ void inspector_controller::clear()
     entity = entt::null;
 }
 
-bool inspector_controller::handle(lmtk::input_event const &event)
+bool inspector_controller::handle(lmtk::event const &event)
 {
     return state >> lm::variant_visitor{[&](auto &state_alternative) {
                return state_alternative.handle(*this, event);
@@ -87,18 +87,19 @@ bool inspector_controller::move_selection(int movement)
 
 bool inspector_controller::empty_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::event const &event)
 {
     return false;
 }
 
 bool inspector_controller::select_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::event const &event)
 {
-    return input_event >>
+    return event >>
            lm::variant_visitor{
-             [&](lmtk::key_down_event const &key_down_event) {
+             [&](lmtk::key_down_event const &key_down_event)
+             {
                  switch (key_down_event.key)
                  {
                  case lmpl::key_code::I:
@@ -168,20 +169,20 @@ bool inspector_controller::select_state::handle(
 
 bool inspector_controller::edit_name_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::event const &event)
 {
-    return input_event >>
-           lm::variant_visitor{
-             [&](lmtk::key_down_event const &key_down_msg) {
-                 if (text_editor.handle(key_down_msg))
-                 {
-                     return true;
-                 }
-                 switch (key_down_msg.key)
-                 {
-                 case lmpl::key_code::Enter:
-                     inspector.registry->replace<lmng::name>(
-                       inspector.entity, lmng::name{text_editor.text});
+    return event >> lm::variant_visitor{
+                      [&](lmtk::key_down_event const &key_down_msg)
+                      {
+                          if (text_editor.handle(key_down_msg))
+                          {
+                              return true;
+                          }
+                          switch (key_down_msg.key)
+                          {
+                          case lmpl::key_code::Enter:
+                              inspector.registry->replace<lmng::name>(
+                                inspector.entity, lmng::name{text_editor.text});
                      inspector.state = select_state{};
                      return true;
 
@@ -195,11 +196,12 @@ bool inspector_controller::edit_name_state::handle(
 
 bool inspector_controller::edit_data_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::event const &event)
 {
-    return input_event >>
+    return event >>
            lm::variant_visitor{
-             [&](lmtk::key_down_event const &key_down_msg) {
+             [&](lmtk::key_down_event const &key_down_msg)
+             {
                  if (text_editor.handle(key_down_msg))
                  {
                      return true;

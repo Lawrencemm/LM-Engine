@@ -11,7 +11,7 @@ rigid_bodies_battle::rigid_bodies_battle(lmng::simulation_init const &init)
 }
 
 void rigid_bodies_battle::handle_input_event(
-  lmtk::input_event const &input_event,
+  lmtk::event const &input_event,
   entt::registry &registry)
 {
     auto protagonist_view = registry.view<protagonist_component>();

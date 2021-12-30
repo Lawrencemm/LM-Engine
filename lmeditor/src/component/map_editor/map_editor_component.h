@@ -12,7 +12,7 @@
 #include <lmng/physics.h>
 #include <lmng/shapes.h>
 #include <lmng/transform.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 #include <lmtk/shapes.h>
 #include <lmtk/text_editor.h>
 #include <lmtk/text_layout.h>
@@ -27,15 +27,7 @@ class map_editor_component : public component_interface
     map_editor_component(map_editor_component const &) = delete;
     map_editor_component(map_editor_component &&) = delete;
 
-    component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
-
-    bool add_to_frame(lmgl::iframe *frame) override;
-
-    widget_interface &
+    lmtk::component_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
     map_editor_component &set_rect(lm::point2i pos, lm::size2i size) override;
@@ -44,7 +36,7 @@ class map_editor_component : public component_interface
     std::vector<command_description> get_command_descriptions() override;
 
   private:
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::event &event) override;
 
   private:
     void set_state_text(

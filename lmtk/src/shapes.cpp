@@ -2,6 +2,7 @@
 #include <lmgl/geometry.h>
 #include <lmgl/material.h>
 #include <lmtk/shapes.h>
+#include "lmlib/variant_visitor.h"
 
 LOAD_RESOURCE(quad_vshader_data, shaders_rect_vert_spv);
 LOAD_RESOURCE(quad_pshader_data, shaders_rect_frag_spv);
@@ -45,26 +46,11 @@ rect::rect(
     geometry->set_n_indices(6);
 }
 
-bool rect::add_to_frame(lmgl::iframe *frame)
-{
-    auto [width, height] = frame->size();
-    uniform_buffer buf = uniform_buffer{
-      2.f * position.x / width - 1,
-      2.f * position.y / height - 1,
-      2.f * size.width / width,
-      2.f * size.height / height,
-      colour,
-    };
-    lmgl::add_buffer_update(frame, ubuffer.get(), buf);
-    frame->add({geometry.get()});
-    return false;
-}
-
 lm::size2i rect::get_size() { return size; }
 
 lm::point2i rect::get_position() { return position; }
 
-widget_interface &rect::set_rect(lm::point2i position, lm::size2i size)
+component_interface &rect::set_rect(lm::point2i position, lm::size2i size)
 {
     this->position = position;
     this->size = size;
@@ -75,5 +61,26 @@ rect &rect::move_resources(lmgl::resource_sink &sink)
 {
     sink.add(ubuffer);
     return *this;
+}
+bool rect::handle(const event &event)
+{
+    event >>
+      lm::variant_visitor{
+        [&](lmtk::draw_event const &draw_event)
+        {
+            auto [width, height] = draw_event.frame.size();
+            uniform_buffer buf = uniform_buffer{
+              2.f * position.x / width - 1,
+              2.f * position.y / height - 1,
+              2.f * size.width / width,
+              2.f * size.height / height,
+              colour,
+            };
+            lmgl::add_buffer_update(&draw_event.frame, ubuffer.get(), buf);
+            draw_event.frame.add({geometry.get()});
+        },
+        [](auto) {},
+      };
+    return false;
 }
 } // namespace lmtk

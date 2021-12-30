@@ -84,29 +84,7 @@ void map_editor_component::set_state_text(
       *renderer, resource_cache.body_font.get(), new_text, resource_sink);
 }
 
-component_interface &map_editor_component::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
-{
-    set_state_text(
-      renderer, controller.state_text, resource_sink, resource_cache);
-    visual_view->set_camera_override(controller.camera);
-    visual_view->update(*controller.map, renderer, resource_sink);
-    return *this;
-}
-
-bool map_editor_component::add_to_frame(lmgl::iframe *frame)
-{
-    visual_view->add_to_frame(
-      *controller.map, frame, lmgl::viewport{position, size});
-    render_selection_outline(frame, *controller.map);
-    render_state_text(frame);
-    return false;
-}
-
-lmtk::widget_interface &
+lmtk::component_interface &
   map_editor_component::move_resources(lmgl::resource_sink &resource_sink)
 {
     resource_sink.add(
@@ -137,9 +115,33 @@ lm::size2i map_editor_component::get_size() { return size; }
 
 lm::point2i map_editor_component::get_position() { return position; }
 
-bool map_editor_component::handle(const lmtk::input_event &input_event)
+bool map_editor_component::handle(const lmtk::event &event)
 {
-    return controller.handle(input_event);
+    return event >>
+           lm::variant_visitor{
+             [&](lmtk::draw_event const &draw_event)
+             {
+                 set_state_text(
+                   &draw_event.renderer,
+                   controller.state_text,
+                   draw_event.resource_sink,
+                   draw_event.resource_cache);
+                 visual_view->set_camera_override(controller.camera);
+                 visual_view->update(
+                   *controller.map,
+                   &draw_event.renderer,
+                   draw_event.resource_sink);
+
+                 visual_view->add_to_frame(
+                   *controller.map,
+                   &draw_event.frame,
+                   lmgl::viewport{position, size});
+                 render_selection_outline(&draw_event.frame, *controller.map);
+                 render_state_text(&draw_event.frame);
+                 return false;
+             },
+             [&](auto const &event) { return controller.handle(event); },
+           };
 }
 std::vector<command_description>
   map_editor_component::get_command_descriptions()

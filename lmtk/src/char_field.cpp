@@ -1,4 +1,5 @@
 #include <lmtk/char_field.h>
+#include "lmlib/variant_visitor.h"
 
 namespace lmtk
 {
@@ -16,19 +17,29 @@ char_field::char_field(char_field_init const &init)
 {
 }
 
-bool char_field::handle(input_event const &event)
+bool char_field::handle(event const &event)
 {
     if (editor.handle(event))
     {
         dirty = true;
         return true;
     }
-    return false;
-}
-
-bool char_field::add_to_frame(lmgl::iframe *frame)
-{
-    layout.render(frame);
+    event >> lm::variant_visitor{
+               [&](lmtk::draw_event const &draw_event)
+               {
+                   if (dirty)
+                   {
+                       layout.set_text(
+                         draw_event.renderer,
+                         font,
+                         editor.text,
+                         draw_event.resource_sink);
+                       dirty = false;
+                   }
+                   layout.render(&draw_event.frame);
+               },
+               [](auto) {},
+             };
     return false;
 }
 
@@ -36,29 +47,16 @@ lm::size2i char_field::get_size() { return layout.get_size(); }
 
 lm::point2i char_field::get_position() { return layout.position; }
 
-widget_interface &char_field::set_rect(lm::point2i position, lm::size2i size)
+component_interface &char_field::set_rect(lm::point2i position, lm::size2i size)
 {
     layout.set_position(position);
     return *this;
 }
 
-widget_interface &char_field::move_resources(lmgl::resource_sink &resource_sink)
+component_interface &
+  char_field::move_resources(lmgl::resource_sink &resource_sink)
 {
     layout.move_resources(resource_sink);
-    return *this;
-}
-
-lmtk::component_interface &char_field::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
-{
-    if (dirty)
-    {
-        layout.set_text(*renderer, font, editor.text, resource_sink);
-        dirty = false;
-    }
     return *this;
 }
 } // namespace lmtk

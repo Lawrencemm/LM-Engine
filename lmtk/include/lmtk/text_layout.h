@@ -6,7 +6,7 @@
 #include <lmlib/reference.h>
 
 #include "font.h"
-#include "input_event.h"
+#include "event.h"
 #include "lmgl/resource_sink.h"
 #include "resource_cache.h"
 

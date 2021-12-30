@@ -2,6 +2,7 @@
 
 #include <lmgl/material.h>
 #include <lmtk/rect_border.h>
+#include "lmlib/variant_visitor.h"
 
 LOAD_RESOURCE(vshader_spirv, shaders_rect_border_vert_spv);
 LOAD_RESOURCE(pshader_spirv, shaders_rect_border_frag_spv);
@@ -51,25 +52,6 @@ rect_border::rect_border(
     geometry->set_n_indices(8);
 }
 
-bool rect_border::add_to_frame(lmgl::iframe *frame)
-{
-    auto [width, height] = frame->size();
-    Eigen::Vector4f transform;
-    rect_uniform_buffer buf{
-      (float)position.x,
-      (float)position.y,
-      (float)size.width,
-      (float)size.height,
-      colour,
-      (float)thickness,
-      2.f / width,
-      2.f / height,
-    };
-    lmgl::add_buffer_update(frame, ubuffer.get(), buf);
-    frame->add({geometry.get()});
-    return false;
-}
-
 void rect_border::set_thickness(float thickness)
 {
     this->thickness = thickness;
@@ -78,4 +60,29 @@ void rect_border::set_thickness(float thickness)
 
 lm::size2i rect_border::get_size() { return size; }
 lm::point2i rect_border::get_position() { return position; }
+bool rect_border::handle(const event &event)
+{
+    event >>
+      lm::variant_visitor{
+        [&](lmtk::draw_event const &draw_event)
+        {
+            auto [width, height] = draw_event.frame.size();
+            Eigen::Vector4f transform;
+            rect_uniform_buffer buf{
+              (float)position.x,
+              (float)position.y,
+              (float)size.width,
+              (float)size.height,
+              colour,
+              (float)thickness,
+              2.f / width,
+              2.f / height,
+            };
+            lmgl::add_buffer_update(&draw_event.frame, ubuffer.get(), buf);
+            draw_event.frame.add({geometry.get()});
+        },
+        [](auto) {},
+      };
+    return false;
+}
 } // namespace lmtk

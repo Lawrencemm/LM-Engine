@@ -4,7 +4,7 @@
 #include <entt/meta/meta.hpp>
 #include <lmeditor/component/inspector.h>
 #include <lmeditor/model/command.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 #include <lmtk/text_editor.h>
 
 namespace lmeditor
@@ -14,7 +14,7 @@ class inspector_controller
   public:
     explicit inspector_controller(entt::registry &registry);
 
-    bool handle(lmtk::input_event const &event);
+    bool handle(lmtk::event const &event);
 
     void update(entt::registry &registry, lmgl::resource_sink &resource_sink);
 
@@ -34,27 +34,27 @@ class inspector_controller
     {
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::event const &event);
     };
     struct select_state
     {
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::event const &event);
     };
     struct edit_name_state
     {
         lmtk::text_editor text_editor;
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::event const &event);
     };
     struct edit_data_state
     {
         lmtk::text_editor text_editor;
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::event const &event);
     };
 
     using state_variant_type =

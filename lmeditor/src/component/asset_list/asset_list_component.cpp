@@ -70,30 +70,30 @@ std::vector<command_description>
     return std::vector<command_description>();
 }
 
-bool asset_list_component::handle(const lmtk::input_event &input_event)
+bool asset_list_component::handle(const lmtk::event &event)
 {
-    return input_event >> lm::variant_visitor{
-                            [&](lmtk::key_down_event const &key_down_message) {
-                                return handle_key_down(key_down_message);
-                            },
-                            [](auto &) { return false; },
-                          };
-}
+    return event >> lm::variant_visitor{
+                      [&](lmtk::key_down_event const &key_down_message)
+                      { return handle_key_down(key_down_message); },
+                      [&](lmtk::draw_event const &draw_event)
+                      {
+                          for (auto &layout : line_layouts)
+                              layout.move_resources(draw_event.resource_sink);
 
-lmtk::component_interface &asset_list_component::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  const lmtk::resource_cache &resource_cache,
-  const lmtk::input_state &input_state)
-{
-    for (auto &layout : line_layouts)
-        layout.move_resources(resource_sink);
+                          line_layouts.clear();
 
-    line_layouts.clear();
+                          create_entries(
+                            &draw_event.renderer, draw_event.resource_cache);
 
-    create_entries(renderer, resource_cache);
+                          update_selection_background();
+                          selection_background.handle(draw_event);
+                          for (auto &layout : line_layouts)
+                              layout.render(&draw_event.frame, position, size);
 
-    return *this;
+                          return false;
+                      },
+                      [](auto &) { return false; },
+                    };
 }
 
 void asset_list_component::update_selection_background()
@@ -107,21 +107,11 @@ void asset_list_component::update_selection_background()
       {position.x, line.position.y}, {size.width, line.get_size().height});
 }
 
-bool asset_list_component::add_to_frame(lmgl::iframe *frame)
-{
-    update_selection_background();
-    selection_background.add_to_frame(frame);
-    for (auto &layout : line_layouts)
-        layout.render(frame, position, size);
-
-    return false;
-}
-
 lm::size2i asset_list_component::get_size() { return size; }
 
 lm::point2i asset_list_component::get_position() { return position; }
 
-lmtk::widget_interface &
+lmtk::component_interface &
   asset_list_component::set_rect(lm::point2i position, lm::size2i size)
 {
     this->position = position;
@@ -129,7 +119,7 @@ lmtk::widget_interface &
     return *this;
 }
 
-lmtk::widget_interface &
+lmtk::component_interface &
   asset_list_component::move_resources(lmgl::resource_sink &resource_sink)
 {
     for (auto &layout : line_layouts)

@@ -6,14 +6,13 @@
 
 namespace lmeditor
 {
-bool editor_app::gui_state::handle(
-  editor_app &app,
-  lmtk::input_event const &input_event)
+bool editor_app::gui_state::handle(editor_app &app, lmtk::event const &event)
 {
     if (
-      input_event >>
+      event >>
       lm::variant_visitor{
-        [&](lmtk::key_down_event const &key_down_event) {
+        [&](lmtk::key_down_event const &key_down_event)
+        {
             if (key_down_event.input_state.key_state.alt())
             {
                 if (
@@ -109,30 +108,24 @@ bool editor_app::gui_state::handle(
                 return false;
             }
         },
+        [&](lmtk::draw_event const &draw_event)
+        {
+            for (auto &ppanel : app.visible_components)
+            {
+                ppanel->handle(draw_event);
+            }
+
+            app.active_component_border->handle(draw_event);
+            return false;
+        },
         [](auto) { return false; },
       })
         return true;
 
-    return app.visible_components.front()->handle(input_event);
+    return app.visible_components.front()->handle(event);
 }
 
 editor_app::gui_state::gui_state(editor_app &app) {}
-
-bool editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
-{
-    for (auto &ppanel : app.visible_components)
-    {
-        ppanel->update(
-          app.resources.renderer.get(),
-          app.resources.resource_sink,
-          app.resource_cache,
-          app.resources.input_state);
-        ppanel->add_to_frame(frame);
-    }
-
-    app.active_component_border->add_to_frame(frame);
-    return false;
-}
 
 void editor_app::gui_state::move_resources(
   lmgl::irenderer *renderer,

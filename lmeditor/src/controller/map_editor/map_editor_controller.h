@@ -9,7 +9,7 @@
 #include <lmng/physics.h>
 #include <lmng/shapes.h>
 #include <lmng/transform.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 #include <variant>
 
 namespace lmeditor
@@ -21,7 +21,7 @@ class map_editor_controller : public viewport
       entt::registry &map,
       orbital_camera_init const &camera_init);
 
-    bool handle(lmtk::input_event const &event);
+    bool handle(lmtk::event const &event);
 
     entt::entity add_cube(
       entt::registry &map,

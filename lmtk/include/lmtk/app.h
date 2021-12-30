@@ -1,7 +1,7 @@
 #pragma once
 
 #include "font.h"
-#include "input_event.h"
+#include "event.h"
 #include "lmgl/resource_sink.h"
 #include <future>
 #include <lmgl/fwd_decl.h>
@@ -10,24 +10,31 @@
 
 namespace lmtk
 {
-class app_resources;
+class app_resources
+{
+  public:
+    lmpl::display display;
+    lmgl::renderer renderer;
+    lmpl::window window;
+    lmgl::stage stage;
 
-class app_flow_graph
+    lmtk::font_loader font_loader;
+    std::unique_ptr<lmtk::resource_cache> resource_cache;
+
+    lmtk::input_state input_state;
+    lmgl::resource_sink resource_sink;
+
+  public:
+    app_resources();
+    app_resources(app_resources const &) = delete;
+};
+
+class app
 {
   public:
     tbb::flow::graph app_lifetime_graph;
 
   private:
-    using input_event_handler = std::function<bool(input_event const &)>;
-    using new_frame_handler = std::function<bool(lmgl::iframe *)>;
-    using quit_handler = std::function<void()>;
-
-    app_resources &resources;
-
-    input_event_handler on_input_event;
-    new_frame_handler on_new_frame;
-    quit_handler on_quit;
-
     struct request_window_msg_msg
     {
     };
@@ -115,32 +122,14 @@ class app_flow_graph
     void recreate_stage_async(proc_msg_ports_type &output_ports);
 
   public:
-    app_flow_graph(
-      app_resources &resources,
-      input_event_handler on_input_event,
-      new_frame_handler on_new_frame,
-      quit_handler on_quit);
-    app_flow_graph(app_flow_graph const &) = delete;
-    ~app_flow_graph();
+    app();
+    app(app const &) = delete;
+    ~app();
 
     void enter();
-};
 
-class app_resources
-{
-  public:
-    lmpl::display display;
-    lmgl::renderer renderer;
-    lmpl::window window;
-    lmgl::stage stage;
-
-    lmtk::font_loader font_loader;
-
-    lmtk::input_state input_state;
-    lmgl::resource_sink resource_sink;
-
-  public:
-    app_resources();
-    app_resources(app_resources const &) = delete;
+  protected:
+    app_resources resources;
+    virtual bool on_event(lmtk::event const &event);
 };
 } // namespace lmtk

@@ -15,19 +15,16 @@ class command_palette : public lmtk::component_interface
   public:
     explicit command_palette(lmeditor::command_palette_init const &init);
 
-    bool add_to_frame(lmgl::iframe *frame) override;
-    bool handle(lmtk::input_event const &input_event) override;
+    bool handle(lmtk::event const &event) override;
     lm::size2i get_size() override;
     lm::point2i get_position() override;
     command_palette &set_rect(lm::point2i position, lm::size2i size) override;
 
-    command_palette &move_resources(lmgl::resource_sink &resource_sink) override;
+    command_palette &
+      move_resources(lmgl::resource_sink &resource_sink) override;
 
-    lmtk::component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+  private:
+    bool draw(const lmtk::draw_event &draw_event);
 
   private:
     lmtk::char_field filter;

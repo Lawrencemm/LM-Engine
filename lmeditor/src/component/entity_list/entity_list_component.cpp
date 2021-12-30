@@ -1,4 +1,5 @@
 #include "entity_list_component.h"
+#include "lmlib/variant_visitor.h"
 #include <entt/entt.hpp>
 #include <lmng/hierarchy.h>
 #include <lmng/name.h>
@@ -49,16 +50,6 @@ entity_list_component &
         layout.move_resources(resource_sink);
 
     return *this;
-}
-
-bool entity_list_component::add_to_frame(lmgl::iframe *frame)
-{
-    update_selection_background();
-    selection_background.add_to_frame(frame);
-    for (auto &layout : line_layouts)
-        layout.render(frame, position, size);
-
-    return false;
 }
 
 void entity_list_component::reset(
@@ -112,23 +103,29 @@ entity_list_component &
     return *this;
 }
 
-bool entity_list_component::handle(const lmtk::input_event &input_event)
+bool entity_list_component::handle(const lmtk::event &event)
 {
-    return controller.handle(input_event);
-}
+    return event >> lm::variant_visitor{
+                      [&](lmtk::draw_event const &draw_event)
+                      {
+                          if (controller.dirty)
+                          {
+                              reset(
+                                draw_event.renderer,
+                                draw_event.resource_sink,
+                                draw_event.resource_cache,
+                                *controller.registry);
+                              controller.dirty = false;
+                          }
+                          update_selection_background();
+                          selection_background.handle(draw_event);
+                          for (auto &layout : line_layouts)
+                              layout.render(&draw_event.frame, position, size);
 
-component_interface &entity_list_component::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
-{
-    if (controller.dirty)
-    {
-        reset(*renderer, resource_sink, resource_cache, *controller.registry);
-        controller.dirty = false;
-    }
-    return *this;
+                          return false;
+                      },
+                      [&](auto const &event)
+                      { return controller.handle(event); }};
 }
 
 std::vector<command_description>

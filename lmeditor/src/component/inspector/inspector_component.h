@@ -12,15 +12,7 @@ class inspector_component : public inspector_interface
   public:
     explicit inspector_component(inspector_init const &init);
 
-    bool handle(const lmtk::input_event &input_event) override;
-
-    component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
-
-    bool add_to_frame(lmgl::iframe *frame) override;
+    bool handle(const lmtk::event &event) override;
 
     void display(
       entt::registry const &registry,

@@ -23,12 +23,12 @@ map_editor_controller::map_editor_controller(
 {
 }
 
-bool map_editor_controller::handle(lmtk::input_event const &event)
+bool map_editor_controller::handle(lmtk::event const &event)
 {
     return std::visit(
       lm::variant_visitor{
-        [&](
-          lmtk::key_down_event const &key_down_event, auto &state_alternative) {
+        [&](lmtk::key_down_event const &key_down_event, auto &state_alternative)
+        {
             auto itfound = state_alternative.key_command_map.find(
               key_down_event.input_state.key_state);
 

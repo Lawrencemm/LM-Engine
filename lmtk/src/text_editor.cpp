@@ -7,10 +7,11 @@ namespace lmtk
 
 text_editor::text_editor(std::string initial) : text{std::move(initial)} {}
 
-bool text_editor::handle(input_event const &event)
+bool text_editor::handle(event const &event)
 {
     return event >> lm::variant_visitor{
-                      [&](key_down_event const &event) {
+                      [&](key_down_event const &event)
+                      {
                           switch (event.key)
                           {
                           case lmpl::key_code::A:

@@ -1,12 +1,12 @@
 #include <lmlib/variant_visitor.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 
 namespace lmtk
 {
-std::optional<input_event>
+std::optional<event>
   create_input_event(const lmpl::window_message &msg, input_state &input_state)
 {
-    using optev = std::optional<input_event>;
+    using optev = std::optional<event>;
     return msg >>
            lm::variant_visitor{
              [&](const lmpl::key_down_message &msg) -> optev {

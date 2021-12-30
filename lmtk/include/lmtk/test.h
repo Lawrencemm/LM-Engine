@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input_event.h"
+#include "event.h"
 
 namespace lmtk
 {

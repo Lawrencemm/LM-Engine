@@ -3,7 +3,7 @@
 
 #include <lmng/physics.h>
 #include <lmng/simulation.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 
 class rigid_bodies_battle
 {
@@ -11,7 +11,7 @@ class rigid_bodies_battle
     explicit rigid_bodies_battle(lmng::simulation_init const &init);
 
     void handle_input_event(
-      lmtk::input_event const &input_event,
+      lmtk::event const &input_event,
       entt::registry &registry);
     lmng::physics physics;
 

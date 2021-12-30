@@ -1,22 +1,31 @@
 #pragma once
 
-#include "input_event.h"
+#include "event.h"
 #include "resource_cache.h"
-#include "widget.h"
 #include <entt/signal/sigh.hpp>
 #include <lmlib/reference.h>
 
 namespace lmtk
 {
-class component_interface : public widget_interface
+struct component_state
+{
+    std::optional<float> request_draw_in;
+};
+class component_interface
 {
   public:
-    virtual bool handle(lmtk::input_event const &input_event) = 0;
-    virtual lmtk::component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) = 0;
+    virtual lmtk::component_state handle(lmtk::event const &event) = 0;
+
+    virtual lm::size2i get_size() = 0;
+    virtual lm::point2i get_position() = 0;
+
+    virtual component_interface &
+      set_rect(lm::point2i position, lm::size2i size) = 0;
+
+    virtual component_interface &
+      move_resources(lmgl::resource_sink &resource_sink) = 0;
+
+    virtual ~component_interface() = default;
 };
 
 using component = lm::reference<component_interface>;

@@ -19,6 +19,7 @@ openmesh/8.1
 clara/1.1.5
 freetype/2.10.2
 sdl/2.0.18
+rapidfuzz/cci.20210513
 
 [build_requires]
 catch2/2.13.0
@@ -26,6 +27,7 @@ catch2/2.13.0
 [options]
 yaml-cpp:shared=True
 OpenMesh:shared=True
+sdl:shared=True
 
 [imports]
 bin, embed-resource -> ./bin

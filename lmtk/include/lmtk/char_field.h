@@ -3,6 +3,7 @@
 #include "component.h"
 #include "text_editor.h"
 #include "text_layout.h"
+#include "shapes.h"
 
 namespace lmtk
 {
@@ -12,29 +13,25 @@ class char_field : public component_interface
   public:
     explicit char_field(char_field_init const &init);
 
-    bool handle(input_event const &event) override;
-
-    bool add_to_frame(lmgl::iframe *frame) override;
+    lmtk::component_state handle(event const &event) override;
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;
 
-    widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
+    component_interface &
+      set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &
+    component_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    lmtk::component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
-
     [[nodiscard]] std::string get_value() const { return editor.text; }
+
+    float get_seconds_to_next_blink();
 
     bool dirty{false};
     ifont const *font;
     text_layout layout;
+    rect cursor;
     text_editor editor;
 };
 

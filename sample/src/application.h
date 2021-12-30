@@ -4,22 +4,19 @@
 #include <entt/entity/registry.hpp>
 #include <lmhuv.h>
 #include <lmlib/realtime_clock.h>
-#include <lmtk/app_flow_graph.h>
-#include <lmtk/input_event.h>
+#include <lmtk/app.h>
+#include <lmtk/event.h>
 
-class sample_app
+class sample_app : public lmtk::app
 {
   public:
     sample_app();
-    void main() { flow_graph.enter(); }
 
   protected:
-    bool on_input_event(lmtk::input_event const &variant);
-    bool on_new_frame(lmgl::iframe *pIframe);
-    void on_quit();
+  private:
+    lmtk::component_state on_event(const lmtk::event &event) override;
 
-    lmtk::app_resources resources;
-    lmtk::app_flow_graph flow_graph;
+  protected:
     lmng::asset_cache asset_cache;
 
     entt::registry registry;

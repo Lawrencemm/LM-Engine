@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input_event.h"
+#include "event.h"
 #include "lmgl/resource_sink.h"
 
 #include <lmgl/frame.h>
@@ -8,15 +8,15 @@
 #include <lmlib/geometry.h>
 
 #include "resource_cache.h"
-#include "widget.h"
+#include "component.h"
 
 namespace lmtk
 {
-struct box_init;
-class rect : public widget_interface
+class rect : public component_interface
 {
   public:
     static lmgl::material create_material(lmgl::irenderer *renderer);
+    lmtk::component_state handle(const event &event) override;
 
     explicit rect(
       lmgl::irenderer &renderer,
@@ -28,9 +28,8 @@ class rect : public widget_interface
     lm::size2i get_size() override;
     lm::point2i get_position() override;
 
-    widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
-
-    bool add_to_frame(lmgl::iframe *frame) override;
+    component_interface &
+      set_rect(lm::point2i position, lm::size2i size) override;
 
     rect &move_resources(lmgl::resource_sink &sink) override;
 

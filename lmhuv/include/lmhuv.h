@@ -8,7 +8,6 @@
 #include <lmlib/camera.h>
 #include <lmlib/geometry.h>
 #include <lmlib/reference.h>
-#include <lmtk/input_event.h>
 
 namespace lmhuv
 {

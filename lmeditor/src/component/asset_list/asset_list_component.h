@@ -13,22 +13,15 @@ class asset_list_component : public asset_list_interface
 
     std::vector<command_description> get_command_descriptions() override;
 
-    bool handle(const lmtk::input_event &input_event) override;
-
-    lmtk::component_interface &update(
-      lmgl::irenderer *renderer,
-      lmgl::resource_sink &resource_sink,
-      const lmtk::resource_cache &resource_cache,
-      const lmtk::input_state &input_state) override;
-
-    bool add_to_frame(lmgl::iframe *frame) override;
+    lmtk::component_state handle(const lmtk::event &event) override;
 
     lm::size2i get_size() override;
     lm::point2i get_position() override;
 
-    widget_interface &set_rect(lm::point2i position, lm::size2i size) override;
+    lmtk::component_interface &
+      set_rect(lm::point2i position, lm::size2i size) override;
 
-    widget_interface &
+    lmtk::component_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
     entt::sink<bool(const std::filesystem::path &)> on_select_map() override;

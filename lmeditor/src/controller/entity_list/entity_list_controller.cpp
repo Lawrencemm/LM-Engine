@@ -9,7 +9,7 @@
 #include <lmng/name.h>
 #include <lmtk/component.h>
 #include <lmtk/font.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 
 namespace lmeditor
 {
@@ -29,14 +29,13 @@ entity_list_controller::entity_list_controller(entt::registry &registry)
 {
 }
 
-bool entity_list_controller::handle(lmtk::input_event const &input_event)
+bool entity_list_controller::handle(lmtk::event const &event)
 {
-    return input_event >> lm::variant_visitor{
-                            [&](lmtk::key_down_event const &key_down_event) {
-                                return handle_key_down(key_down_event);
-                            },
-                            [](auto) { return false; },
-                          };
+    return event >> lm::variant_visitor{
+                      [&](lmtk::key_down_event const &key_down_event)
+                      { return handle_key_down(key_down_event); },
+                      [](auto) { return false; },
+                    };
 }
 
 bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)

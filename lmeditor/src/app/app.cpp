@@ -1,7 +1,7 @@
 #include "app.h"
 #include <fmt/format.h>
 #include <lmeditor/component/asset_list.h>
-#include <lmeditor/component/command_help.h>
+#include <lmeditor/component/command_palette.h>
 #include <lmeditor/component/entity_list.h>
 #include <lmeditor/component/map_editor.h>
 #include <lmeditor/component/player.h>
@@ -24,27 +24,14 @@ using namespace tbb::flow;
 namespace lmeditor
 {
 editor_app::editor_app(const std::filesystem::path &project_dir)
-    try
     : project_dir{project_dir},
-      resources{},
-      resource_cache{lmtk::resource_cache_init{
-        resources.renderer.get(),
-        resources.font_loader.get(),
-        lmtk::font_description{
-          .typeface_name = "Arial",
-          .pixel_size = 24,
-        }}},
       asset_cache{project_dir / "assets"},
-      flow_graph(
-        resources,
-        [&](auto &ev) { return on_input_event(ev); },
-        [&](auto frame) { return on_new_frame(frame); },
-        [&]() { on_quit(); }),
-      save_map_buffer_node{flow_graph.app_lifetime_graph},
+      save_map_buffer_node{app_lifetime_graph},
       save_map_node(
-        flow_graph.app_lifetime_graph,
+        app_lifetime_graph,
         1,
-        [&](auto &save_map_msg) {
+        [&](auto &save_map_msg)
+        {
             save_map(
               project_dir / (map_file_project_relative_path + ".lmap"),
               *save_map_msg.map);
@@ -52,7 +39,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       active_component_border{
         std::make_unique<lmtk::rect_border>(lmtk::rect_border{
           resources.renderer.get(),
-          resource_cache,
+          *resources.resource_cache,
           {0, 0},
           {0, 0},
           {1.f, 0.f, 0.f, 1.f},
@@ -67,11 +54,13 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 
     tbb::task_group task_group;
 
-    task_group.run([&]() {
-        project_plugin.load(
-          project_config["editor_plugin_name"].as<std::string>(),
-          entt::meta_ctx{});
-    });
+    task_group.run(
+      [&]()
+      {
+          project_plugin.load(
+            project_config["editor_plugin_name"].as<std::string>(),
+            entt::meta_ctx{});
+      });
 
     auto window_size = resources.window->get_size_client();
 
@@ -95,7 +84,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
         .target = Eigen::Vector3f{0.f, 0.f, 0.f},
       },
       resources.renderer.get(),
-      resource_cache,
+      *resources.resource_cache,
       {0, 0},
       map_editor_size,
       std::array{1.f, 0.f, 0.f},
@@ -110,7 +99,7 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       .position = {0, 0},
       .size = inspector_size,
       .renderer = resources.renderer.get(),
-      .resource_cache = resource_cache,
+      .resource_cache = *resources.resource_cache,
     }();
 
     asset_list->on_select_map().connect<&editor_app::load_map>(this);
@@ -118,14 +107,14 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
     auto inspector = inspector_init{
       .registry = map,
       .renderer = *resources.renderer,
-      .resource_cache = resource_cache,
+      .resource_cache = *resources.resource_cache,
       .size = inspector_size,
     }();
 
     auto entity_list = entity_list_init{
       .registry = map,
       .renderer = *resources.renderer,
-      .resource_cache = resource_cache,
+      .resource_cache = *resources.resource_cache,
       .size = inspector->get_size(),
     }();
 
@@ -155,11 +144,6 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
 
     task_group.wait();
 }
-catch (std::exception const &e)
-{
-    std::cerr << e.what() << std::endl;
-    throw std::runtime_error{fmt::format("app initialisation failed: {}", e.what())};
-}
 
 void editor_app::assign_view_key(
   lmpl::key_code code,
@@ -172,43 +156,26 @@ void editor_app::assign_view_key(
           lmpl::get_keycode_string(code))};
 }
 
-bool editor_app::on_new_frame(lmgl::iframe *frame)
+lmtk::component_state editor_app::on_event(const lmtk::event &event)
 {
-    return state >>
-           lm::variant_visitor{
-             [&](auto &state) { return state.add_to_frame(*this, frame); },
-           };
-}
+    event >>
+      lm::variant_visitor{
+        [&](lmtk::resize_event const &resize_event)
+        { refit_visible_components(); },
+        [&](lmtk::quit_event const &)
+        {
+            for (auto &component : components)
+            {
+                component->move_resources(resources.resource_sink);
+            }
 
-bool editor_app::on_input_event(lmtk::input_event const &input_event)
-{
-    input_event >> lm::variant_visitor{
-                     [&](lmtk::resize_event const &resize_event) {
-                         refit_visible_components();
-                     },
-                     [](auto &) {},
-                   };
-    return state >>
-           lm::variant_visitor{
-             [&](auto &state) { return state.handle(*this, input_event); },
-           };
-}
-
-void editor_app::on_quit()
-{
-    state >> lm::variant_visitor{
-               [&](auto &state_alternative) {
-                   state_alternative.move_resources(
-                     resources.renderer.get(), resources.resource_sink);
-               },
-             };
-
-    for (auto &component : components)
-    {
-        component->move_resources(resources.resource_sink);
-    }
-
-    resource_cache.move_resources(resources.resource_sink);
+            resources.resource_cache->move_resources(resources.resource_sink);
+        },
+        [](auto &) {},
+      };
+    return state >> lm::variant_visitor{
+                      [&](auto &state) { return state.handle(*this, event); },
+                    };
 }
 
 bool editor_app::on_simulation_selected(unsigned selection_index)
@@ -225,7 +192,7 @@ lmtk::component editor_app::create_simulation_selector()
       lmtk::choice_list_init{
         .choices = project_plugin.get_simulation_names(),
         .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
+        .resource_cache = *resources.resource_cache,
       }
         .unique();
 
@@ -241,7 +208,7 @@ lmtk::component editor_app::create_map_saver()
     auto saver =
       saver_init{
         .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
+        .resource_cache = *resources.resource_cache,
         .header_text = "Save Map",
         .initial_text = path,
       }
@@ -252,11 +219,11 @@ lmtk::component editor_app::create_map_saver()
     return std::move(saver);
 }
 
-lmtk::component editor_app::create_command_help()
+lmtk::component editor_app::create_command_palette()
 {
-    return command_help_init{
+    return command_palette_init{
       .renderer = *resources.renderer,
-      .resource_cache = resource_cache,
+      .resource_cache = *resources.resource_cache,
       .commands = visible_components.front()->get_command_descriptions(),
     }
       .unique();
@@ -267,7 +234,7 @@ lmtk::component editor_app::create_pose_saver(std::string initial_project_path)
     auto saver =
       saver_init{
         .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
+        .resource_cache = *resources.resource_cache,
         .header_text = "Save Pose",
         .initial_text = initial_project_path,
       }
@@ -280,11 +247,11 @@ lmtk::component editor_app::create_pose_saver(std::string initial_project_path)
 
 lmtk::component editor_app::create_pose_loader()
 {
-    auto is_lpose_file = [](auto &file) {
-        return file.path().extension() == ".lpose";
-    };
+    auto is_lpose_file = [](auto &file)
+    { return file.path().extension() == ".lpose"; };
 
-    auto proj_relative_no_ext = [&](auto &entry) {
+    auto proj_relative_no_ext = [&](auto &entry)
+    {
         auto with_ext = std::filesystem::relative(entry, project_dir).string();
         return with_ext.substr(
           0, with_ext.size() - std::string{".lpose"}.size());
@@ -304,7 +271,7 @@ lmtk::component editor_app::create_pose_loader()
       lmtk::choice_list_init{
         .choices = pose_paths,
         .renderer = resources.renderer.get(),
-        .resource_cache = resource_cache,
+        .resource_cache = *resources.resource_cache,
       }
         .unique();
 
@@ -315,10 +282,11 @@ lmtk::component editor_app::create_pose_loader()
 
 void editor_app::move_current_state_resources()
 {
-    state >> lm::variant_visitor{[&](auto &old_state) {
-        old_state.move_resources(
-          resources.renderer.get(), resources.resource_sink);
-    }};
+    state >> lm::variant_visitor{
+               [&](auto &old_state) {
+                   old_state.move_resources(
+                     resources.renderer.get(), resources.resource_sink);
+               }};
 }
 
 lmtk::component editor_app::create_player()
@@ -374,7 +342,7 @@ void editor_app::on_destroy_any(
 void editor_app::main()
 try
 {
-    flow_graph.enter();
+    enter();
 }
 catch (std::exception const &e)
 {

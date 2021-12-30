@@ -4,7 +4,7 @@
 
 #include <lmlib/reference.h>
 #include <lmng/simulation.h>
-#include <lmtk/input_event.h>
+#include <lmtk/event.h>
 
 namespace lmeditor
 {
@@ -12,7 +12,7 @@ class simulation_plugin_interface
 {
   public:
     virtual void handle_input_event(
-      lmtk::input_event const &input_event,
+      lmtk::event const &input_event,
       entt::registry &registry) = 0;
     virtual void update(
       entt::registry &registry,
@@ -42,10 +42,10 @@ typedef psimulation (
         {                                                                      \
         }                                                                      \
         void handle_input_event(                                               \
-          lmtk::input_event const &input_event,                                \
+          lmtk::event const &event,                                            \
           entt::registry &registry) override                                   \
         {                                                                      \
-            underlying_instance.handle_input_event(input_event, registry);     \
+            underlying_instance.handle_input_event(event, registry);           \
         }                                                                      \
         void update(                                                           \
           entt::registry &registry,                                            \

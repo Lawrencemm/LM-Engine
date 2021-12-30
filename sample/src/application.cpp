@@ -1,19 +1,12 @@
 #include "application.h"
+#include "lmlib/variant_visitor.h"
 
 #include <yaml-cpp/yaml.h>
 
 #include <lmng/yaml_save_load.h>
 
-
 sample_app::sample_app()
-    : resources{},
-      flow_graph{
-        resources,
-        [&](auto &ev) { return on_input_event(ev); },
-        [&](auto frame) { return on_new_frame(frame); },
-        [&]() { on_quit(); },
-      },
-      asset_cache{"../assets"},
+    : asset_cache{"../assets"},
       registry{lmng::create_registry_from_yaml(
         YAML::LoadFile("../assets/map/character_movement.lmap"),
         asset_cache)},
@@ -22,26 +15,28 @@ sample_app::sample_app()
         registry,
         resources.renderer.get(),
         resources.window->get_size_client().ratio<float>(),
-      }.unique()}
+      }
+                    .unique()}
 {
 }
 
-bool sample_app::on_input_event(lmtk::input_event const &variant)
+lmtk::component_state sample_app::on_event(const lmtk::event &event)
 {
-    simulation.handle_input_event(variant, registry);
-    return true;
-}
-
-bool sample_app::on_new_frame(lmgl::iframe *pIframe)
-{
-    simulation.update(registry, clock.tick(), resources.input_state);
-    visual_view->update(registry, resources.renderer.get(), resources.resource_sink);
-    visual_view->add_to_frame(
-      registry, pIframe, lmgl::viewport{resources.window->get_size_client()});
-    return true;
-}
-
-void sample_app::on_quit()
-{
-    visual_view->move_resources(resources.resource_sink);
+    event >>
+      lm::variant_visitor{
+        [&](lmtk::draw_event const &event)
+        {
+            simulation.update(registry, clock.tick(), event.input_state);
+            visual_view->update(registry, &event.renderer, event.resource_sink);
+            visual_view->add_to_frame(
+              registry,
+              &event.frame,
+              lmgl::viewport{resources.window->get_size_client()});
+        },
+        [&](lmtk::quit_event const &event)
+        { visual_view->move_resources(resources.resource_sink); },
+        [&](auto const &event)
+        { simulation.handle_input_event(event, registry); },
+      };
+    return {0.f};
 }

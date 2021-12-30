@@ -49,6 +49,7 @@ find_package(clara REQUIRED)
 find_package(range-v3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(SDL2 REQUIRED)
+find_package(rapidfuzz REQUIRED)
 
 add_executable(glslangValidator IMPORTED)
 set_target_properties(glslangValidator PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/bin/glslangValidator)

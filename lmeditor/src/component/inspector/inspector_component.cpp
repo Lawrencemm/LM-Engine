@@ -1,4 +1,5 @@
 #include "inspector_component.h"
+#include "lmlib/variant_visitor.h"
 #include <entt/meta/meta.hpp>
 #include <fmt/format.h>
 #include <lmlib/enumerate.h>
@@ -166,36 +167,33 @@ void inspector_component::update_selection_background()
       {size.width, lines[controller.selected_entry_index].get_size().height});
 }
 
-component_interface &inspector_component::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+lmtk::component_state inspector_component::handle(const lmtk::event &event)
 {
-    clear(renderer, resource_sink);
+    return event >>
+           lm::variant_visitor{
+             [&](lmtk::draw_event const &draw_event)
+             {
+                 clear(&draw_event.renderer, draw_event.resource_sink);
 
-    if (controller.entity != entt::null)
-    {
-        create_text(renderer, resource_cache);
-        update_selection_background();
-    }
-
-    return *this;
-}
-
-bool inspector_component::add_to_frame(lmgl::iframe *frame)
-{
-    selection_background.add_to_frame(frame);
-    for (auto &line : lines)
-    {
-        line.render(frame, position, size);
-    }
-    return false;
-}
-
-bool inspector_component::handle(const lmtk::input_event &input_event)
-{
-    return controller.handle(input_event);
+                 if (controller.entity != entt::null)
+                 {
+                     create_text(
+                       &draw_event.renderer, draw_event.resource_cache);
+                     update_selection_background();
+                 }
+                 selection_background.handle(draw_event);
+                 for (auto &line : lines)
+                 {
+                     line.render(&draw_event.frame, position, size);
+                 }
+                 return lmtk::component_state{};
+             },
+             [&](auto const &event)
+             {
+                 return controller.handle(event) ? lmtk::component_state{0.f}
+                                                 : lmtk::component_state{};
+             },
+           };
 }
 
 void inspector_component::display(

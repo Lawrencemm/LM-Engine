@@ -44,7 +44,7 @@ add_library(
 
   src/component/axes3d/axes3d.cpp
 
-  src/component/command_help/command_help.cpp
+  src/component/command_palette/command_palette.cpp
 
   src/component/saver_modal/saver.cpp
 
@@ -71,6 +71,7 @@ target_link_libraries(
   yaml-cpp::yaml-cpp
   clara::clara
   Boost::Boost
+  rapidfuzz::rapidfuzz
 )
 
 if (UNIX)

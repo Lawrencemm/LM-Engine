@@ -50,7 +50,7 @@ character_movement::character_movement(lmng::simulation_init const &init)
 }
 
 void character_movement::handle_input_event(
-  lmtk::input_event const &input_event,
+  lmtk::event const &input_event,
   entt::registry &registry)
 {
 }

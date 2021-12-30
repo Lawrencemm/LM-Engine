@@ -26,11 +26,11 @@ add_library(
 
   ${PLATFORM_SOURCES}
   src/text_layout.cpp
-  src/input_event.cpp
+  src/event.cpp
   src/shapes.cpp
   src/text_editor.cpp
   src/rect_border.cpp
-  src/app_flow_graph.cpp
+  src/app.cpp
   src/choice_list.cpp
   src/char_field.cpp
   src/font/font.cpp
@@ -54,6 +54,7 @@ target_link_libraries(
   scope_guard::scope_guard
   Boost::Boost
   EnTT::EnTT
+  SDL2::SDL2
 )
 
 target_compile_definitions(
@@ -88,5 +89,3 @@ embed_built_resources(SHADER_RESOURCES ${SPIRV_BINARY_FILES})
 target_sources(
   lmtk PRIVATE ${SHADER_RESOURCES}
 )
-
-add_subdirectory(example)

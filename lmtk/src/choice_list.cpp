@@ -45,19 +45,6 @@ choice_list::choice_list(choice_list_init const &init)
 {
 }
 
-bool choice_list::add_to_frame(lmgl::iframe *frame)
-{
-    selection_background.set_rect(
-      line_layouts[selection_index].position,
-      line_layouts[selection_index].get_size());
-    selection_background.add_to_frame(frame);
-    for (auto &layout : line_layouts)
-    {
-        layout.render(frame);
-    }
-    return true;
-}
-
 lm::size2i choice_list::get_size()
 {
     throw std::runtime_error{"Not implemented."};
@@ -68,12 +55,13 @@ lm::point2i choice_list::get_position()
     throw std::runtime_error{"Not implemented."};
 }
 
-widget_interface &choice_list::set_rect(lm::point2i position, lm::size2i size)
+component_interface &
+  choice_list::set_rect(lm::point2i position, lm::size2i size)
 {
     throw std::runtime_error{"Not implemented."};
 }
 
-widget_interface &
+component_interface &
   choice_list::move_resources(lmgl::resource_sink &resource_sink)
 {
     for (auto &layout : line_layouts)
@@ -83,53 +71,57 @@ widget_interface &
     return *this;
 }
 
-lmtk::component_interface &choice_list::update(
-  lmgl::irenderer *renderer,
-  lmgl::resource_sink &resource_sink,
-  lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+lmtk::component_state choice_list::handle(lmtk::event const &event)
 {
-    return *this;
-}
-
-bool choice_list::handle(lmtk::input_event const &input_event)
-{
-    return input_event >>
+    return event >>
            lm::variant_visitor{
-             [&](lmtk::key_down_event const &key_down_event) {
+             [&](lmtk::key_down_event const &key_down_event)
+             {
                  switch (key_down_event.key)
                  {
                  case lmpl::key_code::Enter:
                  {
                      bool is_someone_dirty{false};
                      selected.collect(
-                       [&is_someone_dirty](bool handler_ret) {
-                           is_someone_dirty = is_someone_dirty || handler_ret;
-                       },
+                       [&is_someone_dirty](bool handler_ret)
+                       { is_someone_dirty = is_someone_dirty || handler_ret; },
                        selection_index,
                        lines[selection_index]);
-                     return is_someone_dirty;
+                     return is_someone_dirty ? lmtk::component_state{0.f}
+                                             : lmtk::component_state{};
                  }
 
                  case lmpl::key_code::I:
                      if (selection_index == 0)
-                         return false;
+                         return lmtk::component_state{};
 
                      selection_index -= 1;
-                     return true;
+                     return lmtk::component_state{0.f};
 
                  case lmpl::key_code::K:
                      if (selection_index + 1 == line_layouts.size())
-                         return false;
+                         return lmtk::component_state{};
 
                      selection_index += 1;
-                     return true;
+                     return lmtk::component_state{0.f};
 
                  default:
-                     return false;
+                     return lmtk::component_state{};
                  }
              },
-             [](auto &) { return false; },
+             [&](lmtk::draw_event const &draw_event)
+             {
+                 selection_background.set_rect(
+                   line_layouts[selection_index].position,
+                   line_layouts[selection_index].get_size());
+                 selection_background.handle(draw_event);
+                 for (auto &layout : line_layouts)
+                 {
+                     layout.render(&draw_event.frame);
+                 }
+                 return lmtk::component_state{};
+             },
+             [](auto &) { return lmtk::component_state{}; },
            };
 }
 

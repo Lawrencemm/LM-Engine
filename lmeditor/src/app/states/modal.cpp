@@ -3,14 +3,14 @@
 
 namespace lmeditor
 {
-bool editor_app::modal_state::handle(
-  editor_app &app,
-  lmtk::input_event const &input_event)
+lmtk::component_state
+  editor_app::modal_state::handle(editor_app &app, lmtk::event const &event)
 {
     if (
-      input_event >>
+      event >>
       lm::variant_visitor{
-        [&](lmtk::key_down_event const &key_down_event) {
+        [&](lmtk::key_down_event const &key_down_event)
+        {
             switch (key_down_event.key)
             {
             case lmpl::key_code::Escape:
@@ -21,11 +21,16 @@ bool editor_app::modal_state::handle(
                 return false;
             }
         },
+        [&](lmtk::quit_event const &)
+        {
+            modal->move_resources(app.resources.resource_sink);
+            return false;
+        },
         [](auto) { return false; },
       })
-        return true;
+        return lmtk::component_state{0.f};
 
-    return modal->handle(input_event);
+    return modal->handle(event);
 }
 
 void editor_app::modal_state::move_resources(
@@ -33,16 +38,5 @@ void editor_app::modal_state::move_resources(
   lmgl::resource_sink &resource_sink)
 {
     modal->move_resources(resource_sink);
-}
-
-bool editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
-{
-    modal->update(
-      app.resources.renderer.get(),
-      app.resources.resource_sink,
-      app.resource_cache,
-      app.resources.input_state);
-
-    return modal->add_to_frame(frame);
 }
 } // namespace lmeditor

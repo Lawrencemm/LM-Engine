@@ -14,7 +14,7 @@ try
     lmng::reflect_types();
     reflect_types_cpp();
     sample_app app{};
-    app.main();
+    app.enter();
     return 0;
 }
 catch (std::exception &e)

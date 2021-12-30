@@ -12,7 +12,7 @@
 #include <lmlib/realtime_clock.h>
 #include <lmlib/variant_visitor.h>
 #include <lmng/meta/signal.h>
-#include <lmtk/app_flow_graph.h>
+#include <lmtk/app.h>
 #include <lmtk/component.h>
 #include <lmtk/rect_border.h>
 #include <lmtk/text_layout.h>
@@ -21,7 +21,7 @@
 
 namespace lmeditor
 {
-class editor_app : public lmng::any_component_listener
+class editor_app : public lmng::any_component_listener, public lmtk::app
 {
   public:
     explicit editor_app(const std::filesystem::path &project_dir);
@@ -38,6 +38,11 @@ class editor_app : public lmng::any_component_listener
       entt::registry &registry,
       entt::entity entity,
       entt::meta_type const &meta_type) override;
+
+  protected:
+    lmtk::component_state on_event(const lmtk::event &event) override;
+
+  public:
     void on_destroy_any(
       entt::registry &registry,
       entt::entity entity,
@@ -47,8 +52,7 @@ class editor_app : public lmng::any_component_listener
     struct gui_state
     {
         explicit gui_state(editor_app &app);
-        bool handle(editor_app &app, lmtk::input_event const &input_event);
-        bool add_to_frame(editor_app &app, lmgl::iframe *frame);
+        lmtk::component_state handle(editor_app &app, lmtk::event const &event);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);
@@ -57,23 +61,19 @@ class editor_app : public lmng::any_component_listener
     {
         lmtk::component modal;
 
-        bool handle(editor_app &app, lmtk::input_event const &input_event);
-        bool add_to_frame(editor_app &app, lmgl::iframe *frame);
+        lmtk::component_state handle(editor_app &app, lmtk::event const &event);
         void move_resources(
           lmgl::irenderer *renderer,
           lmgl::resource_sink &resource_sink);
 
-        std::function<void(lmtk::widget_interface *, lmgl::iframe *)> renderer;
+        std::function<void(lmtk::component_interface *, lmgl::iframe *)>
+          renderer;
     };
 
     using state_variant_type = std::variant<gui_state, modal_state>;
 
-    std::filesystem::path project_dir;
-
-    lmtk::app_resources resources;
-    lmtk::resource_cache resource_cache;
     lmng::asset_cache asset_cache;
-    lmtk::app_flow_graph flow_graph;
+    std::filesystem::path project_dir;
 
     struct save_map_msg
     {
@@ -103,7 +103,7 @@ class editor_app : public lmng::any_component_listener
 
     lmtk::component create_simulation_selector();
     lmtk::component create_map_saver();
-    lmtk::component create_command_help();
+    lmtk::component create_command_palette();
     lmtk::component create_pose_loader();
     lmtk::component create_pose_saver(std::string initial_project_path);
     lmtk::component create_player();
@@ -123,10 +123,6 @@ class editor_app : public lmng::any_component_listener
     void save_map_async();
 
   protected:
-    bool on_input_event(lmtk::input_event const &variant);
-    bool on_new_frame(lmgl::iframe *frame);
-    void on_quit();
-
     void refit_visible_components();
     void assign_view_key(lmpl::key_code code, component_interface *pview);
     void toggle_component(component_interface *pview);

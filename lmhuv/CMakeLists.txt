@@ -23,7 +23,6 @@ target_link_libraries(
 
   lmng
   lmgl
-  lmtk
   OpenMesh::OpenMesh
 )
 

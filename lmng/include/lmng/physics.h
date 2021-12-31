@@ -17,6 +17,17 @@ struct rigid_body
     float friction{0.f};
 };
 
+struct rigid_constraint
+{
+    entt::entity first{entt::null};
+    entt::entity second{entt::null};
+    float break_impulse{1.f};
+};
+
+struct broken_constraint
+{
+};
+
 struct character_controller
 {
     Eigen::Vector3f requested_velocity{0, 0, 0};

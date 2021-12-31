@@ -24,7 +24,7 @@ add_library(
   src/loaders/archetype.cpp
   src/asset_cache.cpp
   src/loaders/animation.cpp
-)
+  src/bullet_physics/constraints.cpp)
 
 target_include_directories(
   lmng

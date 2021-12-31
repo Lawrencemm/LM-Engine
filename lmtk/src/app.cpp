@@ -426,7 +426,11 @@ void app::enter()
     app_lifetime_graph.wait_for_all();
 }
 
-app::~app() {}
+app::~app()
+{
+    resources.resource_cache->move_resources(resources.resource_sink);
+    resources.resource_sink.free_orphans(resources.renderer.get());
+}
 
 lmtk::component_state app::on_event(const event &) { return {}; }
 

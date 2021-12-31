@@ -82,11 +82,15 @@ class bt_physics : public iphysics
     std::unique_ptr<btConstraintSolver> solver;
     std::unique_ptr<btDiscreteDynamicsWorld> physics_world;
     entt::scoped_connection character_controller_created_signal;
+
     void create_bt_character_controller(
       entt::registry &registry,
       entt::entity entity,
       const transform &transform,
       const box_collider &box_collider) const;
+    void update_constraints(entt::registry &registry, float dt);
+    void add_new_bt_constraint(entt::registry &registry, entt::entity);
+    void sync_constraints(entt::registry &registry);
 };
 
 template <typename view_type>

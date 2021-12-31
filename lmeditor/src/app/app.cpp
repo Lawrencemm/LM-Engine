@@ -168,8 +168,6 @@ lmtk::component_state editor_app::on_event(const lmtk::event &event)
             {
                 component->move_resources(resources.resource_sink);
             }
-
-            resources.resource_cache->move_resources(resources.resource_sink);
         },
         [](auto &) {},
       };

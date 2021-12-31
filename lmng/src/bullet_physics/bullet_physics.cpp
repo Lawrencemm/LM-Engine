@@ -90,11 +90,15 @@ void bt_physics::step(entt::registry &entities, float dt)
 {
     set_character_velocity_intervals(entities, dt);
 
+    update_constraints(entities, dt);
+
     integrate(dt);
 
     sync_rigid_body_transforms(entities);
 
     sync_character_transforms(entities);
+
+    sync_constraints(entities);
 }
 
 void bt_physics::integrate(float dt)

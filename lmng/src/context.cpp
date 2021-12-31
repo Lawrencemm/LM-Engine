@@ -43,5 +43,10 @@ void reflect_types()
       .REFLECT_MEMBER(archetype, asset_path, "Asset path");
 
     REFLECT_TYPE(name, "Name");
+
+    REFLECT_TYPE(rigid_constraint, "Rigid Constraint")
+      .REFLECT_MEMBER(rigid_constraint, first, "First")
+      .REFLECT_MEMBER(rigid_constraint, second, "Second")
+      .REFLECT_MEMBER(rigid_constraint, break_impulse, "Break impulse");
 }
 } // namespace lmng

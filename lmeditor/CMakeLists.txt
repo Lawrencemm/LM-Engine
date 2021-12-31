@@ -138,6 +138,7 @@ add_executable(
   test/test_trimesh.cpp
   test/map_editor/test.cpp
   test/map_editor/test_move_selection.cpp
+  test/map_editor/test_copy_entity.cpp
   test/test_entity_list.cpp
 )
 

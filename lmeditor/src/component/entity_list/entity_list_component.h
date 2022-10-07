@@ -32,12 +32,13 @@ class entity_list_component : public component_interface
 
     lmtk::text_layout &selected_line();
     void update_selection_background();
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
     component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+      lmtk::input_state const &input_state,
+      std::any model) override;
     std::vector<command_description> get_command_descriptions() override;
 
     entity_list_controller controller;

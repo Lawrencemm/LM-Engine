@@ -28,13 +28,14 @@ class choice_list : public component_interface
     widget_interface &
       move_resources(lmgl::resource_sink &resource_sink) override;
 
-    bool handle(lmtk::input_event const &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
 
-    lmtk::component_interface &update(
+    component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+      lmtk::input_state const &input_state,
+      std::any model) override;
 
     entt::sink<bool(unsigned, std::string const &)> on_selected();
 

@@ -14,7 +14,6 @@ namespace lmeditor
 {
 inspector_controller::inspector_controller(entt::registry &registry)
     : state{empty_state{}},
-      registry{&registry},
       entity{entt::null},
       selection_component_created{
         registry.on_construct<selected>()
@@ -66,10 +65,12 @@ void inspector_controller::clear()
     entity = entt::null;
 }
 
-bool inspector_controller::handle(lmtk::input_event const &event)
+bool inspector_controller::handle(
+  lmtk::input_event const &event,
+  entt::registry &registry)
 {
     return state >> lm::variant_visitor{[&](auto &state_alternative) {
-               return state_alternative.handle(*this, event);
+               return state_alternative.handle(*this, event, registry);
            }};
 }
 
@@ -87,14 +88,16 @@ bool inspector_controller::move_selection(int movement)
 
 bool inspector_controller::empty_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::input_event const &input_event,
+  entt::registry &registry)
 {
     return false;
 }
 
 bool inspector_controller::select_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::input_event const &input_event,
+  entt::registry &registry)
 {
     return input_event >>
            lm::variant_visitor{
@@ -118,7 +121,7 @@ bool inspector_controller::select_state::handle(
                          inspector.state.emplace<edit_name_state>(
                            edit_name_state{
                              lmtk::text_editor{lmng::get_name(
-                               *inspector.registry, inspector.entity)},
+                               registry, inspector.entity)},
                            });
                      }
                      else
@@ -130,11 +133,11 @@ bool inspector_controller::select_state::handle(
                                edit_data_state{
                                  lmtk::text_editor{lmng::get_data(
                                    lmng::get_component_any(
-                                     *inspector.registry,
+                                     registry,
                                      inspector.entity,
                                      selected_entry.component_meta_type),
                                    selected_entry.meta_data,
-                                   *inspector.registry)},
+                                   registry)},
                                });
                              return true;
                          }
@@ -151,10 +154,10 @@ bool inspector_controller::select_state::handle(
 
                      lmng::remove_from_entity(
                        selected_entry.component_meta_type,
-                       *inspector.registry,
+                       registry,
                        inspector.entity);
                      inspector.inspect_entity(
-                       *inspector.registry, inspector.entity);
+                       registry, inspector.entity);
                      return true;
                  }
 
@@ -168,7 +171,8 @@ bool inspector_controller::select_state::handle(
 
 bool inspector_controller::edit_name_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::input_event const &input_event,
+  entt::registry &registry)
 {
     return input_event >>
            lm::variant_visitor{
@@ -180,7 +184,7 @@ bool inspector_controller::edit_name_state::handle(
                  switch (key_down_msg.key)
                  {
                  case lmpl::key_code::Enter:
-                     inspector.registry->replace<lmng::name>(
+                     registry.replace<lmng::name>(
                        inspector.entity, lmng::name{text_editor.text});
                      inspector.state = select_state{};
                      return true;
@@ -195,7 +199,8 @@ bool inspector_controller::edit_name_state::handle(
 
 bool inspector_controller::edit_data_state::handle(
   lmeditor::inspector_controller &inspector,
-  lmtk::input_event const &input_event)
+  lmtk::input_event const &input_event,
+  entt::registry &registry)
 {
     return input_event >>
            lm::variant_visitor{
@@ -210,16 +215,16 @@ bool inspector_controller::edit_data_state::handle(
                  {
                      auto &entry = inspector.selected_entry();
                      auto component_data = lmng::get_component_any(
-                       *inspector.registry,
+                       registry,
                        inspector.entity,
                        entry.component_meta_type);
                      lmng::set_data(
                        component_data,
                        entry.meta_data,
                        text_editor.text,
-                       *inspector.registry);
+                       registry);
                      lmng::replace_on_entity(
-                       component_data, *inspector.registry, inspector.entity);
+                       component_data, registry, inspector.entity);
                      inspector.state = select_state{};
                      return true;
                  }
@@ -230,12 +235,6 @@ bool inspector_controller::edit_data_state::handle(
              },
              [](auto) { return false; },
            };
-}
-
-std::vector<command_description>
-  inspector_controller::get_command_descriptions()
-{
-    return std::vector<command_description>();
 }
 
 void inspector_controller::on_select(

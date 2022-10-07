@@ -1,15 +1,16 @@
 #pragma once
 
-#include <lmtk/component.h>
 #include <lmtk/font.h>
 #include <lmtk/resource_cache.h>
+#include "component.h"
 
 namespace lmeditor
 {
-class saver_interface : public lmtk::component_interface
+class saver_interface : public component_interface
 {
   public:
     virtual entt::sink<bool(std::string const &)> on_save() = 0;
+    std::vector<command_description> get_command_descriptions() override;
 };
 
 struct saver_init

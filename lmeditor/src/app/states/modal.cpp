@@ -25,7 +25,7 @@ bool editor_app::modal_state::handle(
       })
         return true;
 
-    return modal->handle(input_event);
+    return modal->handle(input_event, nullptr);
 }
 
 void editor_app::modal_state::move_resources(
@@ -41,7 +41,8 @@ bool editor_app::modal_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
       app.resources.renderer.get(),
       app.resources.resource_sink,
       app.resource_cache,
-      app.resources.input_state);
+      app.resources.input_state,
+      nullptr);
 
     return modal->add_to_frame(frame);
 }

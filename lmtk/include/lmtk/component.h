@@ -5,18 +5,20 @@
 #include "widget.h"
 #include <entt/signal/sigh.hpp>
 #include <lmlib/reference.h>
+#include <any>
 
 namespace lmtk
 {
 class component_interface : public widget_interface
 {
   public:
-    virtual bool handle(lmtk::input_event const &input_event) = 0;
-    virtual lmtk::component_interface &update(
+    virtual bool handle(const lmtk::input_event &input_event, std::any model) = 0;
+    virtual component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) = 0;
+      lmtk::input_state const &input_state,
+      std::any model) = 0;
 };
 
 using component = lm::reference<component_interface>;

@@ -89,13 +89,18 @@ class editor_app : public lmng::any_component_listener
 
     entt::registry map;
 
-    std::unique_ptr<lmtk::rect_border> active_component_border;
-    std::vector<lmtk::component> components;
-    std::vector<component_interface *> visible_components;
-    std::vector<lmtk::component_interface *> component_order;
-    lmtk::component_interface *main_component;
+    std::size_t next_model_id{0}, next_component_id{0};
+    std::map<std::size_t, void*> models;
+    std::map<std::size_t, lmtk::component> components;
 
-    std::map<lmpl::key_code, component_interface *> key_code_view_map;
+    std::map<std::size_t, std::size_t> component_model_map;
+
+    std::unique_ptr<lmtk::rect_border> active_component_border;
+    std::vector<size_t> visible_components;
+    std::vector<size_t> component_order;
+    size_t main_component_id;
+
+    std::map<lmpl::key_code, size_t> key_code_view_map;
 
     std::string map_file_project_relative_path{};
 
@@ -107,6 +112,11 @@ class editor_app : public lmng::any_component_listener
     lmtk::component create_pose_loader();
     lmtk::component create_pose_saver(std::string initial_project_path);
     lmtk::component create_player();
+
+    lmtk::component &get_current_component()
+    {
+        return components[visible_components.front()];
+    }
 
     bool on_map_selected(unsigned _unused_, const std::string &project_path);
     bool on_simulation_selected(unsigned selection_index);
@@ -128,8 +138,8 @@ class editor_app : public lmng::any_component_listener
     void on_quit();
 
     void refit_visible_components();
-    void assign_view_key(lmpl::key_code code, component_interface *pview);
-    void toggle_component(component_interface *pview);
+    void assign_view_key(lmpl::key_code code, size_t component_id);
+    void toggle_component(size_t component_id);
     void update_active_component_border(lmtk::component_interface *tool_panel);
 
     void move_current_state_resources();
@@ -148,5 +158,6 @@ class editor_app : public lmng::any_component_listener
 
         state.emplace<new_state_type>(std::move(new_state));
     }
+    std::any get_component_model(size_t i);
 };
 } // namespace lmeditor

@@ -12,13 +12,14 @@ class inspector_component : public inspector_interface
   public:
     explicit inspector_component(inspector_init const &init);
 
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
 
     component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+      lmtk::input_state const &input_state,
+      std::any model) override;
 
     bool add_to_frame(lmgl::iframe *frame) override;
 
@@ -36,7 +37,8 @@ class inspector_component : public inspector_interface
 
     void create_text(
       lmgl::irenderer *renderer,
-      lmtk::resource_cache const &resource_cache);
+      lmtk::resource_cache const &resource_cache,
+      const entt::registry &registry);
     void
       clear_text(lmgl::irenderer *renderer, lmgl::resource_sink &resource_sink);
 

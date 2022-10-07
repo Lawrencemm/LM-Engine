@@ -1,5 +1,6 @@
 #include <lmeditor/component/player.h>
 #include <lmng/meta/clone.h>
+#include <any>
 
 namespace lmeditor
 {
@@ -27,17 +28,18 @@ std::vector<command_description> player::get_command_descriptions()
     return std::vector<command_description>();
 }
 
-bool player::handle(const lmtk::input_event &input_event)
+bool player::handle(const lmtk::input_event &input_event, std::any model)
 {
     simulation->handle_input_event(input_event, registry);
     return false;
 }
 
-lmtk::component_interface &player::update(
+component_interface &player::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     simulation->update(registry, clock.tick(), input_state);
     visual_view->update(registry, renderer, resource_sink);

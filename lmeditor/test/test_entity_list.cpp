@@ -29,19 +29,21 @@ TEST_CASE("Entity list controller")
     REQUIRE(selected_view.empty());
 
     SPDLOG_INFO("Test: Selecting first entity in list.");
-    controller.handle(lmtk::key_down_event{input_state, lmpl::key_code::Enter});
+    controller.handle(
+      lmtk::key_down_event{input_state, lmpl::key_code::Enter}, nullptr);
 
     REQUIRE(!selected_view.empty());
 
     for (auto i : lm::range(2))
     {
         SPDLOG_INFO("Test: Moving selection down one.");
-        controller.handle(lmtk::key_down_event{input_state, lmpl::key_code::K});
+        controller.handle(
+          lmtk::key_down_event{input_state, lmpl::key_code::K}, nullptr);
 
         SPDLOG_INFO("Test: Selecting entity {}", i + 1);
 
         controller.handle(
-          lmtk::key_down_event{input_state, lmpl::key_code::Enter});
+          lmtk::key_down_event{input_state, lmpl::key_code::Enter}, nullptr);
 
         REQUIRE(!selected_view.empty());
     }
@@ -53,9 +55,11 @@ TEST_CASE("Entity list controller")
     SPDLOG_INFO("Test: Move selection down already at bottom");
     auto old_selection = selected_view[0];
 
-    controller.handle(lmtk::key_down_event{input_state, lmpl::key_code::K});
+    controller.handle(
+      lmtk::key_down_event{input_state, lmpl::key_code::K}, nullptr);
 
-    controller.handle(lmtk::key_down_event{input_state, lmpl::key_code::Enter});
+    controller.handle(
+      lmtk::key_down_event{input_state, lmpl::key_code::Enter}, nullptr);
 
     REQUIRE(old_selection == selected_view[0]);
 
@@ -67,7 +71,8 @@ TEST_CASE("Entity list controller")
       registry.view<lmng::name>().size() - 1);
 
     SPDLOG_INFO("Test: selecting highlighted entity");
-    controller.handle(lmtk::key_down_event{input_state, lmpl::key_code::Enter});
+    controller.handle(
+      lmtk::key_down_event{input_state, lmpl::key_code::Enter}, nullptr);
 
     REQUIRE(!selected_view.empty());
 

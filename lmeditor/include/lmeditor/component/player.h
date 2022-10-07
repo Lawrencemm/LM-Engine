@@ -5,6 +5,7 @@
 #include <lmeditor/simulation_plugin.h>
 #include <lmhuv.h>
 #include <lmlib/realtime_clock.h>
+#include <any>
 
 namespace lmeditor
 {
@@ -15,13 +16,14 @@ class player : public component_interface
     explicit player(player_init const &init);
 
     std::vector<command_description> get_command_descriptions() override;
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
 
-    lmtk::component_interface &update(
+    component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+      lmtk::input_state const &input_state,
+      std::any model) override;
 
     bool add_to_frame(lmgl::iframe *frame) override;
     lm::size2i get_size() override;

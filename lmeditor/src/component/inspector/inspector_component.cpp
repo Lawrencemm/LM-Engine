@@ -39,13 +39,14 @@ void inspector_component::display(
 {
     clear(renderer, resource_sink);
 
-    create_text(renderer, resource_cache);
+    create_text(renderer, resource_cache, registry);
     update_selection_background();
 }
 
 void inspector_component::create_text(
   lmgl::irenderer *renderer,
-  lmtk::resource_cache const &resource_cache)
+  lmtk::resource_cache const &resource_cache,
+  const entt::registry &registry)
 {
     int name_xpos = position.x + 5;
 
@@ -54,7 +55,7 @@ void inspector_component::create_text(
 
     auto name_text =
       maybe_edit_name ? maybe_edit_name->text_editor.text
-                      : lmng::get_name(*controller.registry, controller.entity);
+                      : lmng::get_name(registry, controller.entity);
 
     lines.emplace_back(lmtk::text_layout{lmtk::text_layout_init{
       .renderer = *renderer,
@@ -81,8 +82,8 @@ void inspector_component::create_text(
               maybe_edit_data && i == controller.selected_entry_index
                 ? maybe_edit_data->text_editor.text
                 : lmng::
-                    any_component{*controller.registry, controller.entity, meta_type}
-                      .get(meta_data, *controller.registry);
+                    any_component{registry, controller.entity, meta_type}
+                      .get(meta_data, registry);
 
             lines.emplace_back(lmtk::text_layout{lmtk::text_layout_init{
               .renderer = *renderer,
@@ -170,13 +171,14 @@ component_interface &inspector_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     clear(renderer, resource_sink);
 
     if (controller.entity != entt::null)
     {
-        create_text(renderer, resource_cache);
+        create_text(renderer, resource_cache, *std::any_cast<entt::registry*>(model));
         update_selection_background();
     }
 
@@ -193,9 +195,12 @@ bool inspector_component::add_to_frame(lmgl::iframe *frame)
     return false;
 }
 
-bool inspector_component::handle(const lmtk::input_event &input_event)
+bool inspector_component::handle(
+  const lmtk::input_event &input_event,
+  std::any model)
 {
-    return controller.handle(input_event);
+    auto &registry = *std::any_cast<entt::registry*>(model);
+    return controller.handle(input_event, registry);
 }
 
 void inspector_component::display(

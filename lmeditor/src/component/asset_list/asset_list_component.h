@@ -13,13 +13,14 @@ class asset_list_component : public asset_list_interface
 
     std::vector<command_description> get_command_descriptions() override;
 
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
 
-    lmtk::component_interface &update(
+    component_interface &update(
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
-      const lmtk::resource_cache &resource_cache,
-      const lmtk::input_state &input_state) override;
+      lmtk::resource_cache const &resource_cache,
+      lmtk::input_state const &input_state,
+      std::any model) override;
 
     bool add_to_frame(lmgl::iframe *frame) override;
 

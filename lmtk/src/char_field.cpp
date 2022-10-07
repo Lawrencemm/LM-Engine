@@ -16,9 +16,9 @@ char_field::char_field(char_field_init const &init)
 {
 }
 
-bool char_field::handle(input_event const &event)
+bool char_field::handle(const lmtk::input_event &input_event, std::any model)
 {
-    if (editor.handle(event))
+    if (editor.handle(input_event))
     {
         dirty = true;
         return true;
@@ -48,11 +48,12 @@ widget_interface &char_field::move_resources(lmgl::resource_sink &resource_sink)
     return *this;
 }
 
-lmtk::component_interface &char_field::update(
+component_interface &char_field::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     if (dirty)
     {

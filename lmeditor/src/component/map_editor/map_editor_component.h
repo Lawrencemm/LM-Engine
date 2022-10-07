@@ -31,7 +31,8 @@ class map_editor_component : public component_interface
       lmgl::irenderer *renderer,
       lmgl::resource_sink &resource_sink,
       lmtk::resource_cache const &resource_cache,
-      lmtk::input_state const &input_state) override;
+      lmtk::input_state const &input_state,
+      std::any model) override;
 
     bool add_to_frame(lmgl::iframe *frame) override;
 
@@ -44,7 +45,7 @@ class map_editor_component : public component_interface
     std::vector<command_description> get_command_descriptions() override;
 
   private:
-    bool handle(const lmtk::input_event &input_event) override;
+    bool handle(const lmtk::input_event &input_event, std::any model) override;
 
   private:
     void set_state_text(

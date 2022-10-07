@@ -57,7 +57,8 @@ lmtk::component_interface &command_help::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     return *this;
 }
@@ -114,9 +115,9 @@ command_help &command_help::move_resources(lmgl::resource_sink &resource_sink)
     return *this;
 }
 
-bool command_help::handle(lmtk::input_event const &input_event)
+bool command_help::handle(const lmtk::input_event &input_event, std::any model)
 {
-    return filter.handle(input_event);
+    return filter.handle(input_event, nullptr);
 }
 
 lm::point2i command_help::get_table_origin()

@@ -4,6 +4,7 @@
 #include <lmeditor/model/command.h>
 #include <lmng/name.h>
 #include <lmtk/input_event.h>
+#include <any>
 
 namespace lmeditor
 {
@@ -18,7 +19,7 @@ class entity_list_controller
 
     entt::entity get_selection(entt::registry const &registry);
 
-    bool handle(lmtk::input_event const &input_event);
+    bool handle(lmtk::input_event const &input_event, entt::registry &registry);
 
     entity_list_controller &display(entt::registry const &registry);
 
@@ -32,14 +33,15 @@ class entity_list_controller
 
     size_t size();
 
-    entt::registry *registry;
     entt::scoped_connection name_constructed_connection,
       name_destroyed_connection, name_replaced_connection;
     int selected_entity_index, named_entities_count;
     std::vector<entt::entity> entities;
     bool dirty{false};
 
-    bool handle_key_down(lmtk::key_down_event const &event);
+    bool handle_key_down(
+      lmtk::key_down_event const &event,
+      entt::registry &registry);
     bool move_selection(int movement);
 };
 } // namespace lmeditor

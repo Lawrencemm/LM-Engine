@@ -70,7 +70,9 @@ std::vector<command_description>
     return std::vector<command_description>();
 }
 
-bool asset_list_component::handle(const lmtk::input_event &input_event)
+bool asset_list_component::handle(
+  const lmtk::input_event &input_event,
+  std::any model)
 {
     return input_event >> lm::variant_visitor{
                             [&](lmtk::key_down_event const &key_down_message) {
@@ -80,11 +82,12 @@ bool asset_list_component::handle(const lmtk::input_event &input_event)
                           };
 }
 
-lmtk::component_interface &asset_list_component::update(
+component_interface &asset_list_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
-  const lmtk::resource_cache &resource_cache,
-  const lmtk::input_state &input_state)
+  lmtk::resource_cache const &resource_cache,
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     for (auto &layout : line_layouts)
         layout.move_resources(resource_sink);

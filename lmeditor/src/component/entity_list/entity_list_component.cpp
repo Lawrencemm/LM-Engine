@@ -112,20 +112,24 @@ entity_list_component &
     return *this;
 }
 
-bool entity_list_component::handle(const lmtk::input_event &input_event)
+bool entity_list_component::handle(
+  const lmtk::input_event &input_event,
+  std::any model)
 {
-    return controller.handle(input_event);
+    return controller.handle(input_event, *std::any_cast<entt::registry *>(model));
 }
 
 component_interface &entity_list_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
+    auto &registry = *std::any_cast<entt::registry*>(model);
     if (controller.dirty)
     {
-        reset(*renderer, resource_sink, resource_cache, *controller.registry);
+        reset(*renderer, resource_sink, resource_cache, registry);
         controller.dirty = false;
     }
     return *this;

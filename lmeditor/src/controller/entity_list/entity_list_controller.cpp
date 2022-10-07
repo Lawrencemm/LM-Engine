@@ -14,8 +14,7 @@
 namespace lmeditor
 {
 entity_list_controller::entity_list_controller(entt::registry &registry)
-    : registry{&registry},
-      name_constructed_connection{
+    : name_constructed_connection{
         registry.on_construct<lmng::name>()
           .connect<&entity_list_controller::on_name_contructed>(this)},
       name_destroyed_connection{
@@ -29,17 +28,21 @@ entity_list_controller::entity_list_controller(entt::registry &registry)
 {
 }
 
-bool entity_list_controller::handle(lmtk::input_event const &input_event)
+bool entity_list_controller::handle(
+  lmtk::input_event const &input_event,
+  entt::registry &registry)
 {
     return input_event >> lm::variant_visitor{
                             [&](lmtk::key_down_event const &key_down_event) {
-                                return handle_key_down(key_down_event);
+                                return handle_key_down(key_down_event, registry);
                             },
                             [](auto) { return false; },
                           };
 }
 
-bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
+bool entity_list_controller::handle_key_down(
+  lmtk::key_down_event const &event,
+  entt::registry &registry)
 {
     switch (event.key)
     {
@@ -53,19 +56,19 @@ bool entity_list_controller::handle_key_down(lmtk::key_down_event const &event)
     {
         unsigned iterated{0};
         for (auto parent :
-             registry->view<lmng::name>(entt::exclude<lmng::parent>))
+             registry.view<lmng::name>(entt::exclude<lmng::parent>))
         {
             if (iterated == selected_entity_index)
             {
-                lmeditor::select(*registry, parent);
+                lmeditor::select(registry, parent);
                 return true;
             }
             iterated++;
-            for (auto child : lmng::recursive_child_range{*registry, parent})
+            for (auto child : lmng::recursive_child_range{registry, parent})
             {
                 if (iterated == selected_entity_index)
                 {
-                    lmeditor::select(*registry, child);
+                    lmeditor::select(registry, child);
                     return true;
                 }
                 iterated++;

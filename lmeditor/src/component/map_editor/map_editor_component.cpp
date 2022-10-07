@@ -88,7 +88,8 @@ component_interface &map_editor_component::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
     set_state_text(
       renderer, controller.state_text, resource_sink, resource_cache);
@@ -137,7 +138,9 @@ lm::size2i map_editor_component::get_size() { return size; }
 
 lm::point2i map_editor_component::get_position() { return position; }
 
-bool map_editor_component::handle(const lmtk::input_event &input_event)
+bool map_editor_component::handle(
+  const lmtk::input_event &input_event,
+  std::any model)
 {
     return controller.handle(input_event);
 }

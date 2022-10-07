@@ -14,15 +14,13 @@ class inspector_controller
   public:
     explicit inspector_controller(entt::registry &registry);
 
-    bool handle(lmtk::input_event const &event);
+    bool handle(lmtk::input_event const &event, entt::registry &registry);
 
     void update(entt::registry &registry, lmgl::resource_sink &resource_sink);
 
     void inspect_entity(entt::registry const &registry, entt::entity entity);
 
     void clear();
-
-    std::vector<command_description> get_command_descriptions();
 
     bool move_selection(int movement);
     void create_entries(entt::registry const &registry);
@@ -34,27 +32,31 @@ class inspector_controller
     {
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::input_event const &input_event,
+          entt::registry &registry);
     };
     struct select_state
     {
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::input_event const &input_event,
+          entt::registry &registry);
     };
     struct edit_name_state
     {
         lmtk::text_editor text_editor;
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::input_event const &input_event,
+          entt::registry &registry);
     };
     struct edit_data_state
     {
         lmtk::text_editor text_editor;
         bool handle(
           lmeditor::inspector_controller &inspector,
-          lmtk::input_event const &input_event);
+          lmtk::input_event const &input_event,
+          entt::registry &registry);
     };
 
     using state_variant_type =
@@ -62,7 +64,6 @@ class inspector_controller
 
     state_variant_type state;
 
-    entt::registry *registry;
     entt::entity entity;
 
     entt::scoped_connection selection_component_created,

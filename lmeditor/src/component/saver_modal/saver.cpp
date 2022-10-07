@@ -48,7 +48,7 @@ saver &saver::set_rect(lm::point2i position, lm::size2i size)
     return *this;
 }
 
-bool saver::handle(const lmtk::input_event &input_event)
+bool saver::handle(const lmtk::input_event &input_event, std::any model)
 {
     bool saved{false};
 
@@ -69,18 +69,23 @@ bool saver::handle(const lmtk::input_event &input_event)
     if (saved)
         return someone_is_dirty;
 
-    return field.handle(input_event);
+    return field.handle(input_event, nullptr);
 }
 
-lmtk::component_interface &saver::update(
+component_interface &saver::update(
   lmgl::irenderer *renderer,
   lmgl::resource_sink &resource_sink,
   lmtk::resource_cache const &resource_cache,
-  lmtk::input_state const &input_state)
+  lmtk::input_state const &input_state,
+  std::any model)
 {
-    field.update(renderer, resource_sink, resource_cache, input_state);
+    field.update(renderer, resource_sink, resource_cache, input_state, nullptr);
     return *this;
 }
 
 entt::sink<bool(const std::string &)> saver::on_save() { return save_signal; }
+std::vector<command_description> saver_interface::get_command_descriptions()
+{
+    return std::vector<command_description>();
+}
 } // namespace lmeditor

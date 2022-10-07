@@ -18,7 +18,7 @@ bool editor_app::gui_state::handle(
             {
                 if (
                   key_down_event.input_state.key_state.shift() &&
-                  app.visible_components.front() != app.main_component)
+                  app.visible_components.front() != app.main_component_id)
                 {
                     unsigned width_change{0};
                     switch (key_down_event.key)
@@ -36,12 +36,12 @@ bool editor_app::gui_state::handle(
                     }
                     if (width_change)
                     {
-                        auto new_size =
-                          app.visible_components.front()->get_size();
+                        auto &current_component =
+                          app.components[app.visible_components.front()];
+                        auto new_size = current_component->get_size();
                         new_size.width += width_change;
-                        app.visible_components.front()->set_rect(
-                          app.visible_components.front()->get_position(),
-                          new_size);
+                        current_component->set_rect(
+                          current_component->get_position(), new_size);
                         app.refit_visible_components();
                         return true;
                     }
@@ -113,20 +113,23 @@ bool editor_app::gui_state::handle(
       })
         return true;
 
-    return app.visible_components.front()->handle(input_event);
+    return app.get_current_component()->handle(input_event, nullptr);
 }
 
 editor_app::gui_state::gui_state(editor_app &app) {}
 
 bool editor_app::gui_state::add_to_frame(editor_app &app, lmgl::iframe *frame)
 {
-    for (auto &ppanel : app.visible_components)
+    for (auto panel_id : app.visible_components)
     {
+        auto &ppanel = app.components[panel_id];
+        std::any model = app.get_component_model(panel_id);
         ppanel->update(
           app.resources.renderer.get(),
           app.resources.resource_sink,
           app.resource_cache,
-          app.resources.input_state);
+          app.resources.input_state,
+          model);
         ppanel->add_to_frame(frame);
     }
 

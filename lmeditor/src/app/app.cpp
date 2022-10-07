@@ -142,12 +142,15 @@ editor_app::editor_app(const std::filesystem::path &project_dir)
       component_order.begin(),
       {asset_list.get(), inspector.get(), map_editor.get(), entity_list.get()});
 
-    main_component = map_editor.get();
+    main_component_id = map_editor.get();
 
-    components.emplace_back(std::move(map_editor));
-    components.emplace_back(std::move(asset_list));
-    components.emplace_back(std::move(inspector));
-    components.emplace_back(std::move(entity_list));
+    component_model_map.emplace(next_component_id, next_model_id);
+    models.emplace(next_model_id++, &map);
+
+    components.emplace(next_component_id++, std::move(map_editor));
+    components.emplace(next_component_id++, std::move(asset_list));
+    components.emplace(next_component_id++, std::move(inspector));
+    components.emplace(next_component_id++, std::move(entity_list));
 
     refit_visible_components();
 
@@ -162,10 +165,9 @@ catch (std::exception const &e)
 }
 
 void editor_app::assign_view_key(
-  lmpl::key_code code,
-  component_interface *pview)
+  lmpl::key_code code, size_t component_id)
 {
-    auto [_unused_, was_inserted] = key_code_view_map.try_emplace(code, pview);
+    auto [_unused_, was_inserted] = key_code_view_map.try_emplace(code, component_id);
     if (!was_inserted)
         throw std::runtime_error{fmt::format(
           "Key {} already bound to another view toggle",
@@ -203,7 +205,7 @@ void editor_app::on_quit()
                },
              };
 
-    for (auto &component : components)
+    for (auto &[id, component] : components)
     {
         component->move_resources(resources.resource_sink);
     }
@@ -381,5 +383,14 @@ catch (std::exception const &e)
     std::cerr << e.what() << std::endl;
     throw std::runtime_error{
       fmt::format("App main function failed with exception {}", e.what())};
+}
+
+std::any editor_app::get_component_model(size_t i)
+{
+    auto found_it = component_model_map.find(i);
+    if (found_it == component_model_map.end())
+        return std::any{};
+
+    return models[found_it->second];
 }
 } // namespace lmeditor

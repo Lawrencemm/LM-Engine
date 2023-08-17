@@ -8,6 +8,9 @@ set(
   CACHE INTERNAL "lmlib top-level directory")
 
 include(cmake/cpp_standard.cmake)
+include(embed-resource.cmake)
+
+add_executable(embed-resource src/embedresource-cpp-11.cpp include/lmlib/Resource.h)
 
 if (MSVC)
   set(

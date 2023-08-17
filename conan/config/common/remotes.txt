@@ -1,2 +1,0 @@
-conan-center https://center.conan.io True
-lm-engine-gitlab https://gitlab.com/api/v4/projects/26470715/packages/conan True

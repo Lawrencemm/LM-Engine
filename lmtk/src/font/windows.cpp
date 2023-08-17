@@ -7,7 +7,7 @@
 #include <dwrite.h>
 #include <fmt/format.h>
 #include <lmpl/windows_error.h>
-#include <scope_guard.hpp>
+#include <lmlib/scope_guard.hpp>
 
 class font_loader_internal : public lmtk::ifont_loader
 {

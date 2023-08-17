@@ -11,7 +11,7 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v1
@@ -23,21 +23,18 @@ jobs:
           libxcb-randr0-dev
           libxcb-util0-dev
           pkg-config
-          libgtkmm-3.0-dev
+          libgtkmm-3.0-dev libfontenc-dev libxaw7-dev libxmu-dev libxmuu-dev libxpm-dev libxres-dev libxss-dev libxv-dev libxvmc-dev libxxf86vm-dev libxcb-render-util0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev libxcb-cursor-dev
       - name: Get Conan
-        run: pip install conan &&
-          conan profile new default --detect &&
-          conan profile update settings.compiler.libcxx=libstdc++11 default &&
-          conan profile update settings.compiler.version=8 default
-      - name: Add remotes to Conan
-        run: conan config install conan/config/common
+        run: pip install conan
+      - name: Setup Conan
+        run: conan profile detect
       - name: Conan install
         env:
           CC: gcc-10
           CXX: g++-10
         run: mkdir build &&
           conan install .
-          -if build
+          -of build
           --build missing
           -s build_type=${{ matrix.configuration }}
       - name: Configure
@@ -67,14 +64,13 @@ jobs:
       - uses: actions/setup-python@v1
       - uses: ilammy/msvc-dev-cmd@v1.5.0
       - name: Get Conan
-        run: pip install conan && conan profile new default --detect
-      - name: Add remotes to Conan
-        run: conan config install conan/config/common
+        run: pip install conan
+      - name: Setup Conan
+        run: conan profile detect
       - name: Conan install
         run: mkdir build &&
-          conan config set general.parallel_download=8 &&
           conan install .
-          -if build
+          -of build
           --build missing
           -s build_type=${{ matrix.configuration }}
       - name: Configure

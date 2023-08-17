@@ -2,7 +2,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#include <Resource.h>
+#include <lmlib/Resource.h>
 
 #include <fmt/ostream.h>
 

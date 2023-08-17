@@ -1,4 +1,4 @@
-#include <Resource.h>
+#include <lmlib/Resource.h>
 
 #include <lmgl/material.h>
 #include <lmtk/rect_border.h>

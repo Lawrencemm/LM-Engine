@@ -48,10 +48,8 @@ target_link_libraries(
   lmgl
   lmpl
   lmlib
-  embed-resource::embed-resource
   Freetype::Freetype
   ${PLATFORM_LIBRARIES}
-  scope_guard::scope_guard
   Boost::Boost
   EnTT::EnTT
   SDL2::SDL2

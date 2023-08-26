@@ -1,7 +1,7 @@
 #include "shapes.h"
 #include "../trimesh/util.h"
 
-#include <Resource.h>
+#include <lmlib/Resource.h>
 
 #include <lmgl/lmgl.h>
 #include <lmhuv/box.h>

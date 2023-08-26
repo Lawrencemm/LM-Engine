@@ -8,31 +8,27 @@ yaml-cpp/0.6.3
 vulkan-loader/1.2.198.0
 glslang/11.7.0
 eigen/3.3.9
-tbb/2020.1
+onetbb/2021.9.0
 range-v3/0.11.0
 spdlog/1.8.5
-scope_guard/0.2.3@lawrencem/stable
 fmt/7.1.3
 boost/1.73.0
-embed-resource/0.2@lawrencem/stable
 openmesh/8.1
 clara/1.1.5
-freetype/2.10.2
+freetype/2.13.0
 sdl/2.0.18
 rapidfuzz/cci.20210513
+zlib/1.2.13
 
-[build_requires]
-catch2/2.13.0
+[test_requires]
+catch2/3.4.0
 
 [options]
-yaml-cpp:shared=True
-OpenMesh:shared=True
-sdl:shared=True
+yaml-cpp/*:shared=True
+OpenMesh/*:shared=True
+sdl/*:shared=True
 
 [imports]
-bin, embed-resource -> ./bin
-bin, embed-resource.exe -> ./bin
 bin, glslangValidator* -> ./bin
 bin, *.dll -> ./bin
 lib, *.so* -> ./bin
-cmake, embed-resource.cmake -> ./scripts

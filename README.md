@@ -59,7 +59,7 @@ Example 3D game made with the engine.
 
 ## Requirements
 * Python 3
-* The [Conan](https://conan.io/) package manager
+* The [Conan](https://conan.io/) package manager (version 1- `pip install conan<2.0`)
 * [CMake](https://cmake.org/)
 * Vulkan graphics drivers
 * Linux
@@ -71,6 +71,8 @@ Example 3D game made with the engine.
         * pkg-config
         * libgtkmm-3.0-dev
         * vulkan-validation-layers
+* Windows
+  * LunarG Vulkan SDK
 
 ## Setup
 On the command line, in the repository root directory, run:

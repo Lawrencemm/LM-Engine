@@ -16,6 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.os }}-${{ matrix.type }}
+          max-size: 100M
       - name: Get system dependencies
         run: sudo apt-get update && sudo apt-get install -y
           libwayland-dev
@@ -44,7 +49,12 @@ jobs:
         env:
           CC: gcc-10
           CXX: g++-10
-        run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+        run: cd build && 
+          cmake 
+          -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} 
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache 
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
+          ..
       - name: Build
         run: cmake --build build -j $(nproc --all)
       - name: Test
@@ -64,6 +74,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.os }}-${{ matrix.type }}
+          max-size: 100M
       - uses: actions/setup-python@v1
       - uses: ilammy/msvc-dev-cmd@v1.5.0
       - name: Get Conan
@@ -85,6 +100,8 @@ jobs:
           cmake
           -G "Ninja"
           -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache 
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           ..
       - name: Build
         run: cmake --build build -j $(nproc --all)
